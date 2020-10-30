@@ -1,4 +1,10 @@
-# Screeps Typescript Starter
+# DreamerAI
+
+Fully autonomous Screeps AI.
+
+Initially generated from [screeps-typescript-starter](https://github.com/screepers/screeps-typescript-starter).
+
+## Screeps Typescript Starter
 
 Screeps Typescript Starter is a starting point for a Screeps AI written in Typescript. It provides everything you need to start writing your AI whilst leaving `main.ts` as empty as possible.
 
