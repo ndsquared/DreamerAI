@@ -3,3 +3,7 @@ interface IBrain {
   think(): void;
   reflect(): void;
 }
+
+interface Figment {
+  neurons: Interneuron[];
+}

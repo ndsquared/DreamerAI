@@ -1,5 +1,6 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Imagination } from "imagination";
+import "prototypes";
 
 const imagination = new Imagination();
 
