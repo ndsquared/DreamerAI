@@ -1,4 +1,6 @@
 import { Idea } from "ideas/idea";
+import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
+import { Figment } from "figment";
 
 export class Imagination implements IBrain {
   private ideas: { [name: string]: Idea };
@@ -6,6 +8,7 @@ export class Imagination implements IBrain {
   constructor() {
     this.ideas = {};
     this.forget();
+    this.fantasize();
   }
 
   /*
@@ -56,6 +59,13 @@ export class Imagination implements IBrain {
     }
   }
 
+  private fantasize() {
+    for (const spawnName in Game.spawns) {
+      const spawn = Game.spawns[spawnName];
+      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn.id);
+    }
+  }
+
   imagine() {
     const figments = Object.keys(Game.creeps).length;
     console.log(`Tick: ${Game.time} | Figments: ${figments}`);
@@ -70,22 +80,37 @@ export class Imagination implements IBrain {
         delete Memory.creeps[name];
       }
     }
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      const figment = new Figment(creep.id);
+      const ideaName = figment.memory.ideaName;
+      const thoughtName = figment.memory.thoughtName;
+      const thoughtInstance = figment.memory.thoughtInstance;
+      const idea = this.ideas[ideaName];
+      if (!idea) {
+        continue;
+      }
+      const thought = idea.thoughts[thoughtName][thoughtInstance];
+      if (thought) {
+        thought.addFigment(figment);
+      }
+    }
   }
 
   ponder() {
     this.meditate();
-    for (const ideaName in this.ideas) {
-      this.ideas[ideaName].ponder();
+    for (const name in this.ideas) {
+      this.ideas[name].ponder();
     }
   }
   think() {
-    for (const ideaName in this.ideas) {
-      this.ideas[ideaName].think();
+    for (const name in this.ideas) {
+      this.ideas[name].think();
     }
   }
   reflect() {
-    for (const ideaName in this.ideas) {
-      this.ideas[ideaName].reflect();
+    for (const name in this.ideas) {
+      this.ideas[name].reflect();
     }
   }
 }

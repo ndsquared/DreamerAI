@@ -3,6 +3,9 @@ interface Memory {
 }
 
 interface CreepMemory {
+  ideaName: string;
+  thoughtName: string;
+  thoughtInstance: number;
   interneurons: Interneuron[];
 }
 
@@ -10,8 +13,10 @@ interface Interneuron {
   type: string;
   target: {
     ref: string;
-    x: number;
-    y: number;
-    roomName: string;
+    pos: {
+      x: number;
+      y: number;
+      roomName: string;
+    };
   };
 }

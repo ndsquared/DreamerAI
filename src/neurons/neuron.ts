@@ -1,15 +1,30 @@
-import { NeuronDream } from "./neuronDream";
+import { Figment } from "figment";
 
 /*
 Heavily inspired by https://github.com/bencbartlett/creep-tasks
 */
 export abstract class Neuron {
+  figment: Figment;
   type: string;
-  target: RoomPosition;
+  interneuron: Interneuron;
 
-  constructor(type: string, target: RoomPosition) {
-    this.type = type;
-    this.target = target;
+  constructor(figment: Figment, interneuron: Interneuron) {
+    this.figment = figment;
+    this.interneuron = interneuron;
+    this.type = interneuron.type;
+  }
+
+  protected get target(): RoomPosition | RoomObject {
+    const roomObject = Game.getObjectById(this.interneuron.target.ref);
+    if (roomObject && roomObject instanceof RoomObject) {
+      return roomObject;
+    }
+    const roomPosition = new RoomPosition(
+      this.interneuron.target.pos.x,
+      this.interneuron.target.pos.y,
+      this.interneuron.target.pos.roomName
+    );
+    return roomPosition;
   }
 
   abstract isValidNeuron(): boolean;
@@ -25,11 +40,7 @@ export abstract class Neuron {
   run() {
     const impulseResult = this.impulse();
     if (impulseResult === ERR_NOT_IN_RANGE) {
+      this.figment.moveTo(this.target);
     }
-  }
-
-  static generateNeuron(interneuron: Interneuron) {
-    const target = new RoomPosition(interneuron.target.x, interneuron.target.y, interneuron.target.roomName);
-    return new NeuronDream(interneuron.type, target);
   }
 }
