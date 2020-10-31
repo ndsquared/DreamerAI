@@ -1,24 +1,24 @@
-import { ShuffleArray } from "utils/misc";
 import { Neurons } from "neurons/neurons";
+import { ShuffleArray } from "utils/misc";
 
 export class Figment extends Creep implements Figment {
-  constructor(creepId: Id<Creep>) {
+  public constructor(creepId: Id<Creep>) {
     super(creepId);
   }
 
   private static GenerateName() {
-    let first = ["dendrite", "axon", "myelin", "schwann", "nucleus"];
+    const first = ["dendrite", "axon", "myelin", "schwann", "nucleus"];
     ShuffleArray(first);
-    let second = ["golgi", "mito", "cyto", "plasm", "lyso"];
+    const second = ["golgi", "mito", "cyto", "plasm", "lyso"];
     ShuffleArray(second);
-    let third = ["pyra", "myocyte", "synaptic", "neuro", "receptor"];
+    const third = ["pyra", "myocyte", "synaptic", "neuro", "receptor"];
     ShuffleArray(third);
-    let all = [first, second, third];
+    const all = [first, second, third];
     ShuffleArray(all);
     return `figment_${all[0][0]}_${all[1][0]}_${all[2][0]}`;
   }
 
-  public static GetUniqueName() {
+  public static GetUniqueName(): string {
     let name = this.GenerateName();
     while (Game.creeps[name]) {
       name = this.GenerateName();
@@ -26,19 +26,19 @@ export class Figment extends Creep implements Figment {
     return name;
   }
 
-  get neurons() {
+  public get neurons(): Interneuron[] {
     return this.memory.interneurons;
   }
 
-  set neurons(neurons: Interneuron[]) {
-    this.memory.interneurons = neurons;
-  }
+  // public set neurons(neurons: Interneuron[]) {
+  //   this.memory.interneurons = neurons;
+  // }
 
-  get isDreaming() {
+  public get isDreaming(): boolean {
     return this.neurons.length === 0;
   }
 
-  run() {
+  public run(): void {
     while (this.neurons.length > 0) {
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {
@@ -50,9 +50,9 @@ export class Figment extends Creep implements Figment {
     }
   }
 
-  addNeuron(type: string, ref: string, pos: RoomPosition) {
+  public addNeuron(type: string, ref: string, pos: RoomPosition): void {
     const interneuron = {
-      type: type,
+      type,
       target: {
         ref,
         pos: {
@@ -66,7 +66,7 @@ export class Figment extends Creep implements Figment {
     this.say(type);
   }
 
-  assignHarvestNeuron(source: Source) {
+  public assignHarvestNeuron(source: Source): void {
     if (this.store.getUsedCapacity() === 0) {
       this.addNeuron("HARVEST", source.id, source.pos);
     }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Traveler } from "./utils/traveler";
 
 // Creep
@@ -7,13 +10,13 @@ Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosi
 
 // RoomPosition
 Object.defineProperty(RoomPosition.prototype, "neighbors", {
-  get: function () {
-    let adjPos: RoomPosition[] = [];
-    for (let dx of [-1, 0, 1]) {
-      for (let dy of [-1, 0, 1]) {
-        if (!(dx == 0 && dy == 0)) {
-          let x = this.x + dx;
-          let y = this.y + dy;
+  get() {
+    const adjPos: RoomPosition[] = [];
+    for (const dx of [-1, 0, 1]) {
+      for (const dy of [-1, 0, 1]) {
+        if (!(dx === 0 && dy === 0)) {
+          const x = this.x + dx;
+          const y = this.y + dy;
           if (0 < x && x < 49 && 0 < y && y < 49) {
             adjPos.push(new RoomPosition(x, y, this.roomName));
           }

@@ -1,13 +1,13 @@
 import { Neuron } from "./neuron";
 
 export class NeuronDream extends Neuron {
-  isValidNeuron() {
+  public isValidNeuron(): boolean {
     return false;
   }
-  isValidTarget() {
+  public isValidTarget(): boolean {
     return false;
   }
-  impulse() {
+  public impulse(): number {
     return global.ERR_INVALID_NEURON;
   }
 }

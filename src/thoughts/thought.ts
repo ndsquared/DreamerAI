@@ -1,5 +1,5 @@
-import { Idea } from "ideas/idea";
 import { Figment } from "figment";
+import { Idea } from "ideas/idea";
 
 export enum ThoughtName {
   HARVEST = "Harvest"
@@ -13,37 +13,36 @@ export abstract class Thought implements IBrain {
   protected figmentBody = [WORK, CARRY, MOVE];
   protected figmentsNeeded = 0;
   protected figmentPriority = 1;
-  protected figmentInitFunc = (figment: Figment) => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  protected figmentInitFunc = (figment: Figment): void => {};
 
-  constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: number) {
     this.idea = idea;
     this.name = name;
     this.instance = instance;
   }
 
-  addFigment(figment: Figment) {
+  public addFigment(figment: Figment): void {
     this.figments.push(figment);
   }
 
-  ponder() {
+  public ponder(): void {
     if (this.figmentsNeeded > this.figments.length) {
       const name = Figment.GetUniqueName();
       this.idea.addSpawn(name, this.figmentBody, this.figmentPriority, this.name, this.instance);
     }
-    for (let figment of this.figments) {
+    for (const figment of this.figments) {
       if (figment.isDreaming) {
-        // console.log(`dreaming -> ${figment.name}`);
         this.figmentInitFunc(figment);
       }
     }
   }
-  think() {
-    for (let figment of this.figments) {
-      // console.log(`running -> ${figment.name}`);
+  public think(): void {
+    for (const figment of this.figments) {
       figment.run();
     }
   }
-  reflect() {
+  public reflect(): void {
     this.figments = [];
   }
 }

@@ -1,5 +1,10 @@
-type Coord = { x: number; y: number };
-type HasPos = { pos: RoomPosition };
+interface Coord {
+  x: number;
+  y: number;
+}
+interface HasPos {
+  pos: RoomPosition;
+}
 
 interface Creep {
   travelTo(destination: HasPos | RoomPosition, ops?: TravelToOptions): number;

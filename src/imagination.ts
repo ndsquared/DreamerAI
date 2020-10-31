@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
-import { Figment } from "figment";
 
 export class Imagination implements IBrain {
   private ideas: { [name: string]: Idea };
 
-  constructor() {
+  public constructor() {
     this.ideas = {};
     this.forget();
     this.fantasize();
@@ -66,7 +67,7 @@ export class Imagination implements IBrain {
     }
   }
 
-  imagine() {
+  public imagine(): void {
     const figments = Object.keys(Game.creeps).length;
     console.log(`Tick: ${Game.time} | Figments: ${figments}`);
     this.ponder();
@@ -97,18 +98,18 @@ export class Imagination implements IBrain {
     }
   }
 
-  ponder() {
+  public ponder(): void {
     this.meditate();
     for (const name in this.ideas) {
       this.ideas[name].ponder();
     }
   }
-  think() {
+  public think(): void {
     for (const name in this.ideas) {
       this.ideas[name].think();
     }
   }
-  reflect() {
+  public reflect(): void {
     for (const name in this.ideas) {
       this.ideas[name].reflect();
     }

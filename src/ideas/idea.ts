@@ -5,34 +5,34 @@ export abstract class Idea implements IBrain {
   private spawnId: Id<StructureSpawn>;
   private spawnQueue: SpawnQueuePayload[] = [];
 
-  constructor(spawnId: Id<StructureSpawn>) {
+  public constructor(spawnId: Id<StructureSpawn>) {
     this.spawnId = spawnId;
   }
 
-  get spawn() {
+  public get spawn(): StructureSpawn | null {
     return Game.getObjectById(this.spawnId);
   }
 
-  ponder() {
+  public ponder(): void {
     for (const thoughtName in this.thoughts) {
-      for (let thought of this.thoughts[thoughtName]) {
+      for (const thought of this.thoughts[thoughtName]) {
         thought.ponder();
       }
     }
   }
 
-  think() {
+  public think(): void {
     this.processSpawnQueue();
     for (const thoughtName in this.thoughts) {
-      for (let thought of this.thoughts[thoughtName]) {
+      for (const thought of this.thoughts[thoughtName]) {
         thought.think();
       }
     }
   }
 
-  reflect() {
+  public reflect(): void {
     for (const thoughtName in this.thoughts) {
-      for (let thought of this.thoughts[thoughtName]) {
+      for (const thought of this.thoughts[thoughtName]) {
         thought.reflect();
       }
     }
@@ -50,12 +50,13 @@ export abstract class Idea implements IBrain {
         const nextSpawn = this.spawnQueue.shift();
         if (nextSpawn) {
           const memory = {
+            _trav: {},
             interneurons: [],
             ideaName: this.spawn.room.name,
             thoughtName: nextSpawn.thoughtName,
             thoughtInstance: nextSpawn.thoughtInstance
           };
-          this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory: memory });
+          this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory });
         }
       }
     }
@@ -67,7 +68,7 @@ export abstract class Idea implements IBrain {
     priority: number,
     thoughtName: string,
     thoughtInstance: number
-  ) {
+  ): void {
     const spawnPayload = {
       name,
       body,

@@ -1,10 +1,10 @@
 import { Neuron } from "./neuron";
 export class NeuronHarvest extends Neuron {
-  target!: Source;
-  isValidNeuron() {
+  public target!: Source;
+  public isValidNeuron(): boolean {
     return this.figment.store.getFreeCapacity() > 0;
   }
-  isValidTarget() {
+  public isValidTarget(): boolean {
     if (!(this.target instanceof Source)) {
       return false;
     }
@@ -13,7 +13,7 @@ export class NeuronHarvest extends Neuron {
     }
     return true;
   }
-  impulse() {
+  public impulse(): number {
     return this.figment.harvest(this.target);
   }
 }

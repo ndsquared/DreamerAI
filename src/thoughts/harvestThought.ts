@@ -1,9 +1,9 @@
-import { Thought } from "./thought";
-import { Idea } from "ideas/idea";
 import { Figment } from "../figment";
+import { Idea } from "ideas/idea";
+import { Thought } from "./thought";
 
 export class HarvestThought extends Thought {
-  constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
     this.figmentsNeeded = 3;
     this.figmentInitFunc = figment => {

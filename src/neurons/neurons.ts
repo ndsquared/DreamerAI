@@ -1,10 +1,10 @@
-import { NeuronHarvest } from "./neuronHarvest";
-import { NeuronDream } from "./neuronDream";
 import { Figment } from "../figment";
 import { Neuron } from "./neuron";
+import { NeuronDream } from "./neuronDream";
+import { NeuronHarvest } from "./neuronHarvest";
 
 export abstract class Neurons {
-  static generateNeuron(figment: Figment, interneuron: Interneuron) {
+  public static generateNeuron(figment: Figment, interneuron: Interneuron): Neuron {
     let neuron: Neuron;
     switch (interneuron.type) {
       case "HARVEST":
