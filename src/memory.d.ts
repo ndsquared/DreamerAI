@@ -1,8 +1,5 @@
-interface Memory {
-  imagination: { [name: string]: any };
-}
-
 interface CreepMemory {
+  _trav: any;
   ideaName: string;
   thoughtName: string;
   thoughtInstance: number;
@@ -19,4 +16,12 @@ interface Interneuron {
       roomName: string;
     };
   };
+}
+
+interface Memory {
+  [name: string]: any;
+}
+
+interface RoomMemory {
+  avoid: number;
 }

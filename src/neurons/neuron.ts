@@ -40,7 +40,7 @@ export abstract class Neuron {
   run() {
     const impulseResult = this.impulse();
     if (impulseResult === ERR_NOT_IN_RANGE) {
-      this.figment.moveTo(this.target);
+      this.figment.travelTo(this.target);
     }
   }
 }
