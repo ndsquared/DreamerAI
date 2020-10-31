@@ -12,7 +12,7 @@ export abstract class Thought implements IBrain {
   protected figments: Figment[] = [];
   protected figmentBody = [WORK, CARRY, MOVE];
   protected figmentsNeeded = 0;
-  protected figmentPriority = 1;
+  protected figmentPriority = 10;
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   protected figmentInitFunc = (figment: Figment): void => {};
 

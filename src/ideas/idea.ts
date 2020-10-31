@@ -1,9 +1,14 @@
+import PriorityQueue from "ts-priority-queue";
 import { Thought } from "thoughts/thought";
 
 export abstract class Idea implements IBrain {
   public thoughts: { [name: string]: Thought[] } = {};
   private spawnId: Id<StructureSpawn>;
-  private spawnQueue: SpawnQueuePayload[] = [];
+  private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
+    comparator(a, b) {
+      return a.priority - b.priority;
+    }
+  });
 
   public constructor(spawnId: Id<StructureSpawn>) {
     this.spawnId = spawnId;
@@ -36,7 +41,7 @@ export abstract class Idea implements IBrain {
         thought.reflect();
       }
     }
-    this.spawnQueue = [];
+    this.spawnQueue.clear();
   }
 
   private processSpawnQueue() {
@@ -44,20 +49,17 @@ export abstract class Idea implements IBrain {
       return;
     }
     if (this.spawnQueue.length > 0) {
-      const spawnCheck = this.spawnQueue[0];
-      const status = this.spawn.spawnCreep(spawnCheck.body, spawnCheck.name, { dryRun: true });
+      const nextSpawn = this.spawnQueue.dequeue();
+      const status = this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { dryRun: true });
       if (status === OK) {
-        const nextSpawn = this.spawnQueue.shift();
-        if (nextSpawn) {
-          const memory = {
-            _trav: {},
-            interneurons: [],
-            ideaName: this.spawn.room.name,
-            thoughtName: nextSpawn.thoughtName,
-            thoughtInstance: nextSpawn.thoughtInstance
-          };
-          this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory });
-        }
+        const memory = {
+          _trav: {},
+          interneurons: [],
+          ideaName: this.spawn.room.name,
+          thoughtName: nextSpawn.thoughtName,
+          thoughtInstance: nextSpawn.thoughtInstance
+        };
+        this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory });
       }
     }
   }
@@ -76,6 +78,6 @@ export abstract class Idea implements IBrain {
       thoughtName,
       thoughtInstance
     };
-    this.spawnQueue.push(spawnPayload);
+    this.spawnQueue.queue(spawnPayload);
   }
 }

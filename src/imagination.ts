@@ -7,6 +7,7 @@ export class Imagination implements IBrain {
   private ideas: { [name: string]: Idea };
 
   public constructor() {
+    console.log("Global reset...");
     this.ideas = {};
     this.forget();
     this.fantasize();
