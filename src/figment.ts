@@ -50,24 +50,26 @@ export class Figment extends Creep implements Figment {
     type: string,
     ref = "",
     pos: RoomPosition | null = null,
-    targetOptions: InterneuronTargetOptions | null = null
+    targetOptions: Record<string, unknown> | null = null
   ): void {
     if (!pos) {
       // Default will be position of the figment
       pos = this.pos;
     }
-    if (!targetOptions) {
-      // Default target options
-      targetOptions = {
-        ignoreFigmentCapacity: false
-      };
+    // Default target options
+    const defaultTargetOptions: InterneuronTargetOptions = {
+      ignoreFigmentCapacity: false
+    };
+    let options = defaultTargetOptions;
+    if (targetOptions) {
+      options = Object.assign(defaultTargetOptions, targetOptions);
     }
     const interneuron = {
       type,
       target: {
         ref,
         pos,
-        options: targetOptions
+        options
       }
     };
     this.memory.interneurons.push(interneuron);

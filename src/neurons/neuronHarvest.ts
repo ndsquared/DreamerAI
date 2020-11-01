@@ -2,10 +2,11 @@ import { Neuron } from "./neuron";
 export class NeuronHarvest extends Neuron {
   public target!: Source;
   public isValidNeuron(): boolean {
-    if (this.figment.getActiveBodyparts(WORK) > 0) {
+    if (this.figment.getActiveBodyparts(WORK) === 0) {
       return false;
     }
     if (this.interneuron.target.options.ignoreFigmentCapacity) {
+      console.log(`ignoreFigmentCapacity for ${this.figment.name}`);
       return true;
     }
     return this.figment.store.getFreeCapacity() > 0;
