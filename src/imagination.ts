@@ -64,7 +64,7 @@ export class Imagination implements IBrain {
   private fantasize() {
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
-      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn.id);
+      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn);
     }
   }
 
@@ -95,7 +95,7 @@ export class Imagination implements IBrain {
       if (!idea) {
         continue;
       }
-      const thought = idea.thoughts[thoughtName][thoughtInstance];
+      const thought = idea.figmentThoughts[thoughtName][thoughtInstance];
       if (thought) {
         thought.addFigment(figment);
       }

@@ -1,9 +1,11 @@
+import { BuildThought } from "thoughts/buildThought";
+import { FigmentThought } from "thoughts/figmentThought";
 import PriorityQueue from "ts-priority-queue";
-import { Thought } from "thoughts/thought";
 
 export abstract class Idea implements IBrain {
-  public thoughts: { [name: string]: Thought[] } = {};
-  private spawnId: Id<StructureSpawn>;
+  public figmentThoughts: { [name: string]: FigmentThought[] } = {};
+  public buildThoughts: { [name: string]: BuildThought[] } = {};
+  public spawn: StructureSpawn;
   private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Higher priority is dequeued first
@@ -11,17 +13,15 @@ export abstract class Idea implements IBrain {
     }
   });
 
-  public constructor(spawnId: Id<StructureSpawn>) {
-    this.spawnId = spawnId;
-  }
-
-  public get spawn(): StructureSpawn | null {
-    return Game.getObjectById(this.spawnId);
+  public constructor(spawn: StructureSpawn) {
+    this.spawn = spawn;
   }
 
   public ponder(): void {
-    for (const thoughtName in this.thoughts) {
-      for (const thought of this.thoughts[thoughtName]) {
+    this.spawn = Game.spawns[this.spawn.name];
+    const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
+    for (const thoughtName in thoughts) {
+      for (const thought of thoughts[thoughtName]) {
         thought.ponder();
       }
     }
@@ -29,16 +29,18 @@ export abstract class Idea implements IBrain {
 
   public think(): void {
     this.processSpawnQueue();
-    for (const thoughtName in this.thoughts) {
-      for (const thought of this.thoughts[thoughtName]) {
+    const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
+    for (const thoughtName in thoughts) {
+      for (const thought of thoughts[thoughtName]) {
         thought.think();
       }
     }
   }
 
   public reflect(): void {
-    for (const thoughtName in this.thoughts) {
-      for (const thought of this.thoughts[thoughtName]) {
+    const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
+    for (const thoughtName in thoughts) {
+      for (const thought of thoughts[thoughtName]) {
         thought.reflect();
       }
     }
