@@ -113,22 +113,22 @@ export class Figment extends Creep implements Figment {
     return target;
   }
 
-  private getClosestEnergySource() {
+  public getClosestEnergySource(): Resource | Structure | null {
     const resource = this.getNearestResource();
-    const structure = _.first(
+    const container = _.first(
       _.sortBy(
-        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hasEnergy }),
+        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.containerWithEnergy }),
         s => s.pos.findPathTo(this.pos, { ignoreCreeps: true }).length
       )
     );
     if (resource) {
       if (
         this.pos.findPathTo(resource, { ignoreCreeps: true }).length <
-        this.pos.findPathTo(structure, { ignoreCreeps: true }).length
+        this.pos.findPathTo(container, { ignoreCreeps: true }).length
       ) {
         return resource;
       }
     }
-    return structure;
+    return container;
   }
 }

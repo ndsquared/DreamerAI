@@ -47,6 +47,7 @@ interface Structure {
   isWalkable: boolean;
   hasCapacity: boolean;
   hasEnergy: boolean;
+  containerWithEnergy: boolean;
 }
 
 interface TravelToReturnData {

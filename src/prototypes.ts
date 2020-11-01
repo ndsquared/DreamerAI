@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Traveler } from "./utils/traveler";
+import { isStoreStructure } from "utils/misc";
 
 // Creep
 Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosition }, options?: TravelToOptions) {
@@ -83,15 +84,19 @@ Object.defineProperty(Structure.prototype, "hasCapacity", {
 
 Object.defineProperty(Structure.prototype, "hasEnergy", {
   get() {
-    if (
-      this.structureType === STRUCTURE_CONTAINER ||
-      this.structureType === STRUCTURE_EXTENSION ||
-      this.structureType === STRUCTURE_SPAWN
-    ) {
-      const s = this as StructureContainer | StructureSpawn;
-      return s.store[RESOURCE_ENERGY] >= 50;
+    if (this instanceof isStoreStructure) {
+      return (this as AnyStoreStructure).store[RESOURCE_ENERGY] >= 0;
     }
     return false;
   },
   configurable: true
+});
+
+Object.defineProperty(Structure.prototype, "containerWithEnergy", {
+  get() {
+    if (this.structureType === STRUCTURE_CONTAINER && this.hasEnergy) {
+      return true;
+    }
+    return false;
+  }
 });

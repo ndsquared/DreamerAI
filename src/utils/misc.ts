@@ -5,3 +5,7 @@ export function ShuffleArray(array: any[]): void {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+export function isStoreStructure(structure: Structure): structure is AnyStoreStructure {
+  return (structure as AnyStoreStructure).store !== undefined;
+}

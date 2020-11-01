@@ -1,10 +1,7 @@
 import { Neuron } from "./neuron";
+import { isStoreStructure } from "utils/misc";
 
 type transferTargetType = StructureSpawn;
-
-function isStoreStructure(structure: Structure): structure is AnyStoreStructure {
-  return (structure as AnyStoreStructure).store !== undefined;
-}
 
 export class NeuronTransfer extends Neuron {
   public target!: transferTargetType;
