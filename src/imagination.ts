@@ -85,6 +85,9 @@ export class Imagination implements IBrain {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       const figment = new Figment(creep.id);
+      if (figment.spawning) {
+        continue;
+      }
       const ideaName = figment.memory.ideaName;
       const thoughtName = figment.memory.thoughtName;
       const thoughtInstance = figment.memory.thoughtInstance;

@@ -66,7 +66,7 @@ Object.defineProperty(Structure.prototype, "isWalkable", {
   configurable: true
 });
 
-Object.defineProperty(Structure.prototype, "shouldBeFilled", {
+Object.defineProperty(Structure.prototype, "hasCapacity", {
   get() {
     if (
       this.structureType === STRUCTURE_EXTENSION ||
@@ -75,6 +75,21 @@ Object.defineProperty(Structure.prototype, "shouldBeFilled", {
     ) {
       const s = this as StructureExtension | StructureSpawn | StructureTower;
       return s.energy < s.energyCapacity;
+    }
+    return false;
+  },
+  configurable: true
+});
+
+Object.defineProperty(Structure.prototype, "hasEnergy", {
+  get() {
+    if (
+      this.structureType === STRUCTURE_CONTAINER ||
+      this.structureType === STRUCTURE_EXTENSION ||
+      this.structureType === STRUCTURE_SPAWN
+    ) {
+      const s = this as StructureContainer | StructureSpawn;
+      return s.store[RESOURCE_ENERGY] >= 50;
     }
     return false;
   },

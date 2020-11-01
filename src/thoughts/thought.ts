@@ -4,8 +4,8 @@ import { Idea } from "ideas/idea";
 
 export enum ThoughtName {
   HARVEST = "Harvest",
-  TRANSFER = "Transfer",
-  PICKUP = "Pickup"
+  PICKUP = "Pickup",
+  WORKER = "Worker"
 }
 
 export abstract class Thought implements IBrain {

@@ -1,17 +1,23 @@
 import { Figment } from "../figment";
 import { Neuron } from "./neuron";
+import { NeuronBuild } from "./neuronBuild";
 import { NeuronDream } from "./neuronDream";
 import { NeuronDrop } from "./neuronDrop";
 import { NeuronHarvest } from "./neuronHarvest";
 import { NeuronPickup } from "./neuronPickup";
 import { NeuronTransfer } from "./neuronTransfer";
+import { NeuronUpgrade } from "./neuronUpgrade";
+import { NeuronWithDraw } from "./neuronWithdraw";
 
 export enum NeuronType {
   DREAM = "DREAM",
   HARVEST = "HARVEST",
   DROP = "DROP",
   TRANSFER = "TRANSFER",
-  PICKUP = "PICKUP"
+  PICKUP = "PICKUP",
+  BUILD = "BUILD",
+  UPGRADE = "UPGRADE",
+  WITHDRAW = "WITHDRAW"
 }
 export abstract class Neurons {
   public static generateNeuron(figment: Figment, interneuron: Interneuron): Neuron {
@@ -29,10 +35,20 @@ export abstract class Neurons {
       case NeuronType.PICKUP:
         neuron = new NeuronPickup(figment, interneuron);
         break;
+      case NeuronType.BUILD:
+        neuron = new NeuronBuild(figment, interneuron);
+        break;
+      case NeuronType.UPGRADE:
+        neuron = new NeuronUpgrade(figment, interneuron);
+        break;
+      case NeuronType.WITHDRAW:
+        neuron = new NeuronWithDraw(figment, interneuron);
+        break;
       default:
         neuron = new NeuronDream(figment, interneuron);
         break;
     }
+    // figment.say(neuron.type);
     return neuron;
   }
 }

@@ -1,17 +1,17 @@
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";
 
-export class PickupThought extends Thought {
+export class WorkerThought extends Thought {
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
-    this.figmentsNeeded = 2;
-    this.figmentBody = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+    this.figmentsNeeded = 10;
+    this.figmentBody = [WORK, CARRY, MOVE, MOVE];
     this.figmentInitFunc = figment => {
-      figment.assignPickupNeuron();
+      figment.assignWorkerNeuron();
     };
     this.priorityFunc = () => {
-      if (this.figments.length >= 1) {
-        this.figmentPriority = 4;
+      if (this.figments.length >= 4) {
+        this.figmentPriority = 2;
       }
     };
   }

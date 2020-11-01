@@ -82,6 +82,27 @@ export class Figment extends Creep implements Figment {
     }
   }
 
+  public assignWorkerNeuron(): void {
+    if (this.store.getUsedCapacity() > 0) {
+      const target = this.getNextConstructionSite();
+      if (target) {
+        this.addNeuron(NeuronType.BUILD, target.id, target.pos);
+      } else {
+        if (this.room.controller && this.room.controller.my) {
+          const controller = this.room.controller;
+          this.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
+        }
+      }
+    } else {
+      const target = this.getClosestEnergySource();
+      if (target && target instanceof Resource) {
+        this.addNeuron(NeuronType.PICKUP, target.id, target.pos);
+      } else if (target && target instanceof Structure) {
+        this.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
+      }
+    }
+  }
+
   public assignPickupNeuron(): void {
     if (this.store.getFreeCapacity() > 0) {
       const target = this.getNearestResource();
@@ -111,10 +132,43 @@ export class Figment extends Creep implements Figment {
     }
     const target = _.first(
       _.sortBy(
-        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.shouldBeFilled }),
+        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hasCapacity }),
         s => s.pos.findPathTo(this.pos).length
       )
     );
     return target;
+  }
+
+  private getNextConstructionSite() {
+    let target = _.first(
+      _.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => {
+        const percentCompleted = s.progress / s.progressTotal;
+        return percentCompleted;
+      }).reverse()
+    );
+    // If target site hasn't been started yet, find the closest site instead.
+    if (target !== undefined && target.progress === 0) {
+      target = _.first(_.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => s.pos.findPathTo(this.pos).length));
+    }
+    return target;
+  }
+
+  private getClosestEnergySource() {
+    const resource = this.getNearestResource();
+    const structure = _.first(
+      _.sortBy(
+        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hasEnergy }),
+        s => s.pos.findPathTo(this.pos, { ignoreCreeps: true }).length
+      )
+    );
+    if (resource) {
+      if (
+        this.pos.findPathTo(resource, { ignoreCreeps: true }).length <
+        this.pos.findPathTo(structure, { ignoreCreeps: true }).length
+      ) {
+        return resource;
+      }
+    }
+    return structure;
   }
 }
