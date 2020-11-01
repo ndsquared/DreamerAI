@@ -15,7 +15,12 @@ interface Interneuron {
       y: number;
       roomName: string;
     };
+    options: InterneuronTargetOptions;
   };
+}
+
+interface InterneuronTargetOptions {
+  ignoreCapacity: boolean;
 }
 
 interface Memory {

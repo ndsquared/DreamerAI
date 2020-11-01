@@ -1,60 +1,50 @@
 import { Figment } from "figment";
 import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
+import { NeuronType } from "neurons/neurons";
 
 export class HarvestThought extends FigmentThought {
-  public constructor(idea: Idea, name: string, instance: number) {
+  private source: Source | null;
+  public constructor(idea: Idea, name: string, instance: number, source: Source) {
     super(idea, name, instance);
+    this.source = source;
+    this.figmentsNeeded = source.pos.availableNeighbors(true).length;
     this.figmentBody = [WORK, WORK, CARRY, MOVE];
-    const spawn = this.idea.spawn;
-    if (spawn) {
-      const sources = _.sortBy(
-        Game.rooms[spawn.pos.roomName].find(FIND_SOURCES, { filter: s => !s.pos.hasAdjacentKeeper }),
-        s => s.pos.findPathTo(spawn.pos).length
-      );
-      for (const source of sources) {
-        const max = source.pos.availableNeighbors(true).length;
-        this.figmentsNeeded += max;
-      }
-    }
-    this.figmentsNeeded = _.min([this.figmentsNeeded, 6]);
-    this.figmentInitFunc = figment => {
-      const shouldDrop = this.figments.length > 2;
-      const source = this.getSourceAssigment(figment);
-      figment.assignHarvestNeuron(source, shouldDrop);
-    };
-    this.priorityFunc = () => {
-      if (this.figments.length > 2) {
-        this.figmentPriority = 8;
-      } else {
-        this.figmentPriority = 12;
-      }
-    };
   }
 
-  private getSourceAssigment(figment: Figment): Source {
-    const neighbors = figment.pos.neighbors;
-    for (const pos of neighbors) {
-      const look = pos.look();
-      for (const lookObj of look) {
-        if (lookObj.type === LOOK_SOURCES) {
-          const adjSource = lookObj[LOOK_SOURCES];
-          if (adjSource !== undefined) {
-            // console.log("harvesting adj source");
-            return adjSource;
-          }
-        }
+  public ponder(): void {
+    if (this.source) {
+      this.source = Game.getObjectById(this.source.id);
+    }
+    super.ponder();
+  }
+
+  public handleFigment(figment: Figment): void {
+    if (!this.source) {
+      return;
+    }
+    const shouldDrop = this.figments.length > 1;
+    let targetOptions = null;
+    if (shouldDrop) {
+      targetOptions = {
+        ignoreCapacity: true
+      };
+    }
+    if (figment.store.getUsedCapacity() === 0) {
+      figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
+    } else {
+      const target = figment.getNextTransferTarget();
+      if (target) {
+        figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
     }
-    const source = _.first(
-      _.sortBy(
-        Game.rooms[figment.pos.roomName].find(FIND_SOURCES, {
-          filter: s => s.pos.availableNeighbors(false).length > 0
-        }),
-        s => s.pos.findPathTo(figment.pos).length
-      )
-    );
-    console.log("harvest closest source with available neighbors");
-    return source;
+  }
+
+  public adjustPriority(): void {
+    if (this.figments.length > 1) {
+      this.figmentPriority = 8;
+    } else {
+      this.figmentPriority = 12;
+    }
   }
 }

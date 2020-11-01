@@ -14,9 +14,6 @@ export abstract class FigmentThought extends Thought {
   protected figmentBody = [WORK, CARRY, MOVE];
   protected figmentsNeeded = 0;
   protected figmentPriority = 10;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected figmentInitFunc = (figment: Figment): void => {};
-  protected priorityFunc = (): void => {};
 
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
@@ -27,23 +24,28 @@ export abstract class FigmentThought extends Thought {
   }
 
   public ponder(): void {
-    this.priorityFunc();
+    this.adjustPriority();
     if (this.figmentsNeeded > this.figments.length) {
       const name = Figment.GetUniqueName();
       this.idea.addSpawn(name, this.figmentBody, this.figmentPriority, this.name, this.instance);
     }
     for (const figment of this.figments) {
       if (figment.isDreaming) {
-        this.figmentInitFunc(figment);
+        this.handleFigment(figment);
       }
     }
   }
+
   public think(): void {
     for (const figment of this.figments) {
       figment.run();
     }
   }
+
   public reflect(): void {
     this.figments = [];
   }
+
+  public abstract handleFigment(figment: Figment): void;
+  public abstract adjustPriority(): void;
 }

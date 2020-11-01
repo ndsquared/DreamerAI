@@ -7,7 +7,16 @@ import { WorkerThought } from "thoughts/workerThought";
 export class TabulaRasaIdea extends Idea {
   public constructor(spawn: StructureSpawn) {
     super(spawn);
-    this.figmentThoughts[FigmentThoughtName.HARVEST] = [new HarvestThought(this, FigmentThoughtName.HARVEST, 0)];
+    const sources = _.sortBy(
+      Game.rooms[spawn.pos.roomName].find(FIND_SOURCES, { filter: s => !s.pos.hasAdjacentKeeper }),
+      s => s.pos.findPathTo(spawn.pos).length
+    );
+    for (let index = 0; index < sources.length; index++) {
+      const source = sources[index];
+      this.figmentThoughts[FigmentThoughtName.HARVEST] = [
+        new HarvestThought(this, FigmentThoughtName.HARVEST, index, source)
+      ];
+    }
     this.figmentThoughts[FigmentThoughtName.PICKUP] = [new PickupThought(this, FigmentThoughtName.PICKUP, 0)];
     this.figmentThoughts[FigmentThoughtName.WORKER] = [new WorkerThought(this, FigmentThoughtName.WORKER, 0)];
   }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { NeuronType, Neurons } from "neurons/neurons";
+import { Neurons } from "neurons/neurons";
 import { ShuffleArray } from "utils/misc";
 
 export class Figment extends Creep implements Figment {
@@ -46,82 +46,40 @@ export class Figment extends Creep implements Figment {
     }
   }
 
-  public addNeuron(type: string, ref = "", pos: RoomPosition | null = null): void {
+  public addNeuron(
+    type: string,
+    ref = "",
+    pos: RoomPosition | null = null,
+    targetOptions: InterneuronTargetOptions | null = null
+  ): void {
     if (!pos) {
+      // Default will be position of the figment
       pos = this.pos;
+    }
+    if (!targetOptions) {
+      // Default target options
+      targetOptions = {
+        ignoreCapacity: false
+      };
     }
     const interneuron = {
       type,
       target: {
         ref,
-        pos: {
-          x: pos.x,
-          y: pos.y,
-          roomName: pos.roomName
-        }
+        pos,
+        options: targetOptions
       }
     };
     this.memory.interneurons.push(interneuron);
     this.say(type);
   }
 
-  public assignHarvestNeuron(source: Source, shouldDrop: boolean): void {
-    if (this.store.getUsedCapacity() === 0) {
-      this.addNeuron(NeuronType.HARVEST, source.id, source.pos);
-      if (shouldDrop) {
-        this.addNeuron(NeuronType.DROP);
-      }
-    } else {
-      this.assignTransferNeuron();
-    }
-  }
-
-  public assignTransferNeuron(): void {
-    const target = this.getNextTransferTarget();
-    if (target) {
-      this.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
-    }
-  }
-
-  public assignWorkerNeuron(): void {
-    if (this.store.getUsedCapacity() > 0) {
-      const target = this.getNextConstructionSite();
-      if (target) {
-        this.addNeuron(NeuronType.BUILD, target.id, target.pos);
-      } else {
-        if (this.room.controller && this.room.controller.my) {
-          const controller = this.room.controller;
-          this.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
-        }
-      }
-    } else {
-      this.assignPickupNeuron();
-      // const target = this.getClosestEnergySource();
-      // if (target && target instanceof Resource) {
-      //   this.addNeuron(NeuronType.PICKUP, target.id, target.pos);
-      // } else if (target && target instanceof Structure) {
-      //   this.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
-      // }
-    }
-  }
-
-  public assignPickupNeuron(): void {
-    if (this.store.getFreeCapacity() > 0) {
-      const target = this.getNearestResource();
-      if (target) {
-        this.addNeuron(NeuronType.PICKUP, target.id, target.pos);
-      }
-    } else {
-      this.assignTransferNeuron();
-    }
-  }
-
-  private getNearestResource() {
+  public getNearestResource(): Resource | null {
     const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
     return target;
   }
 
-  private getNextTransferTarget() {
+  public getNextTransferTarget(): Structure | null {
     // First check if towers have minimum energy required
     const structures = this.room.find(FIND_MY_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_TOWER
@@ -141,7 +99,7 @@ export class Figment extends Creep implements Figment {
     return target;
   }
 
-  private getNextConstructionSite() {
+  public getNextConstructionSite(): ConstructionSite | undefined {
     let target = _.first(
       _.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => {
         const percentCompleted = s.progress / s.progressTotal;

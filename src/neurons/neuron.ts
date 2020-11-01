@@ -4,14 +4,12 @@ import { Figment } from "figment";
 Heavily inspired by https://github.com/bencbartlett/creep-tasks
 */
 export abstract class Neuron {
-  public figment: Figment;
-  public type: string;
-  public interneuron: Interneuron;
+  protected figment: Figment;
+  protected interneuron: Interneuron;
 
   public constructor(figment: Figment, interneuron: Interneuron) {
     this.figment = figment;
     this.interneuron = interneuron;
-    this.type = interneuron.type;
   }
 
   protected get target(): RoomPosition | RoomObject {
