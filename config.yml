@@ -6,12 +6,11 @@ mods: # Recommended mods
   - screepsmod-history
 bots:
   kasami: screeps-bot-kasamibot
-  quorum: screepsbot-quorum
-  tooangel: screeps-bot-tooangel
-  hivemind: screeps-bot-hivemind
-  overmind: screeps-bot-overmind
-  pansiep: screeps-bot-pansiep
-  zeswarm: screepsbot-zeswarm
+  quorum: "./bots/quorum/dist"
+  tooangel: "./bots/tooangel/dist"
+  hivemind: "./bots/hivemind/dist"
+  overmind: "./bots/overmind/dist"
+  zeswarm: "./bots/zeswarm/dist"
 serverConfig: # This section requires screepsmod-admin-utils to work
   welcomeText: |
     <h1 style="text-align: center;">NDScreeps Server</h1>
