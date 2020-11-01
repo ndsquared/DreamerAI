@@ -40,7 +40,10 @@ export abstract class Neuron {
   public run(): void {
     const impulseResult = this.impulse();
     if (impulseResult === ERR_NOT_IN_RANGE) {
-      this.figment.travelTo(this.target);
+      const result = this.figment.travelTo(this.target);
+      if (result === global.ERR_INVALID_NEURON) {
+        this.figment.memory.interneurons = [];
+      }
     }
   }
 }

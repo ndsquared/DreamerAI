@@ -24,7 +24,7 @@ export class HarvestThought extends Thought {
       figment.assignHarvestNeuron(source, shouldDrop);
     };
     this.priorityFunc = () => {
-      if (this.figments.length >= 2) {
+      if (this.figments.length > 2) {
         this.figmentPriority = 8;
       } else {
         this.figmentPriority = 12;

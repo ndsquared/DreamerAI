@@ -148,6 +148,7 @@ export class Traveler {
         // uncommenting this is a great way to diagnose creep behavior issues
         console.log(`TRAVELER: incomplete path for ${creep.name}`);
         color = "red";
+        return global.ERR_INVALID_NEURON;
       }
 
       if (options.returnData) {

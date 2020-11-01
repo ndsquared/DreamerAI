@@ -68,8 +68,9 @@ export class Figment extends Creep implements Figment {
   public assignHarvestNeuron(source: Source, shouldDrop: boolean): void {
     if (this.store.getUsedCapacity() === 0) {
       this.addNeuron(NeuronType.HARVEST, source.id, source.pos);
-    } else if (shouldDrop) {
-      this.addNeuron(NeuronType.DROP);
+      if (shouldDrop) {
+        this.addNeuron(NeuronType.DROP);
+      }
     } else {
       this.assignTransferNeuron();
     }
@@ -94,12 +95,13 @@ export class Figment extends Creep implements Figment {
         }
       }
     } else {
-      const target = this.getClosestEnergySource();
-      if (target && target instanceof Resource) {
-        this.addNeuron(NeuronType.PICKUP, target.id, target.pos);
-      } else if (target && target instanceof Structure) {
-        this.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
-      }
+      this.assignPickupNeuron();
+      // const target = this.getClosestEnergySource();
+      // if (target && target instanceof Resource) {
+      //   this.addNeuron(NeuronType.PICKUP, target.id, target.pos);
+      // } else if (target && target instanceof Structure) {
+      //   this.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
+      // }
     }
   }
 
