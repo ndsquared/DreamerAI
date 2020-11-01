@@ -6,7 +6,8 @@ export abstract class Idea implements IBrain {
   private spawnId: Id<StructureSpawn>;
   private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
     comparator(a, b) {
-      return a.priority - b.priority;
+      // Higher priority is dequeued first
+      return b.priority - a.priority;
     }
   });
 
@@ -60,6 +61,7 @@ export abstract class Idea implements IBrain {
           thoughtInstance: nextSpawn.thoughtInstance
         };
         this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory });
+        console.log(`spawning ${nextSpawn.name} with priority ${nextSpawn.priority}`);
       }
     }
   }

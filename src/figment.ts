@@ -1,4 +1,5 @@
-import { Neurons } from "neurons/neurons";
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+import { NeuronType, Neurons } from "neurons/neurons";
 import { ShuffleArray } from "utils/misc";
 
 export class Figment extends Creep implements Figment {
@@ -30,10 +31,6 @@ export class Figment extends Creep implements Figment {
     return this.memory.interneurons;
   }
 
-  // public set neurons(neurons: Interneuron[]) {
-  //   this.memory.interneurons = neurons;
-  // }
-
   public get isDreaming(): boolean {
     return this.neurons.length === 0;
   }
@@ -42,7 +39,6 @@ export class Figment extends Creep implements Figment {
     while (this.neurons.length > 0) {
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {
-        console.log(`${this.name} running ${neuron.type}`);
         neuron.run();
         break;
       }
@@ -50,7 +46,10 @@ export class Figment extends Creep implements Figment {
     }
   }
 
-  public addNeuron(type: string, ref: string, pos: RoomPosition): void {
+  public addNeuron(type: string, ref = "", pos: RoomPosition | null = null): void {
+    if (!pos) {
+      pos = this.pos;
+    }
     const interneuron = {
       type,
       target: {
@@ -66,9 +65,56 @@ export class Figment extends Creep implements Figment {
     this.say(type);
   }
 
-  public assignHarvestNeuron(source: Source): void {
+  public assignHarvestNeuron(source: Source, shouldDrop: boolean): void {
     if (this.store.getUsedCapacity() === 0) {
-      this.addNeuron("HARVEST", source.id, source.pos);
+      this.addNeuron(NeuronType.HARVEST, source.id, source.pos);
+    } else if (shouldDrop) {
+      this.addNeuron(NeuronType.DROP);
+    } else {
+      this.assignTransferNeuron();
     }
+  }
+
+  public assignTransferNeuron(): void {
+    const target = this.getNextTransferTarget();
+    if (target) {
+      this.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
+    }
+  }
+
+  public assignPickupNeuron(): void {
+    if (this.store.getFreeCapacity() > 0) {
+      const target = this.getNearestResource();
+      if (target) {
+        this.addNeuron(NeuronType.PICKUP, target.id, target.pos);
+      }
+    } else {
+      this.assignTransferNeuron();
+    }
+  }
+
+  private getNearestResource() {
+    const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+    return target;
+  }
+
+  private getNextTransferTarget() {
+    // First check if towers have minimum energy required
+    const structures = this.room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_TOWER
+    });
+    for (const structure of structures) {
+      const tower = structure as StructureTower;
+      if (tower.store.getUsedCapacity("energy") < 100) {
+        return tower;
+      }
+    }
+    const target = _.first(
+      _.sortBy(
+        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.shouldBeFilled }),
+        s => s.pos.findPathTo(this.pos).length
+      )
+    );
+    return target;
   }
 }

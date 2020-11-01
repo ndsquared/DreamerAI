@@ -45,6 +45,7 @@ interface SpawnQueuePayload {
 
 interface Structure {
   isWalkable: boolean;
+  shouldBeFilled: boolean;
 }
 
 interface TravelToReturnData {

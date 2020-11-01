@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 
 export enum ThoughtName {
-  HARVEST = "Harvest"
+  HARVEST = "Harvest",
+  TRANSFER = "Transfer",
+  PICKUP = "Pickup"
 }
 
 export abstract class Thought implements IBrain {
@@ -13,8 +16,9 @@ export abstract class Thought implements IBrain {
   protected figmentBody = [WORK, CARRY, MOVE];
   protected figmentsNeeded = 0;
   protected figmentPriority = 10;
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected figmentInitFunc = (figment: Figment): void => {};
+  protected priorityFunc = (): void => {};
 
   public constructor(idea: Idea, name: string, instance: number) {
     this.idea = idea;
@@ -27,6 +31,7 @@ export abstract class Thought implements IBrain {
   }
 
   public ponder(): void {
+    this.priorityFunc();
     if (this.figmentsNeeded > this.figments.length) {
       const name = Figment.GetUniqueName();
       this.idea.addSpawn(name, this.figmentBody, this.figmentPriority, this.name, this.instance);

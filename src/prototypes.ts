@@ -9,6 +9,13 @@ Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosi
 };
 
 // RoomPosition
+Object.defineProperty(RoomPosition.prototype, "isVisible", {
+  get() {
+    return Game.rooms[this.roomName] !== undefined;
+  },
+  configurable: true
+});
+
 Object.defineProperty(RoomPosition.prototype, "neighbors", {
   get() {
     const adjPos: RoomPosition[] = [];
@@ -55,6 +62,21 @@ Object.defineProperty(Structure.prototype, "isWalkable", {
       (this.structureType === STRUCTURE_RAMPART &&
         ((this.my as StructureRampart) || (this.isPublic as StructureRampart)))
     );
+  },
+  configurable: true
+});
+
+Object.defineProperty(Structure.prototype, "shouldBeFilled", {
+  get() {
+    if (
+      this.structureType === STRUCTURE_EXTENSION ||
+      this.structureType === STRUCTURE_SPAWN ||
+      this.structureType === STRUCTURE_TOWER
+    ) {
+      const s = this as StructureExtension | StructureSpawn | StructureTower;
+      return s.energy < s.energyCapacity;
+    }
+    return false;
   },
   configurable: true
 });
