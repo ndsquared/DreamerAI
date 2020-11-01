@@ -22,6 +22,7 @@ export class Figment extends Creep implements Figment {
   public static GetUniqueName(): string {
     let name = this.GenerateName();
     while (Game.creeps[name]) {
+      console.log(`unique name conflict, trying again: ${name}`);
       name = this.GenerateName();
     }
     return name;
@@ -77,8 +78,13 @@ export class Figment extends Creep implements Figment {
   }
 
   public getNearestResource(): Resource | null {
-    const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
-    return target;
+    const resource = _.first(
+      _.sortBy(this.room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount > this.store.getCapacity() }), s => {
+        return PathFinder.search(this.pos, { pos: s.pos, range: 1 }).path.length;
+      })
+    );
+    // const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+    return resource;
   }
 
   public getNextTransferTarget(): Structure | null {

@@ -1,5 +1,5 @@
+import { FigmentThought, FigmentThoughtName } from "thoughts/figmentThought";
 import { BuildThought } from "thoughts/buildThought";
-import { FigmentThought } from "thoughts/figmentThought";
 import PriorityQueue from "ts-priority-queue";
 
 export abstract class Idea implements IBrain {
@@ -15,6 +15,12 @@ export abstract class Idea implements IBrain {
 
   public constructor(spawn: StructureSpawn) {
     this.spawn = spawn;
+    // Initialize memory
+    if (!Memory.imagination.ideas[spawn.room.name]) {
+      Memory.imagination.ideas[spawn.room.name] = {
+        figmentCount: {}
+      };
+    }
   }
 
   public ponder(): void {
@@ -64,6 +70,7 @@ export abstract class Idea implements IBrain {
         };
         this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory });
         console.log(`spawning ${nextSpawn.name} with priority ${nextSpawn.priority}`);
+        this.adjustFigmentCount(nextSpawn.thoughtName, 1);
       }
     }
   }
@@ -83,5 +90,23 @@ export abstract class Idea implements IBrain {
       thoughtInstance
     };
     this.spawnQueue.queue(spawnPayload);
+  }
+
+  public getFigmentCount(figmentThoughtName: FigmentThoughtName): number {
+    const count = Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName];
+    if (count) {
+      return count;
+    }
+    return 0;
+  }
+
+  public adjustFigmentCount(figmentThoughtName: FigmentThoughtName | string, delta: number): void {
+    console.log(`adjust figment count ${figmentThoughtName} by ${delta}`);
+    const count = Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName];
+    if (count) {
+      Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName] += delta;
+    } else {
+      Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName] = delta;
+    }
   }
 }

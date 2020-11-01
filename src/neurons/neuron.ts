@@ -30,6 +30,8 @@ export abstract class Neuron {
   abstract isValidTarget(): boolean;
 
   public isValid(): boolean {
+    // console.log(this.isValidNeuron());
+    // console.log(this.isValidTarget());
     return this.isValidNeuron() && this.isValidTarget();
   }
 

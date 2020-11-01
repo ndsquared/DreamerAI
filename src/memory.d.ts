@@ -6,6 +6,18 @@ interface CreepMemory {
   interneurons: Interneuron[];
 }
 
+interface IdeaMemory {
+  figmentCount: {
+    [name: string]: number;
+  };
+}
+
+interface ImaginationMemory {
+  ideas: {
+    [name: string]: IdeaMemory;
+  };
+}
+
 interface Interneuron {
   type: string;
   target: {
@@ -24,6 +36,7 @@ interface InterneuronTargetOptions {
 }
 
 interface Memory {
+  imagination: ImaginationMemory;
   [name: string]: any;
 }
 

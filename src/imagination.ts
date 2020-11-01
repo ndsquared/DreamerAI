@@ -52,7 +52,9 @@ export class Imagination implements IBrain {
   private forget() {
     if (this.shouldForget()) {
       console.log("forgetting...");
-      Memory.imagination = {};
+      Memory.imagination = {
+        ideas: {}
+      };
       Memory.creeps = {};
       delete Memory.flags;
       delete Memory.rooms;
@@ -79,6 +81,8 @@ export class Imagination implements IBrain {
   private meditate() {
     for (const name in Memory.creeps) {
       if (!(name in Game.creeps)) {
+        const idea = this.ideas[Memory.creeps[name].ideaName];
+        idea.adjustFigmentCount(Memory.creeps[name].thoughtName, -1);
         delete Memory.creeps[name];
       }
     }

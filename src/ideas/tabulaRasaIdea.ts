@@ -8,8 +8,8 @@ export class TabulaRasaIdea extends Idea {
   public constructor(spawn: StructureSpawn) {
     super(spawn);
     const sources = _.sortBy(
-      Game.rooms[spawn.pos.roomName].find(FIND_SOURCES, { filter: s => !s.pos.hasAdjacentKeeper }),
-      s => s.pos.findPathTo(spawn.pos).length
+      Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
+      s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
     );
     this.figmentThoughts[FigmentThoughtName.HARVEST] = [];
     for (let index = 0; index < sources.length; index++) {

@@ -1,5 +1,5 @@
+import { FigmentThought, FigmentThoughtName } from "./figmentThought";
 import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
@@ -22,10 +22,15 @@ export class HarvestThought extends FigmentThought {
   public handleFigment(figment: Figment): void {
     if (!this.source) {
       return;
+    } else if (this.source.energy === 0) {
+      if (figment.store.getUsedCapacity() > 0) {
+        figment.addNeuron(NeuronType.DROP);
+      }
+      return;
     }
-    const shouldDrop = this.figments.length > 1;
+    const shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
     let targetOptions = null;
-    if (shouldDrop) {
+    if (shouldDropHarvest) {
       targetOptions = {
         ignoreFigmentCapacity: true
       };
@@ -41,7 +46,10 @@ export class HarvestThought extends FigmentThought {
   }
 
   public adjustPriority(): void {
-    if (this.figments.length > 1) {
+    const count = this.idea.getFigmentCount(FigmentThoughtName.HARVEST);
+    if (count > 6) {
+      this.figmentPriority = 1;
+    } else if (count > 2) {
       this.figmentPriority = 8;
     } else {
       this.figmentPriority = 12;
