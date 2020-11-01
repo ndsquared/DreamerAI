@@ -1,7 +1,7 @@
+import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
-import { Thought } from "./thought";
 
-export class WorkerThought extends Thought {
+export class WorkerThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
     this.figmentsNeeded = 10;

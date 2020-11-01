@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Idea } from "ideas/idea";
+import { Thought } from "./thought";
 
-export abstract class Thought implements IBrain {
-  protected idea: Idea;
-  protected name: string;
-  protected instance: number;
-
+export abstract class BuildThought extends Thought {
   public constructor(idea: Idea, name: string, instance: number) {
-    this.idea = idea;
-    this.name = name;
-    this.instance = instance;
+    super(idea, name, instance);
   }
 
   public abstract ponder(): void;
