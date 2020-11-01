@@ -5,7 +5,7 @@ export class NeuronHarvest extends Neuron {
     if (this.figment.getActiveBodyparts(WORK) > 0) {
       return false;
     }
-    if (this.interneuron.target.options.ignoreCapacity) {
+    if (this.interneuron.target.options.ignoreFigmentCapacity) {
       return true;
     }
     return this.figment.store.getFreeCapacity() > 0;

@@ -27,7 +27,7 @@ export class HarvestThought extends FigmentThought {
     let targetOptions = null;
     if (shouldDrop) {
       targetOptions = {
-        ignoreCapacity: true
+        ignoreFigmentCapacity: true
       };
     }
     if (figment.store.getUsedCapacity() === 0) {

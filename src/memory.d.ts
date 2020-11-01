@@ -20,7 +20,7 @@ interface Interneuron {
 }
 
 interface InterneuronTargetOptions {
-  ignoreCapacity: boolean;
+  ignoreFigmentCapacity: boolean;
 }
 
 interface Memory {
