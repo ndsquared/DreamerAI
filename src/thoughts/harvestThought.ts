@@ -20,7 +20,6 @@ export class HarvestThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
-    console.log(`handling ${figment.name}`);
     if (!this.source) {
       return;
     }

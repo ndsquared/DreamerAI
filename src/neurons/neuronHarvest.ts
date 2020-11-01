@@ -6,7 +6,6 @@ export class NeuronHarvest extends Neuron {
       return false;
     }
     if (this.interneuron.target.options.ignoreFigmentCapacity) {
-      console.log(`ignoreFigmentCapacity for ${this.figment.name}`);
       return true;
     }
     return this.figment.store.getFreeCapacity() > 0;
