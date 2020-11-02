@@ -16,11 +16,12 @@ export class TowerThought extends BuildThought {
     towerDeltas.push({ x: -1, y: -1 });
     towerDeltas.push({ x: -1, y: 1 });
 
-    // const pivotPos = this.getNextPivotPos(this.idea.spawn.pos, towerDeltas);
+    const pivotPos = this.getNextPivotPos(this.idea.spawn.pos, towerDeltas);
 
-    // const towerPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, towerDeltas);
-
-    // this.idea.addBuild(towerPositions, STRUCTURE_TOWER, 1);
+    if (pivotPos) {
+      const towerPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, towerDeltas);
+      this.idea.addBuild(towerPositions, STRUCTURE_TOWER, 1);
+    }
 
     this.towers = this.idea.spawn.room.find(FIND_MY_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_TOWER

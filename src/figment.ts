@@ -181,6 +181,9 @@ export class Figment extends Creep implements Figment {
         s => s.pos.findPathTo(this.pos, { ignoreCreeps: true }).length
       )
     );
+    if (!container) {
+      return resource;
+    }
     if (resource) {
       if (
         this.pos.findPathTo(resource, { ignoreCreeps: true }).length <

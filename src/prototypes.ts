@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { isEnergyStructure, isStoreStructure } from "utils/misc";
 import { Traveler } from "./utils/traveler";
-import { isStoreStructure } from "utils/misc";
 
 // Creep
 Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosition }, options?: TravelToOptions) {
@@ -91,8 +91,10 @@ Object.defineProperty(Structure.prototype, "hasCapacity", {
 
 Object.defineProperty(Structure.prototype, "hasEnergy", {
   get() {
-    if (this instanceof isStoreStructure) {
-      return (this as AnyStoreStructure).store[RESOURCE_ENERGY] >= 0;
+    if (isStoreStructure(this)) {
+      return this.store[RESOURCE_ENERGY] > 0;
+    } else if (isEnergyStructure(this)) {
+      return this.energy > 0;
     }
     return false;
   },

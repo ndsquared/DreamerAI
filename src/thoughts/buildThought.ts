@@ -45,6 +45,7 @@ export abstract class BuildThought extends Thought {
     let pivotOpts = 0;
     while (pivotOpts < 100) {
       for (const dir of directions) {
+        // TODO: Need to check that the pivotPos is in bounds
         const pivotPos = new RoomPosition(startPos.x + xMod * dir.x, startPos.y + yMod * dir.y, startPos.roomName);
         // rv.circle(pivotPos.x, pivotPos.y, { fill: "#ff00ff" });
         // console.log(`(${pivotPos.x}, ${pivotPos.y})`);
