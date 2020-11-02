@@ -1,5 +1,6 @@
 import { FigmentThought, FigmentThoughtName } from "thoughts/figmentThought";
 import { BuildThought } from "thoughts/buildThought";
+import { Figment } from "figment";
 import PriorityQueue from "ts-priority-queue";
 
 export abstract class Idea implements IBrain {
@@ -41,15 +42,12 @@ export abstract class Idea implements IBrain {
     this.rcl = this.spawn.room.controller?.level === undefined ? 0 : this.spawn.room.controller.level;
 
     if (this.spawn.room.controller && this.spawn.room.controller.my && this.rcl < 2) {
-      return;
+      this.shouldBuild = false;
     } else {
       const constructionSites = this.spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
       if (constructionSites.length > 0) {
         this.shouldBuild = false;
       }
-    }
-    if (!this.shouldBuild) {
-      return;
     }
   }
 
@@ -77,13 +75,11 @@ export abstract class Idea implements IBrain {
   }
 
   private processSpawnQueue() {
-    if (!this.spawn) {
-      return;
-    }
     if (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
-      const status = this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { dryRun: true });
-      if (status === OK) {
+      const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, this.spawn.room.energyAvailable);
+      const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
+      if (status === OK && body.length >= nextSpawn.bodySpec.minParts) {
         const memory = {
           _trav: {},
           interneurons: [],
@@ -91,7 +87,7 @@ export abstract class Idea implements IBrain {
           thoughtName: nextSpawn.thoughtName,
           thoughtInstance: nextSpawn.thoughtInstance
         };
-        this.spawn.spawnCreep(nextSpawn.body, nextSpawn.name, { memory });
+        this.spawn.spawnCreep(body, nextSpawn.name, { memory });
         console.log(`spawning ${nextSpawn.name} with priority ${nextSpawn.priority}`);
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
       }
@@ -100,14 +96,14 @@ export abstract class Idea implements IBrain {
 
   public addSpawn(
     name: string,
-    body: BodyPartConstant[],
+    bodySpec: FigmentBodySpec,
     priority: number,
     thoughtName: string,
     thoughtInstance: number
   ): void {
     const spawnPayload = {
       name,
-      body,
+      bodySpec,
       priority,
       thoughtName,
       thoughtInstance

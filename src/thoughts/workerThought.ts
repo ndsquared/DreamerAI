@@ -7,7 +7,12 @@ export class WorkerThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
     this.figmentsNeeded = 12;
-    this.figmentBody = [WORK, CARRY, MOVE, MOVE];
+    this.figmentBodySpec = {
+      bodyParts: [WORK, CARRY, MOVE],
+      ratio: [1, 1, 2],
+      minParts: 4,
+      maxParts: 20
+    };
   }
 
   public handleFigment(figment: Figment): void {

@@ -28,6 +28,57 @@ export class Figment extends Creep implements Figment {
     return name;
   }
 
+  public static GetBodyFromBodySpec(bodySpec: FigmentBodySpec, energyAvailable: number): BodyPartConstant[] {
+    const bodyParts: BodyPartConstant[] = [];
+    let bodyPartCount = 0;
+    let energySpent = 0;
+    let shouldReturn = false;
+    while (energySpent < energyAvailable) {
+      for (let i = 0; i < bodySpec.bodyParts.length; i++) {
+        const bodyPart = bodySpec.bodyParts[i];
+        const ratio = bodySpec.ratio[i];
+        for (let j = 0; j < ratio; j++) {
+          if (energySpent + BODYPART_COST[bodyPart] <= energyAvailable && bodyPartCount < bodySpec.maxParts) {
+            bodyParts.push(bodyPart);
+            bodyPartCount++;
+            energySpent += BODYPART_COST[bodyPart];
+          } else {
+            shouldReturn = true;
+          }
+        }
+      }
+      if (shouldReturn) {
+        break;
+      }
+    }
+
+    // console.log(bodyParts.toString());
+    const sortedBodyParts = _.sortBy(bodyParts, s => {
+      switch (s) {
+        case TOUGH:
+          return 0;
+        case WORK:
+          return 1;
+        case ATTACK:
+          return 2;
+        case RANGED_ATTACK:
+          return 3;
+        case CARRY:
+          return 4;
+        case HEAL:
+          return 5;
+        case CLAIM:
+          return 6;
+        case MOVE:
+          return 7;
+        default:
+          return 10;
+      }
+    });
+    // console.log(sortedBodyParts.toString());
+    return sortedBodyParts;
+  }
+
   public get neurons(): Interneuron[] {
     return this.memory.interneurons;
   }

@@ -22,6 +22,13 @@ interface Figment {
   neurons: Interneuron[];
 }
 
+interface FigmentBodySpec {
+  bodyParts: BodyPartConstant[];
+  ratio: number[];
+  minParts: number;
+  maxParts: number;
+}
+
 interface IBrain {
   ponder(): void;
   think(): void;
@@ -50,7 +57,7 @@ interface RoomPosition {
 
 interface SpawnQueuePayload {
   name: string;
-  body: BodyPartConstant[];
+  bodySpec: FigmentBodySpec;
   priority: number;
   thoughtName: string;
   thoughtInstance: number;
