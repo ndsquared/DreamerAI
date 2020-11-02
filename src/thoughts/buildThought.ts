@@ -13,24 +13,39 @@ export enum BuildThoughtName {
 export abstract class BuildThought extends Thought {
   private buildQueue: PriorityQueue<BuildQueuePayload> = new PriorityQueue({
     comparator(a, b) {
-      // Higher priority is dequeued first
-      return b.priority - a.priority;
+      // Lower priority is dequeued first
+      return a.priority - b.priority;
     }
   });
   protected shouldBuild = true;
+  protected rcl = 0;
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
   }
 
   public ponder(): void {
     const spawn = this.idea.spawn;
-    if (spawn) {
+    if (!spawn) {
+      return;
+    }
+    this.rcl = spawn.room.controller?.level === undefined ? 0 : spawn.room.controller.level;
+
+    if (spawn.room.controller && spawn.room.controller.my && this.rcl < 2) {
+      return;
+    } else {
       const constructionSites = spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
       if (constructionSites.length > 0) {
         this.shouldBuild = false;
       }
     }
+    if (!this.shouldBuild) {
+      return;
+    }
+    this.planBuild();
   }
+
+  public abstract planBuild(): void;
+
   public think(): void {
     if (!this.shouldBuild) {
       return;
@@ -39,6 +54,7 @@ export abstract class BuildThought extends Thought {
   }
   public reflect(): void {
     this.buildQueue.clear();
+    this.shouldBuild = true;
   }
 
   private processBuildQueue(): void {
