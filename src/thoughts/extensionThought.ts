@@ -27,7 +27,7 @@ export class ExtensionThought extends BuildThought {
     const roadPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, roadDeltas);
 
     this.idea.addBuild(extensionPositions, STRUCTURE_EXTENSION, 1);
-    this.idea.addBuild(roadPositions, STRUCTURE_ROAD, 10);
+    this.idea.addBuild(roadPositions, STRUCTURE_ROAD, 50);
   }
 
   public getNextPivotPos(startPos: RoomPosition, deltas: Coord[]): RoomPosition {
