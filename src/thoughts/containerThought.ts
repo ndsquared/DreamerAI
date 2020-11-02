@@ -12,7 +12,7 @@ export class ContainerThought extends BuildThought {
     // Build container next to controller
     const controller = spawn.room.controller;
     if (controller && controller.my) {
-      const containers = controller.pos.findInRange(FIND_STRUCTURES, 3, {
+      const containers = controller.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: s => s.structureType === STRUCTURE_CONTAINER
       });
       if (containers.length === 0) {
@@ -28,7 +28,7 @@ export class ContainerThought extends BuildThought {
     );
     let containerPriority = 3;
     for (const source of sources) {
-      const containers = source.pos.findInRange(FIND_STRUCTURES, 3, {
+      const containers = source.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: s => s.structureType === STRUCTURE_CONTAINER
       });
       if (containers.length === 0) {

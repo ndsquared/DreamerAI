@@ -54,6 +54,11 @@ export abstract class Neuron {
       if (result === global.ERR_INVALID_NEURON) {
         this.figment.memory.interneurons = [];
       }
+    } else if (impulseResult !== OK) {
+      const min = Math.ceil(1);
+      const max = Math.floor(9);
+      const randomDir = Math.floor(Math.random() * (max - min) + min);
+      this.figment.move(randomDir as DirectionConstant);
     }
   }
 

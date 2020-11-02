@@ -6,6 +6,7 @@ import { HarvestThought } from "../thoughts/harvestThought";
 import { Idea } from "./idea";
 import { PickupThought } from "thoughts/pickupThought";
 import { RoadThought } from "thoughts/roadThought";
+import { StorageThought } from "thoughts/storageThough";
 import { TowerThought } from "thoughts/towerThought";
 import { WorkerThought } from "thoughts/workerThought";
 
@@ -29,5 +30,6 @@ export class TabulaRasaIdea extends Idea {
     this.buildThoughts[BuildThoughtName.ROAD] = [new RoadThought(this, BuildThoughtName.ROAD, 0)];
     this.buildThoughts[BuildThoughtName.CONTAINER] = [new ContainerThought(this, BuildThoughtName.CONTAINER, 0)];
     this.buildThoughts[BuildThoughtName.TOWER] = [new TowerThought(this, BuildThoughtName.TOWER, 0)];
+    this.buildThoughts[BuildThoughtName.STORAGE] = [new StorageThought(this, BuildThoughtName.STORAGE, 0)];
   }
 }

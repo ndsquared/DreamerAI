@@ -12,7 +12,7 @@ export class HarvestThought extends FigmentThought {
       bodyParts: [WORK, MOVE, CARRY],
       ratio: [2, 1, 1],
       minParts: 4,
-      maxParts: 20
+      maxParts: 10
     };
   }
 
