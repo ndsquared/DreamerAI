@@ -6,7 +6,7 @@ export class ExtensionThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public planBuild(): void {
+  public ponder(): void {
     const extensionDeltas: Coord[] = [];
     extensionDeltas.push({ x: 0, y: 0 });
     extensionDeltas.push({ x: 1, y: 1 });
@@ -26,8 +26,8 @@ export class ExtensionThought extends BuildThought {
     const extensionPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, extensionDeltas);
     const roadPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, roadDeltas);
 
-    this.addBuild(extensionPositions, STRUCTURE_EXTENSION, 1);
-    this.addBuild(roadPositions, STRUCTURE_ROAD, 10);
+    this.idea.addBuild(extensionPositions, STRUCTURE_EXTENSION, 1);
+    this.idea.addBuild(roadPositions, STRUCTURE_ROAD, 10);
   }
 
   public getNextPivotPos(startPos: RoomPosition, deltas: Coord[]): RoomPosition {
