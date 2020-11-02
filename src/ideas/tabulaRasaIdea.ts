@@ -5,6 +5,7 @@ import { HarvestThought } from "../thoughts/harvestThought";
 import { Idea } from "./idea";
 import { PickupThought } from "thoughts/pickupThought";
 import { RoadThought } from "thoughts/roadThought";
+import { TowerThought } from "thoughts/towerThought";
 import { WorkerThought } from "thoughts/workerThought";
 
 export class TabulaRasaIdea extends Idea {
@@ -25,5 +26,6 @@ export class TabulaRasaIdea extends Idea {
     this.figmentThoughts[FigmentThoughtName.WORKER] = [new WorkerThought(this, FigmentThoughtName.WORKER, 0)];
     this.buildThoughts[BuildThoughtName.EXTENSION] = [new ExtensionThought(this, BuildThoughtName.EXTENSION, 0)];
     this.buildThoughts[BuildThoughtName.ROAD] = [new RoadThought(this, BuildThoughtName.ROAD, 0)];
+    this.buildThoughts[BuildThoughtName.TOWER] = [new TowerThought(this, BuildThoughtName.TOWER, 0)];
   }
 }
