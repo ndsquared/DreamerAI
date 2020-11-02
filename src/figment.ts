@@ -131,7 +131,7 @@ export class Figment extends Creep implements Figment {
 
   public getNearestResource(): Resource | null {
     const resource = _.first(
-      _.sortBy(this.room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount > this.store.getCapacity() }), s => {
+      _.sortBy(this.room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() }), s => {
         return PathFinder.search(this.pos, { pos: s.pos, range: 1 }).path.length;
       })
     );
@@ -177,10 +177,17 @@ export class Figment extends Creep implements Figment {
     const resource = this.getNearestResource();
     const container = _.first(
       _.sortBy(
-        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.containerWithEnergy }),
+        this.room.find(FIND_STRUCTURES, {
+          filter: s => {
+            if (s instanceof StructureContainer) {
+              return s.store.getUsedCapacity() >= this.store.getCapacity();
+            }
+            return false;
+          }
+        }),
         s => s.pos.findPathTo(this.pos, { ignoreCreeps: true }).length
       )
-    );
+    ) as StructureContainer;
     if (!container) {
       return resource;
     }
@@ -192,6 +199,7 @@ export class Figment extends Creep implements Figment {
         return resource;
       }
     }
+    // console.log(`${this.name} getting energy from container ${container.id}`);
     return container;
   }
 }

@@ -28,7 +28,7 @@ export class WorkerThought extends FigmentThought {
       }
     } else {
       const target = figment.getClosestEnergySource();
-      if (target && target instanceof Resource) {
+      if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);

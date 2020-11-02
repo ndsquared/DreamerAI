@@ -8,9 +8,6 @@ export class HarvestThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: number, source: Source) {
     super(idea, name, instance);
     this.source = source;
-    if (this.idea.getFigmentCount(FigmentThoughtName.HARVEST) < 7) {
-      this.figmentsNeeded = source.pos.availableNeighbors(true).length;
-    }
     this.figmentBodySpec = {
       bodyParts: [WORK, MOVE, CARRY],
       ratio: [2, 1, 1],
@@ -20,6 +17,13 @@ export class HarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
+    const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
+    if (totalWorkParts >= 5) {
+      this.figmentsNeeded = 0;
+    } else if (this.source) {
+      this.figmentsNeeded = this.figments.length + 1;
+    }
+
     if (this.source) {
       this.source = Game.getObjectById(this.source.id);
     }
