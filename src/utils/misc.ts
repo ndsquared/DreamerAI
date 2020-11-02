@@ -6,6 +6,10 @@ export function ShuffleArray(array: any[]): void {
   }
 }
 
-export function isStoreStructure(structure: Structure): structure is AnyStoreStructure {
-  return (structure as AnyStoreStructure).store !== undefined;
+export function isStoreStructure(structure: Structure): structure is StoreStructure {
+  return (structure as StoreStructure).store !== undefined;
+}
+
+export function isEnergyStructure(structure: Structure): structure is EnergyStructure {
+  return (structure as EnergyStructure).energy !== undefined;
 }

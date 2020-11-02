@@ -1,13 +1,25 @@
+interface BuildQueuePayload {
+  structure: StructureConstant;
+  pos: RoomPosition;
+  priority: number;
+}
+
 interface Coord {
   x: number;
   y: number;
 }
-interface HasPos {
-  pos: RoomPosition;
-}
 
 interface Creep {
   travelTo(destination: HasPos | RoomPosition, ops?: TravelToOptions): number;
+}
+
+interface EnergyStructure extends Structure {
+  energy: number;
+  energyCapacity: number;
+}
+
+interface Figment {
+  neurons: Interneuron[];
 }
 
 interface IBrain {
@@ -16,8 +28,8 @@ interface IBrain {
   reflect(): void;
 }
 
-interface Figment {
-  neurons: Interneuron[];
+interface HasPos {
+  pos: RoomPosition;
 }
 
 interface PathfinderReturn {
@@ -41,6 +53,10 @@ interface SpawnQueuePayload {
   priority: number;
   thoughtName: string;
   thoughtInstance: number;
+}
+
+interface StoreStructure extends Structure {
+  store: StoreDefinition;
 }
 
 interface Structure {

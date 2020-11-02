@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { Idea } from "ideas/idea";
 
 export abstract class Thought implements IBrain {

@@ -1,7 +1,7 @@
+import { isEnergyStructure, isStoreStructure } from "utils/misc";
 import { Neuron } from "./neuron";
-import { isStoreStructure } from "utils/misc";
 
-type transferTargetType = StructureSpawn;
+type transferTargetType = StoreStructure | EnergyStructure;
 
 export class NeuronTransfer extends Neuron {
   public target!: transferTargetType;
@@ -10,10 +10,18 @@ export class NeuronTransfer extends Neuron {
     return this.figment.store.getUsedCapacity() > 0;
   }
   public isValidTarget(): boolean {
-    if (this.target instanceof isStoreStructure)
+    if (!this.target) {
+      return false;
+    }
+    if (isStoreStructure(this.target)) {
+      if (this.target.store.getFreeCapacity(this.resourceType) === 0) {
+        return false;
+      }
+    } else if (isEnergyStructure(this.target)) {
       if (this.target.energy === 0) {
         return false;
       }
+    }
     return true;
   }
   public impulse(): number {

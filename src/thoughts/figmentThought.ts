@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";

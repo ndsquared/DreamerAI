@@ -13,11 +13,11 @@ export class WorkerThought extends FigmentThought {
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
       const target = figment.getNextConstructionSite();
-      if (target) {
+      const controller = figment.room.controller;
+      if (target && controller && controller.my && controller.ticksToDowngrade > 4000) {
         figment.addNeuron(NeuronType.BUILD, target.id, target.pos);
       } else {
-        if (figment.room.controller && figment.room.controller.my) {
-          const controller = figment.room.controller;
+        if (controller && controller.my) {
           figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
         }
       }
