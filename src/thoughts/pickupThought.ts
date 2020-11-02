@@ -8,7 +8,7 @@ export class PickupThought extends FigmentThought {
     super(idea, name, instance);
     this.figmentsNeeded = 2;
     this.figmentBodySpec = {
-      bodyParts: [CARRY, MOVE],
+      bodyParts: [MOVE, CARRY],
       ratio: [1, 1],
       minParts: 6,
       maxParts: 20

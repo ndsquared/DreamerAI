@@ -8,11 +8,11 @@ export class HarvestThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: number, source: Source) {
     super(idea, name, instance);
     this.source = source;
-    if (this.idea.getFigmentCount(FigmentThoughtName.HARVEST) < 6) {
+    if (this.idea.getFigmentCount(FigmentThoughtName.HARVEST) < 7) {
       this.figmentsNeeded = source.pos.availableNeighbors(true).length;
     }
     this.figmentBodySpec = {
-      bodyParts: [WORK, CARRY, MOVE],
+      bodyParts: [WORK, MOVE, CARRY],
       ratio: [2, 1, 1],
       minParts: 4,
       maxParts: 20
