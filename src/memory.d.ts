@@ -33,6 +33,7 @@ interface Interneuron {
 
 interface InterneuronTargetOptions {
   ignoreFigmentCapacity: boolean;
+  targetRange: number;
 }
 
 interface Memory {

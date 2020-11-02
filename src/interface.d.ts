@@ -40,11 +40,12 @@ interface PathfinderReturn {
 }
 
 interface RoomPosition {
-  availableNeighbors(ignoreCreeps: boolean): RoomPosition[];
+  availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
   neighbors: RoomPosition[];
   hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
   isVisible: boolean;
+  isEdge: boolean;
 }
 
 interface SpawnQueuePayload {

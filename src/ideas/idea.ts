@@ -55,6 +55,7 @@ export abstract class Idea implements IBrain {
 
   public think(): void {
     this.processSpawnQueue();
+    this.processBuildQueue();
     const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
     for (const thoughtName in thoughts) {
       for (const thought of thoughts[thoughtName]) {

@@ -59,7 +59,8 @@ export class Figment extends Creep implements Figment {
     }
     // Default target options
     const defaultTargetOptions: InterneuronTargetOptions = {
-      ignoreFigmentCapacity: false
+      ignoreFigmentCapacity: false,
+      targetRange: 1
     };
     let options = defaultTargetOptions;
     if (targetOptions) {

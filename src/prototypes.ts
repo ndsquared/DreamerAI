@@ -10,6 +10,13 @@ Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosi
 };
 
 // RoomPosition
+
+Object.defineProperty(RoomPosition.prototype, "isEdge", {
+  get() {
+    return this.x === 0 || this.x === 49 || this.y === 0 || this.y === 49;
+  }
+});
+
 Object.defineProperty(RoomPosition.prototype, "isVisible", {
   get() {
     return Game.rooms[this.roomName] !== undefined;
