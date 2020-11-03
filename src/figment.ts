@@ -206,6 +206,12 @@ export class Figment extends Creep implements Figment {
         this.room.find(FIND_STRUCTURES, {
           filter: s => {
             if (s instanceof StructureContainer) {
+              const controller = this.room.controller;
+              if (controller) {
+                if (controller.pos.inRangeTo(s.pos, 1)) {
+                  return false;
+                }
+              }
               return s.store.getUsedCapacity() >= this.store.getCapacity();
             } else if (s instanceof StructureStorage && useStorage) {
               return s.store.getUsedCapacity() >= this.store.getCapacity();
