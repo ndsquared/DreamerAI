@@ -199,17 +199,19 @@ export class Figment extends Creep implements Figment {
     return target;
   }
 
-  public getNextPickupOrWithdrawTarget(useStorage = false): Resource | Structure | null {
+  public getNextPickupOrWithdrawTarget(useStorage = false, avoidControllerStorage = true): Resource | Structure | null {
     const resource = this.getNextPickupTarget();
     const target = _.first(
       _.sortBy(
         this.room.find(FIND_STRUCTURES, {
           filter: s => {
             if (s instanceof StructureContainer) {
-              const controller = this.room.controller;
-              if (controller) {
-                if (controller.pos.inRangeTo(s.pos, 1)) {
-                  return false;
+              if (avoidControllerStorage) {
+                const controller = this.room.controller;
+                if (controller) {
+                  if (controller.pos.inRangeTo(s.pos, 1)) {
+                    return false;
+                  }
                 }
               }
               return s.store.getUsedCapacity() >= this.store.getCapacity();
