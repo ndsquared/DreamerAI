@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BuildThoughtName } from "thoughts/buildThought";
+import { ClaimThought } from "thoughts/claimThought";
 import { ContainerThought } from "thoughts/containerThought";
 import { ExtensionThought } from "thoughts/extensionThought";
 import { FigmentThoughtName } from "thoughts/figmentThought";
@@ -63,6 +64,7 @@ export class TabulaRasaIdea extends Idea {
 
     this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = {};
     this.figmentThoughts[FigmentThoughtName.SCOUT] = {};
+    this.figmentThoughts[FigmentThoughtName.CLAIM] = {};
   }
 
   public ponder(): void {
@@ -80,6 +82,13 @@ export class TabulaRasaIdea extends Idea {
               source
             );
           }
+        }
+        if (!this.figmentThoughts[FigmentThoughtName.CLAIM][room.name]) {
+          this.figmentThoughts[FigmentThoughtName.CLAIM][room.name] = new ClaimThought(
+            this,
+            FigmentThoughtName.CLAIM,
+            room.name
+          );
         }
       } else {
         if (!this.figmentThoughts[FigmentThoughtName.SCOUT][roomName]) {

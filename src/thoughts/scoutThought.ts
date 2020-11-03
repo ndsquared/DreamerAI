@@ -17,8 +17,8 @@ export class ScoutThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.room.name !== this.instance) {
-      const target = new RoomPosition(25, 25, this.instance);
-      figment.addNeuron(NeuronType.MOVE, "", target);
+      const targetPos = new RoomPosition(25, 25, this.instance);
+      figment.addNeuron(NeuronType.MOVE, "", targetPos);
     } else {
       const mapExits = Game.map.describeExits(figment.room.name);
       for (const roomName of Object.values(mapExits)) {
