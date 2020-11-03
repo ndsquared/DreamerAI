@@ -6,7 +6,6 @@ import { NeuronType } from "neurons/neurons";
 export class PickupThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentsNeeded = 2;
     this.figmentBodySpec = {
       bodyParts: [MOVE, CARRY],
       ratio: [1, 1],
@@ -34,6 +33,14 @@ export class PickupThought extends FigmentThought {
   public adjustPriority(): void {
     if (this.figments.length >= 1) {
       this.figmentPriority = 4;
+    }
+    const neighborRooms = this.idea.spawn.room.neighbors;
+    if (neighborRooms.length > 1) {
+      this.figmentsNeeded = 4;
+    } else if (neighborRooms.length === 1) {
+      this.figmentsNeeded = 3;
+    } else {
+      this.figmentsNeeded = 2;
     }
   }
 }
