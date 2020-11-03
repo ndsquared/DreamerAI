@@ -50,10 +50,8 @@ export class RemoteHarvestThought extends FigmentThought {
 
     let shouldDropHarvest = false;
     if (containers.length > 0) {
-      // console.log(`Found container near source ${this.source.id}`);
       if (containers[0].pos.isEqualTo(figment.pos)) {
         shouldDropHarvest = true;
-        // console.log(`${figment.name} is drop harvesting`);
       } else {
         const figments = containers[0].pos.lookFor(LOOK_CREEPS);
         if (figments.length === 0) {

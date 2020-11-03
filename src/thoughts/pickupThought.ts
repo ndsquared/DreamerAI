@@ -36,7 +36,7 @@ export class PickupThought extends FigmentThought {
     }
     const neighborRooms = this.idea.spawn.room.neighbors;
     if (neighborRooms.length > 1) {
-      this.figmentsNeeded = 4;
+      this.figmentsNeeded = 6;
     } else if (neighborRooms.length === 1) {
       this.figmentsNeeded = 3;
     } else {
