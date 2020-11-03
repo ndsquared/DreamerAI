@@ -3,9 +3,9 @@ import { Idea } from "ideas/idea";
 export abstract class Thought implements IBrain {
   protected idea: Idea;
   protected name: string;
-  protected instance: number;
+  protected instance: string;
 
-  public constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: string) {
     this.idea = idea;
     this.name = name;
     this.instance = instance;

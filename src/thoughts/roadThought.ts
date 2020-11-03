@@ -3,7 +3,7 @@ import { Idea } from "ideas/idea";
 import { PathFindWithRoad } from "utils/misc";
 
 export class RoadThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
   }
 

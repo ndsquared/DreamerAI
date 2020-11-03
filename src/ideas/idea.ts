@@ -4,8 +4,8 @@ import { Figment } from "figment";
 import PriorityQueue from "ts-priority-queue";
 
 export abstract class Idea implements IBrain {
-  public figmentThoughts: { [name: string]: FigmentThought[] } = {};
-  public buildThoughts: { [name: string]: BuildThought[] } = {};
+  public figmentThoughts: { [name: string]: { [instance: string]: FigmentThought } } = {};
+  public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
   public spawn: StructureSpawn;
   private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
     comparator(a, b) {
@@ -36,7 +36,8 @@ export abstract class Idea implements IBrain {
     this.spawn = Game.spawns[this.spawn.name];
     const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
     for (const thoughtName in thoughts) {
-      for (const thought of thoughts[thoughtName]) {
+      for (const thoughtInstance in thoughts[thoughtName]) {
+        const thought = thoughts[thoughtName][thoughtInstance];
         thought.ponder();
       }
     }
@@ -58,7 +59,8 @@ export abstract class Idea implements IBrain {
     this.processBuildQueue();
     const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
     for (const thoughtName in thoughts) {
-      for (const thought of thoughts[thoughtName]) {
+      for (const thoughtInstance in thoughts[thoughtName]) {
+        const thought = thoughts[thoughtName][thoughtInstance];
         thought.think();
       }
     }
@@ -67,7 +69,8 @@ export abstract class Idea implements IBrain {
   public reflect(): void {
     const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
     for (const thoughtName in thoughts) {
-      for (const thought of thoughts[thoughtName]) {
+      for (const thoughtInstance in thoughts[thoughtName]) {
+        const thought = thoughts[thoughtName][thoughtInstance];
         thought.reflect();
       }
     }
@@ -100,7 +103,7 @@ export abstract class Idea implements IBrain {
     bodySpec: FigmentBodySpec,
     priority: number,
     thoughtName: string,
-    thoughtInstance: number
+    thoughtInstance: string
   ): void {
     const spawnPayload = {
       name,

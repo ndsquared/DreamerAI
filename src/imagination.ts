@@ -99,7 +99,11 @@ export class Imagination implements IBrain {
       if (!idea) {
         continue;
       }
-      const thought = idea.figmentThoughts[thoughtName][thoughtInstance];
+      const thoughtObj = idea.figmentThoughts[thoughtName];
+      if (!thoughtObj) {
+        continue;
+      }
+      const thought = thoughtObj[thoughtInstance];
       if (thought) {
         thought.addFigment(figment);
       }

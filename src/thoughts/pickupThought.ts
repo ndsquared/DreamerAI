@@ -4,7 +4,7 @@ import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class PickupThought extends FigmentThought {
-  public constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentsNeeded = 2;
     this.figmentBodySpec = {

@@ -2,7 +2,7 @@ import { BuildThought } from "./buildThought";
 import { Idea } from "ideas/idea";
 
 export class StorageThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
   }
 

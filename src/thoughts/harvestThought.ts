@@ -5,7 +5,7 @@ import { NeuronType } from "neurons/neurons";
 
 export class HarvestThought extends FigmentThought {
   private source: Source | null;
-  public constructor(idea: Idea, name: string, instance: number, source: Source) {
+  public constructor(idea: Idea, name: string, instance: string, source: Source) {
     super(idea, name, instance);
     this.source = source;
     this.figmentBodySpec = {
@@ -20,7 +20,7 @@ export class HarvestThought extends FigmentThought {
     const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
     if (totalWorkParts >= 5) {
       this.figmentsNeeded = 0;
-    } else if (this.source) {
+    } else if (this.source && this.figments.length < this.source.pos.availableNeighbors(true).length) {
       this.figmentsNeeded = this.figments.length + 1;
     }
 

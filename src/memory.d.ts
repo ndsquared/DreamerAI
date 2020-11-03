@@ -2,7 +2,7 @@ interface CreepMemory {
   _trav: any;
   ideaName: string;
   thoughtName: string;
-  thoughtInstance: number;
+  thoughtInstance: string;
   interneurons: Interneuron[];
 }
 

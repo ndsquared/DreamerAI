@@ -67,7 +67,7 @@ interface SpawnQueuePayload {
   bodySpec: FigmentBodySpec;
   priority: number;
   thoughtName: string;
-  thoughtInstance: number;
+  thoughtInstance: string;
 }
 
 interface StoreStructure extends Structure {

@@ -1,8 +1,9 @@
 import { BuildThought } from "./buildThought";
 import { Idea } from "ideas/idea";
+import { PathFindWithRoad } from "utils/misc";
 
 export class ContainerThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
   }
 
@@ -21,21 +22,22 @@ export class ContainerThought extends BuildThought {
       }
     }
 
-    // Build container next to all the sources in the room
-    const sources = _.sortBy(
-      Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
-      s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
-    );
-    let containerPriority = 3;
-    for (const source of sources) {
-      const containers = source.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER
-      });
-      if (containers.length === 0) {
-        const buildPositions = source.pos.availableNeighbors(true);
-        this.idea.addBuild(buildPositions, STRUCTURE_CONTAINER, containerPriority);
+    // Build container next to all the sources in the neighborhood
+    for (const room of spawn.room.neighborhood) {
+      const sources = room.find(FIND_SOURCES);
+      for (const source of sources) {
+        const containers = source.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: s => s.structureType === STRUCTURE_CONTAINER
+        });
+        if (containers.length === 0) {
+          const buildPositions = source.pos.availableNeighbors(true);
+          this.idea.addBuild(
+            buildPositions,
+            STRUCTURE_CONTAINER,
+            _.min([PathFindWithRoad(spawn.pos, source.pos).cost, 10])
+          );
+        }
       }
-      containerPriority++;
     }
   }
 }

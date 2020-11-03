@@ -4,10 +4,11 @@ import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class RemoteHarvestThought extends FigmentThought {
-  private source: Source | null = null;
+  private source: Source | null;
   private roomName: string;
-  public constructor(idea: Idea, name: string, instance: number, roomName: string) {
+  public constructor(idea: Idea, name: string, instance: string, roomName: string, source: Source) {
     super(idea, name, instance);
+    this.source = source;
     this.roomName = roomName;
     this.figmentBodySpec = {
       bodyParts: [WORK, MOVE, CARRY],
@@ -18,39 +19,23 @@ export class RemoteHarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
+    if (this.source) {
+      this.source = Game.getObjectById(this.source.id);
+    }
+
     const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
     if (totalWorkParts >= 5) {
       this.figmentsNeeded = 0;
-    } else {
+    } else if (this.source && this.figments.length < this.source.pos.availableNeighbors(true).length) {
       this.figmentsNeeded = this.figments.length + 1;
-    }
-
-    if (this.source) {
-      this.source = Game.getObjectById(this.source.id);
     }
     super.ponder();
   }
 
   public handleFigment(figment: Figment): void {
-    const room = Game.rooms[this.roomName];
-    let source = null;
-    if (room) {
-      source = _.first(
-        _.sortBy(room.find(FIND_SOURCES), s => s.pos.findPathTo(figment.pos, { ignoreCreeps: true }).length)
-      );
-    }
-    if (source) {
-      this.source = source;
-    }
     if (!this.source) {
-      const exitDir = figment.room.findExitTo(this.roomName);
-      if (exitDir !== -2 && exitDir !== -10) {
-        const exit = figment.pos.findClosestByRange(exitDir) as RoomPosition;
-        if (exit) {
-          figment.addNeuron(NeuronType.MOVE, "", exit);
-          return;
-        }
-      }
+      const target = new RoomPosition(25, 25, this.roomName);
+      figment.addNeuron(NeuronType.MOVE, "", target);
       return;
     } else if (this.source.energy === 0) {
       if (figment.store.getUsedCapacity() > 0) {
@@ -92,7 +77,7 @@ export class RemoteHarvestThought extends FigmentThought {
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
     } else {
-      const target = figment.getNextTransferTarget({ originRoom: room });
+      const target = figment.getNextTransferTarget({ originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

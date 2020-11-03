@@ -11,7 +11,7 @@ export enum BuildThoughtName {
 }
 
 export abstract class BuildThought extends Thought {
-  public constructor(idea: Idea, name: string, instance: number) {
+  public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
   }
 
