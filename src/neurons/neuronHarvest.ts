@@ -1,6 +1,11 @@
+import { Figment } from "figment";
 import { Neuron } from "./neuron";
+
 export class NeuronHarvest extends Neuron {
   public target!: Source;
+  public constructor(figment: Figment, interneuron: Interneuron) {
+    super(figment, interneuron);
+  }
   public isValidNeuron(): boolean {
     if (this.figment.getActiveBodyparts(WORK) === 0) {
       return false;

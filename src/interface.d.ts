@@ -48,6 +48,7 @@ interface PathfinderReturn {
 
 interface RoomPosition {
   availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
+  availableToMove: boolean;
   neighbors: RoomPosition[];
   hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
@@ -69,7 +70,7 @@ interface StoreStructure extends Structure {
 
 interface Structure {
   isWalkable: boolean;
-  hasCapacity: boolean;
+  hasEnergyCapacity: boolean;
   hasEnergy: boolean;
   containerWithEnergy: boolean;
 }

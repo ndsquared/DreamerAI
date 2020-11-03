@@ -42,6 +42,16 @@ Object.defineProperty(RoomPosition.prototype, "neighbors", {
   }
 });
 
+Object.defineProperty(RoomPosition.prototype, "availableToMove", {
+  get() {
+    const figments = (this as RoomPosition).lookFor(LOOK_CREEPS);
+    if (figments.length) {
+      return false;
+    }
+    return true;
+  }
+});
+
 RoomPosition.prototype.availableNeighbors = function (ignoreCreeps = false): RoomPosition[] {
   return _.filter(this.neighbors, pos => pos.isWalkable(ignoreCreeps));
 };
@@ -74,15 +84,12 @@ Object.defineProperty(Structure.prototype, "isWalkable", {
   configurable: true
 });
 
-Object.defineProperty(Structure.prototype, "hasCapacity", {
+Object.defineProperty(Structure.prototype, "hasEnergyCapacity", {
   get() {
-    if (
-      this.structureType === STRUCTURE_EXTENSION ||
-      this.structureType === STRUCTURE_SPAWN ||
-      this.structureType === STRUCTURE_TOWER
-    ) {
-      const s = this as StructureExtension | StructureSpawn | StructureTower;
-      return s.energy < s.energyCapacity;
+    if (isStoreStructure(this)) {
+      return this.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+    } else if (isEnergyStructure(this)) {
+      return this.energy < this.energyCapacity;
     }
     return false;
   },

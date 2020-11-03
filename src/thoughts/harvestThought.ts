@@ -39,13 +39,37 @@ export class HarvestThought extends FigmentThought {
       }
       return;
     }
-    const shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
+
+    const containers = this.source.pos.findInRange(FIND_STRUCTURES, 1, {
+      filter: s => s.structureType === STRUCTURE_CONTAINER
+    });
+
+    let shouldDropHarvest = false;
+    if (containers.length > 0) {
+      // console.log(`Found container near source ${this.source.id}`);
+      if (containers[0].pos.isEqualTo(figment.pos)) {
+        shouldDropHarvest = true;
+        // console.log(`${figment.name} is drop harvesting`);
+      } else {
+        const figments = containers[0].pos.lookFor(LOOK_CREEPS);
+        if (figments.length === 0) {
+          figment.addNeuron(NeuronType.MOVE, containers[0].id, containers[0].pos);
+          return;
+        } else {
+          shouldDropHarvest = true;
+        }
+      }
+    } else {
+      shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
+    }
+
     let targetOptions = null;
     if (shouldDropHarvest) {
       targetOptions = {
         ignoreFigmentCapacity: true
       };
     }
+
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
     } else {

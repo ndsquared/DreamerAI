@@ -1,6 +1,11 @@
+import { Figment } from "figment";
 import { Neuron } from "./neuron";
+
 export class NeuronDrop extends Neuron {
   private resourceType: ResourceConstant = RESOURCE_ENERGY;
+  public constructor(figment: Figment, interneuron: Interneuron) {
+    super(figment, interneuron);
+  }
   public isValidNeuron(): boolean {
     return this.figment.store.getUsedCapacity() > 0;
   }

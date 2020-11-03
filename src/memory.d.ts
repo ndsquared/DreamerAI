@@ -34,6 +34,7 @@ interface Interneuron {
 interface InterneuronTargetOptions {
   ignoreFigmentCapacity: boolean;
   targetRange: number;
+  moveOffRoadDuringImpulse: boolean;
 }
 
 interface Memory {

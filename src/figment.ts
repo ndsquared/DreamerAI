@@ -111,7 +111,8 @@ export class Figment extends Creep implements Figment {
     // Default target options
     const defaultTargetOptions: InterneuronTargetOptions = {
       ignoreFigmentCapacity: false,
-      targetRange: 1
+      targetRange: 1,
+      moveOffRoadDuringImpulse: false
     };
     let options = defaultTargetOptions;
     if (targetOptions) {
@@ -129,7 +130,7 @@ export class Figment extends Creep implements Figment {
     this.say(type);
   }
 
-  public getNearestResource(): Resource | null {
+  public getNextPickupTarget(): Resource | null {
     const resource = _.first(
       _.sortBy(this.room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() }), s => {
         return PathFinder.search(this.pos, { pos: s.pos, range: 1 }).path.length;
@@ -152,7 +153,17 @@ export class Figment extends Creep implements Figment {
     }
     const target = _.first(
       _.sortBy(
-        this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hasCapacity }),
+        this.room.find(FIND_STRUCTURES, {
+          filter: s => {
+            if (s.structureType === STRUCTURE_CONTAINER) {
+              const sources = s.pos.findInRange(FIND_SOURCES, 1);
+              if (sources.length) {
+                return false;
+              }
+            }
+            return s.hasEnergyCapacity;
+          }
+        }),
         s => s.pos.findPathTo(this.pos).length
       )
     );
@@ -173,8 +184,8 @@ export class Figment extends Creep implements Figment {
     return target;
   }
 
-  public getClosestEnergySource(): Resource | Structure | null {
-    const resource = this.getNearestResource();
+  public getNextPickupOrWithdrawTarget(): Resource | Structure | null {
+    const resource = this.getNextPickupTarget();
     const container = _.first(
       _.sortBy(
         this.room.find(FIND_STRUCTURES, {

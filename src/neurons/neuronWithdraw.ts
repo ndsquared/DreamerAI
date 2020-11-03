@@ -1,4 +1,5 @@
 import { isEnergyStructure, isStoreStructure } from "utils/misc";
+import { Figment } from "figment";
 import { Neuron } from "./neuron";
 
 type withdrawTargetType = StoreStructure | EnergyStructure;
@@ -6,6 +7,9 @@ type withdrawTargetType = StoreStructure | EnergyStructure;
 export class NeuronWithDraw extends Neuron {
   public target!: withdrawTargetType;
   private resourceType: ResourceConstant = RESOURCE_ENERGY;
+  public constructor(figment: Figment, interneuron: Interneuron) {
+    super(figment, interneuron);
+  }
   public isValidNeuron(): boolean {
     return this.figment.store.getFreeCapacity() > 0 && this.figment.getActiveBodyparts(CARRY) > 0;
   }

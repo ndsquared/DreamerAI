@@ -1,4 +1,5 @@
 import { isEnergyStructure, isStoreStructure } from "utils/misc";
+import { Figment } from "figment";
 import { Neuron } from "./neuron";
 
 type transferTargetType = StoreStructure | EnergyStructure;
@@ -6,6 +7,9 @@ type transferTargetType = StoreStructure | EnergyStructure;
 export class NeuronTransfer extends Neuron {
   public target!: transferTargetType;
   private resourceType: ResourceConstant = RESOURCE_ENERGY;
+  public constructor(figment: Figment, interneuron: Interneuron) {
+    super(figment, interneuron);
+  }
   public isValidNeuron(): boolean {
     return this.figment.store.getUsedCapacity() > 0;
   }

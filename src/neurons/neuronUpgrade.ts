@@ -6,6 +6,7 @@ export class NeuronUpgrade extends Neuron {
   public constructor(figment: Figment, interneuron: Interneuron) {
     super(figment, interneuron);
     this.interneuron.target.options.targetRange = 3;
+    this.interneuron.target.options.moveOffRoadDuringImpulse = true;
   }
   public isValidNeuron(): boolean {
     return this.figment.store.getUsedCapacity() > 0 && this.figment.getActiveBodyparts(WORK) > 0;

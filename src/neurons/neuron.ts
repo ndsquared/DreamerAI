@@ -43,6 +43,7 @@ export abstract class Neuron {
 
   public run(): void {
     if (
+      this.interneuron.target.options.moveOffRoadDuringImpulse &&
       this.figment.pos.inRangeTo(this.targetPos, this.interneuron.target.options.targetRange) &&
       !this.figment.pos.isEdge
     ) {
@@ -55,9 +56,7 @@ export abstract class Neuron {
         this.figment.memory.interneurons = [];
       }
     } else if (impulseResult !== OK) {
-      const min = Math.ceil(1);
-      const max = Math.floor(9);
-      const randomDir = Math.floor(Math.random() * (max - min) + min);
+      const randomDir = _.random(1, 8);
       this.figment.move(randomDir as DirectionConstant);
     }
   }

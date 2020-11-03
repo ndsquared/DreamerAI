@@ -17,7 +17,7 @@ export class PickupThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      const target = figment.getClosestEnergySource();
+      const target = figment.getNextPickupOrWithdrawTarget();
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {
