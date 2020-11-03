@@ -19,7 +19,7 @@ export abstract class Idea implements IBrain {
       return a.priority - b.priority;
     }
   });
-  public shouldBuild = true;
+  public shouldBuild: { [roomName: string]: boolean };
   public rcl = 0;
   public constructor(spawn: StructureSpawn) {
     this.spawn = spawn;
@@ -29,6 +29,7 @@ export abstract class Idea implements IBrain {
         figmentCount: {}
       };
     }
+    this.shouldBuild = {};
   }
 
   public ponder(): void {
@@ -41,12 +42,13 @@ export abstract class Idea implements IBrain {
     }
     this.rcl = this.spawn.room.controller?.level === undefined ? 0 : this.spawn.room.controller.level;
 
-    if (this.spawn.room.controller && this.spawn.room.controller.my && this.rcl < 2) {
-      this.shouldBuild = false;
-    } else {
-      const constructionSites = this.spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
-      if (constructionSites.length > 0) {
-        this.shouldBuild = false;
+    if (this.rcl > 1) {
+      for (const room of this.spawn.room.neighborhood) {
+        this.shouldBuild[room.name] = true;
+        const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+        if (constructionSites.length > 0) {
+          this.shouldBuild[room.name] = false;
+        }
       }
     }
   }
@@ -71,7 +73,6 @@ export abstract class Idea implements IBrain {
     }
     this.spawnQueue.clear();
     this.buildQueue.clear();
-    this.shouldBuild = true;
   }
 
   private processSpawnQueue() {
@@ -136,7 +137,7 @@ export abstract class Idea implements IBrain {
     while (this.buildQueue.length > 0) {
       const nextBuild = this.buildQueue.dequeue();
       const room = Game.rooms[nextBuild.pos.roomName];
-      if (!room) {
+      if (!room || !this.shouldBuild[room.name]) {
         continue;
       }
       const buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);

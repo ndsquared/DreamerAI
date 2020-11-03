@@ -8,7 +8,6 @@ import { PickupThought } from "thoughts/pickupThought";
 import { RemoteHarvestThought } from "thoughts/removeHarvestThought";
 import { RepairThought } from "thoughts/repairThought";
 import { RoadThought } from "thoughts/roadThought";
-import { ScoutThought } from "thoughts/scoutThought";
 import { StorageThought } from "thoughts/storageThough";
 import { TowerThought } from "thoughts/towerThought";
 import { TransferThought } from "thoughts/transferThought";
@@ -32,19 +31,16 @@ export class TabulaRasaIdea extends Idea {
     this.figmentThoughts[FigmentThoughtName.TRANSFER] = [new TransferThought(this, FigmentThoughtName.TRANSFER, 0)];
     this.figmentThoughts[FigmentThoughtName.WORKER] = [new WorkerThought(this, FigmentThoughtName.WORKER, 0)];
     this.figmentThoughts[FigmentThoughtName.REPAIR] = [new RepairThought(this, FigmentThoughtName.REPAIR, 0)];
-    this.figmentThoughts[FigmentThoughtName.SCOUT] = [new ScoutThought(this, FigmentThoughtName.SCOUT, 0)];
+    // this.figmentThoughts[FigmentThoughtName.SCOUT] = [new ScoutThought(this, FigmentThoughtName.SCOUT, 0)];
     this.buildThoughts[BuildThoughtName.EXTENSION] = [new ExtensionThought(this, BuildThoughtName.EXTENSION, 0)];
     this.buildThoughts[BuildThoughtName.ROAD] = [new RoadThought(this, BuildThoughtName.ROAD, 0)];
     this.buildThoughts[BuildThoughtName.CONTAINER] = [new ContainerThought(this, BuildThoughtName.CONTAINER, 0)];
     this.buildThoughts[BuildThoughtName.TOWER] = [new TowerThought(this, BuildThoughtName.TOWER, 0)];
     this.buildThoughts[BuildThoughtName.STORAGE] = [new StorageThought(this, BuildThoughtName.STORAGE, 0)];
-    const mapExits = Game.map.describeExits(this.spawn.room.name);
-    for (const roomName of Object.values(mapExits)) {
-      if (roomName) {
-        this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = [
-          new RemoteHarvestThought(this, FigmentThoughtName.REMOTE_HARVEST, 0, roomName)
-        ];
-      }
+    for (const roomName of this.spawn.room.neighborNames) {
+      this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = [
+        new RemoteHarvestThought(this, FigmentThoughtName.REMOTE_HARVEST, 0, roomName)
+      ];
     }
   }
 }

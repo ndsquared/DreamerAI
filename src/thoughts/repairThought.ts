@@ -16,11 +16,11 @@ export class RepairThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
-      const repairTarget = figment.getNextRepairTarget();
+      const repairTarget = figment.getNextRepairTarget({ originRoom: this.idea.spawn.room });
       if (repairTarget) {
         figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
       } else {
-        const buildTarget = figment.getNextBuildTarget();
+        const buildTarget = figment.getNextBuildTarget({ originRoom: this.idea.spawn.room });
         const controller = figment.room.controller;
         if (buildTarget && controller && controller.my && controller.ticksToDowngrade > 4000) {
           figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
@@ -31,7 +31,7 @@ export class RepairThought extends FigmentThought {
         }
       }
     } else {
-      const target = figment.getNextPickupOrWithdrawTarget(true);
+      const target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {

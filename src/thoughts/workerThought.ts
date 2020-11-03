@@ -17,7 +17,7 @@ export class WorkerThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
-      const target = figment.getNextBuildTarget();
+      const target = figment.getNextBuildTarget({ originRoom: this.idea.spawn.room });
       const controller = figment.room.controller;
       if (target && controller && controller.my && controller.ticksToDowngrade > 4000) {
         figment.addNeuron(NeuronType.BUILD, target.id, target.pos);
@@ -27,7 +27,11 @@ export class WorkerThought extends FigmentThought {
         }
       }
     } else {
-      const target = figment.getNextPickupOrWithdrawTarget(true, false);
+      const target = figment.getNextPickupOrWithdrawTarget({
+        useStorage: true,
+        avoidControllerStorage: false,
+        originRoom: this.idea.spawn.room
+      });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {

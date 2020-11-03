@@ -9,6 +9,48 @@ Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosi
   return Traveler.travelTo(this, destination, options);
 };
 
+// Room
+
+Object.defineProperty(Room.prototype, "neighbors", {
+  get() {
+    const adjRooms: Room[] = [];
+
+    const exits = Game.map.describeExits(this.name);
+    for (const roomName of Object.values(exits)) {
+      if (roomName) {
+        const room = Game.rooms[roomName];
+        if (room) {
+          adjRooms.push(room);
+        }
+      }
+    }
+
+    return adjRooms;
+  }
+});
+
+Object.defineProperty(Room.prototype, "neighborNames", {
+  get() {
+    const adjRoomNames: string[] = [];
+
+    const exits = Game.map.describeExits(this.name);
+    for (const roomName of Object.values(exits)) {
+      if (roomName) {
+        adjRoomNames.push(roomName);
+      }
+    }
+
+    return adjRoomNames;
+  }
+});
+
+Object.defineProperty(Room.prototype, "neighborhood", {
+  get() {
+    const rooms: Room[] = [this];
+    return rooms.concat(this.neighbors);
+  }
+});
+
 // RoomPosition
 
 Object.defineProperty(RoomPosition.prototype, "isEdge", {

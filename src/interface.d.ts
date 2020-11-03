@@ -46,6 +46,12 @@ interface PathfinderReturn {
   incomplete: boolean;
 }
 
+interface Room {
+  neighbors: Room[];
+  neighborNames: string[];
+  neighborhood: Room[];
+}
+
 interface RoomPosition {
   availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
   availableToMove: boolean;
@@ -73,6 +79,13 @@ interface Structure {
   hasEnergyCapacity: boolean;
   hasEnergy: boolean;
   containerWithEnergy: boolean;
+}
+
+interface NextTarget {
+  useStorage?: boolean;
+  avoidControllerStorage?: boolean;
+  originRoom: Room;
+  repairThreshold?: number;
 }
 
 interface TravelToReturnData {

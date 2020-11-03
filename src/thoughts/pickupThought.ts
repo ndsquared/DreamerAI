@@ -17,14 +17,14 @@ export class PickupThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      const target = figment.getNextPickupOrWithdrawTarget();
+      const target = figment.getNextPickupOrWithdrawTarget({ originRoom: this.idea.spawn.room });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     } else {
-      const target = figment.getNextTransferTarget();
+      const target = figment.getNextTransferTarget({ originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

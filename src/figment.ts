@@ -130,63 +130,46 @@ export class Figment extends Creep implements Figment {
     this.say(type);
   }
 
-  public getNextPickupTarget(): Resource | null {
-    const resource = _.first(
-      _.sortBy(this.room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() }), s => {
-        return PathFinder.search(this.pos, { pos: s.pos, range: 1 }).path.length;
-      })
-    );
-    // const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
-    return resource;
+  public getNextPickupTarget({ originRoom }: NextTarget): Resource | null {
+    let resources: Resource[] = [];
+    for (const room of originRoom.neighborhood) {
+      const roomResources = room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() });
+      resources = resources.concat(roomResources);
+    }
+    return _.first(_.sortBy(resources, r => PathFinder.search(this.pos, { pos: r.pos, range: 1 }).cost));
   }
 
-  public getNextTransferTarget(useStorage = true, room: Room = this.room): Structure | null {
-    // First check if towers have minimum energy required
-    const structures = room.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_TOWER
-    });
-    for (const structure of structures) {
-      const tower = structure as StructureTower;
-      if (tower.store.getUsedCapacity("energy") < 100) {
-        return tower;
-      }
-    }
-    const target = _.first(
-      _.sortBy(
-        this.room.find(FIND_STRUCTURES, {
-          filter: s => {
-            if (s.structureType === STRUCTURE_CONTAINER) {
-              const sources = s.pos.findInRange(FIND_SOURCES, 1);
-              if (sources.length) {
-                return false;
-              }
-            } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
+  public getNextTransferTarget({ useStorage = true, originRoom }: NextTarget): Structure | null {
+    let targets: Structure[] = [];
+    for (const room of originRoom.neighborhood) {
+      const roomTargets = room.find(FIND_STRUCTURES, {
+        filter: s => {
+          if (s.structureType === STRUCTURE_CONTAINER) {
+            const sources = s.pos.findInRange(FIND_SOURCES, 1);
+            if (sources.length) {
               return false;
             }
-            return s.hasEnergyCapacity;
+          } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
+            return false;
           }
-        }),
-        s => s.pos.findPathTo(this.pos).length
-      )
-    );
-    return target;
-  }
-
-  public getNextBuildTarget(): ConstructionSite | undefined {
-    let target = _.first(
-      _.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => {
-        const percentCompleted = s.progress / s.progressTotal;
-        return percentCompleted;
-      }).reverse()
-    );
-    // If target site hasn't been started yet, find the closest site instead.
-    if (target !== undefined && target.progress === 0) {
-      target = _.first(_.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => s.pos.findPathTo(this.pos).length));
+          return s.hasEnergyCapacity;
+        }
+      });
+      targets = targets.concat(roomTargets);
     }
-    return target;
+    return _.first(_.sortBy(targets, r => PathFinder.search(this.pos, { pos: r.pos, range: 1 }).cost));
   }
 
-  public getNextRepairTarget(repairThreshold = 10000): Structure | null {
+  public getNextBuildTarget({ originRoom }: NextTarget): ConstructionSite | undefined {
+    let targets: ConstructionSite[] = [];
+    for (const room of originRoom.neighborhood) {
+      const roomTargets = room.find(FIND_MY_CONSTRUCTION_SITES);
+      targets = targets.concat(roomTargets);
+    }
+    return _.first(_.sortBy(targets, r => PathFinder.search(this.pos, { pos: r.pos, range: 1 }).cost));
+  }
+
+  public getNextRepairTarget({ repairThreshold = 10000 }: NextTarget): Structure | null {
     const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: s => {
         if (s.hits < repairThreshold && s.hits < s.hitsMax) {
@@ -195,12 +178,15 @@ export class Figment extends Creep implements Figment {
         return false;
       }
     });
-    // if (target) console.log(`current repair target ${target.id}`);
     return target;
   }
 
-  public getNextPickupOrWithdrawTarget(useStorage = false, avoidControllerStorage = true): Resource | Structure | null {
-    const resource = this.getNextPickupTarget();
+  public getNextPickupOrWithdrawTarget({
+    useStorage = false,
+    avoidControllerStorage = true,
+    originRoom
+  }: NextTarget): Resource | Structure | null {
+    const resource = this.getNextPickupTarget({ originRoom });
     const target = _.first(
       _.sortBy(
         this.room.find(FIND_STRUCTURES, {
@@ -235,7 +221,6 @@ export class Figment extends Creep implements Figment {
         return resource;
       }
     }
-    // console.log(`${this.name} getting energy from container ${container.id}`);
     return target;
   }
 }

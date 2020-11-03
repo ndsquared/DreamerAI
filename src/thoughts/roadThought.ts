@@ -27,20 +27,10 @@ export class RoadThought extends BuildThought {
 
   public ponder(): void {
     const spawn = this.idea.spawn;
-    // Build roads to all the sources in the room
-    const sources = Game.rooms[spawn.pos.roomName].find(FIND_SOURCES);
-    this.buildRoadToSources(spawn.pos, sources);
-
-    // Build roads to sources in adjacent rooms
-    const mapExits = Game.map.describeExits(spawn.room.name);
-    for (const roomName of Object.values(mapExits)) {
-      if (roomName) {
-        const room = Game.rooms[roomName];
-        if (room) {
-          const remoteSources = room.find(FIND_SOURCES);
-          this.buildRoadToSources(spawn.pos, remoteSources);
-        }
-      }
+    // Build roads to sources in the neighborhood
+    for (const room of spawn.room.neighborhood) {
+      const remoteSources = room.find(FIND_SOURCES);
+      this.buildRoadToSources(spawn.pos, remoteSources);
     }
 
     // Build road to controller

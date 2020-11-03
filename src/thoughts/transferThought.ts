@@ -16,14 +16,14 @@ export class TransferThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      const target = figment.getNextPickupOrWithdrawTarget(true);
+      const target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     } else {
-      const target = figment.getNextTransferTarget(false);
+      const target = figment.getNextTransferTarget({ useStorage: false, originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

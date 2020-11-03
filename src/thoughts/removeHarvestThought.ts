@@ -79,7 +79,7 @@ export class RemoteHarvestThought extends FigmentThought {
         }
       }
     } else {
-      shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
+      shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.REMOTE_PICKUP) > 0;
     }
 
     let targetOptions = null;
@@ -92,7 +92,7 @@ export class RemoteHarvestThought extends FigmentThought {
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
     } else {
-      const target = figment.getNextTransferTarget(true, room);
+      const target = figment.getNextTransferTarget({ originRoom: room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

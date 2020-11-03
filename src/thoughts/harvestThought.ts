@@ -73,7 +73,7 @@ export class HarvestThought extends FigmentThought {
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
     } else {
-      const target = figment.getNextTransferTarget();
+      const target = figment.getNextTransferTarget({ originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
