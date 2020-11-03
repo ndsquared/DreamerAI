@@ -1,6 +1,6 @@
 import { Neuron } from "./neuron";
 
-export class NeuronClaim extends Neuron {
+export class NeuronReserve extends Neuron {
   public target!: StructureController;
   public isValidNeuron(): boolean {
     return this.figment.getActiveBodyparts(CLAIM) > 0;
@@ -9,10 +9,7 @@ export class NeuronClaim extends Neuron {
     return this.target instanceof StructureController;
   }
   public impulse(): number {
-    let result = this.figment.claimController(this.target);
-    if (result === ERR_GCL_NOT_ENOUGH) {
-      result = this.figment.reserveController(this.target);
-    }
+    const result = this.figment.reserveController(this.target);
     return result;
   }
 }

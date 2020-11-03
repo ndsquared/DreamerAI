@@ -11,7 +11,7 @@ export enum FigmentThoughtName {
   SCOUT = "Scout",
   REMOTE_HARVEST = "Remote Harvest",
   REMOTE_PICKUP = "Remote Pickup",
-  CLAIM = "Claim"
+  RESERVE = "Reserve"
 }
 
 export abstract class FigmentThought extends Thought {

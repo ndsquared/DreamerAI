@@ -3,7 +3,7 @@ import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
-export class ClaimThought extends FigmentThought {
+export class ReserveThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentsNeeded = 1;
@@ -20,7 +20,7 @@ export class ClaimThought extends FigmentThought {
     if (room) {
       const controller = room.controller;
       if (controller) {
-        figment.addNeuron(NeuronType.CLAIM, controller.id, controller.pos);
+        figment.addNeuron(NeuronType.RESERVE, controller.id, controller.pos);
       }
     } else {
       const targetPos = new RoomPosition(25, 25, this.instance);

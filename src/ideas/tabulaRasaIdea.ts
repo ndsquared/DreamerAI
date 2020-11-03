@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BuildThoughtName } from "thoughts/buildThought";
-import { ClaimThought } from "thoughts/claimThought";
 import { ContainerThought } from "thoughts/containerThought";
 import { ExtensionThought } from "thoughts/extensionThought";
 import { FigmentThoughtName } from "thoughts/figmentThought";
@@ -10,6 +9,7 @@ import { Idea } from "./idea";
 import { PickupThought } from "thoughts/pickupThought";
 import { RemoteHarvestThought } from "thoughts/removeHarvestThought";
 import { RepairThought } from "thoughts/repairThought";
+import { ReserveThought } from "thoughts/reserveThought";
 import { RoadThought } from "thoughts/roadThought";
 import { ScoutThought } from "thoughts/scoutThought";
 import { StorageThought } from "thoughts/storageThough";
@@ -64,7 +64,7 @@ export class TabulaRasaIdea extends Idea {
 
     this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = {};
     this.figmentThoughts[FigmentThoughtName.SCOUT] = {};
-    this.figmentThoughts[FigmentThoughtName.CLAIM] = {};
+    this.figmentThoughts[FigmentThoughtName.RESERVE] = {};
   }
 
   public ponder(): void {
@@ -83,10 +83,10 @@ export class TabulaRasaIdea extends Idea {
             );
           }
         }
-        if (!this.figmentThoughts[FigmentThoughtName.CLAIM][room.name]) {
-          this.figmentThoughts[FigmentThoughtName.CLAIM][room.name] = new ClaimThought(
+        if (!this.figmentThoughts[FigmentThoughtName.RESERVE][room.name]) {
+          this.figmentThoughts[FigmentThoughtName.RESERVE][room.name] = new ReserveThought(
             this,
-            FigmentThoughtName.CLAIM,
+            FigmentThoughtName.RESERVE,
             room.name
           );
         }
