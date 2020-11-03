@@ -89,7 +89,7 @@ export abstract class Idea implements IBrain {
           thoughtInstance: nextSpawn.thoughtInstance
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
-        console.log(`spawning ${nextSpawn.name} with priority ${nextSpawn.priority}`);
+        console.log(`Spawning ${nextSpawn.name}[${nextSpawn.thoughtName}] with priority ${nextSpawn.priority}`);
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
       }
     }
@@ -121,7 +121,7 @@ export abstract class Idea implements IBrain {
   }
 
   public adjustFigmentCount(figmentThoughtName: FigmentThoughtName | string, delta: number): void {
-    console.log(`adjust figment count ${figmentThoughtName} by ${delta}`);
+    // console.log(`adjust figment count ${figmentThoughtName} by ${delta}`);
     const count = Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName];
     if (count) {
       Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName] += delta;

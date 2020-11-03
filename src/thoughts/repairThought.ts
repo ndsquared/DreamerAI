@@ -21,13 +21,15 @@ export class RepairThought extends FigmentThought {
         figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
       } else {
         const buildTarget = figment.getNextBuildTarget({ originRoom: this.idea.spawn.room });
-        const controller = figment.room.controller;
-        if (buildTarget && controller && controller.my && controller.ticksToDowngrade > 4000) {
-          figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
-        } else {
-          if (controller && controller.my) {
+        const controller = this.idea.spawn.room.controller;
+        if (controller && controller.my) {
+          if (buildTarget && controller.ticksToDowngrade > 4000) {
+            figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
+          } else {
             figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
           }
+        } else if (buildTarget) {
+          figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
         }
       }
     } else {

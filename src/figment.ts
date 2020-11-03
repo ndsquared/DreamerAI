@@ -52,7 +52,6 @@ export class Figment extends Creep implements Figment {
       }
     }
 
-    // console.log(bodyParts.toString());
     const sortedBodyParts = _.sortBy(bodyParts, s => {
       switch (s) {
         case TOUGH:
@@ -75,7 +74,6 @@ export class Figment extends Creep implements Figment {
           return 10;
       }
     });
-    // console.log(sortedBodyParts.toString());
     return sortedBodyParts;
   }
 
@@ -197,7 +195,7 @@ export class Figment extends Creep implements Figment {
         filter: s => {
           if (s instanceof StructureContainer) {
             if (avoidControllerStorage) {
-              const controller = this.room.controller;
+              const controller = room.controller;
               if (controller) {
                 if (controller.pos.inRangeTo(s.pos, 1)) {
                   return false;
