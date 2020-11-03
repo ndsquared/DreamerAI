@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+import { PathFindWithRoad, ShuffleArray } from "utils/misc";
 import { Neurons } from "neurons/neurons";
-import { ShuffleArray } from "utils/misc";
 
 export class Figment extends Creep implements Figment {
   public constructor(creepId: Id<Creep>) {
@@ -136,7 +136,7 @@ export class Figment extends Creep implements Figment {
       const roomResources = room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() });
       resources = resources.concat(roomResources);
     }
-    return _.first(_.sortBy(resources, r => PathFinder.search(this.pos, { pos: r.pos, range: 1 }).cost));
+    return _.first(_.sortBy(resources, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
   public getNextTransferTarget({ useStorage = true, originRoom }: NextTarget): Structure | null {
@@ -157,7 +157,7 @@ export class Figment extends Creep implements Figment {
       });
       targets = targets.concat(roomTargets);
     }
-    return _.first(_.sortBy(targets, r => PathFinder.search(this.pos, { pos: r.pos, range: 1 }).cost));
+    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
   public getNextBuildTarget({ originRoom }: NextTarget): ConstructionSite | undefined {
@@ -166,19 +166,23 @@ export class Figment extends Creep implements Figment {
       const roomTargets = room.find(FIND_MY_CONSTRUCTION_SITES);
       targets = targets.concat(roomTargets);
     }
-    return _.first(_.sortBy(targets, r => PathFinder.search(this.pos, { pos: r.pos, range: 1 }).cost));
+    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextRepairTarget({ repairThreshold = 10000 }: NextTarget): Structure | null {
-    const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.hits < repairThreshold && s.hits < s.hitsMax) {
-          return true;
+  public getNextRepairTarget({ repairThreshold = 10000, originRoom }: NextTarget): Structure | null {
+    let targets: Structure[] = [];
+    for (const room of originRoom.neighborhood) {
+      const roomTargets = room.find(FIND_STRUCTURES, {
+        filter: s => {
+          if (s.hits < repairThreshold && s.hits < s.hitsMax) {
+            return true;
+          }
+          return false;
         }
-        return false;
-      }
-    });
-    return target;
+      });
+      targets = targets.concat(roomTargets);
+    }
+    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
   public getNextPickupOrWithdrawTarget({
@@ -187,29 +191,29 @@ export class Figment extends Creep implements Figment {
     originRoom
   }: NextTarget): Resource | Structure | null {
     const resource = this.getNextPickupTarget({ originRoom });
-    const target = _.first(
-      _.sortBy(
-        this.room.find(FIND_STRUCTURES, {
-          filter: s => {
-            if (s instanceof StructureContainer) {
-              if (avoidControllerStorage) {
-                const controller = this.room.controller;
-                if (controller) {
-                  if (controller.pos.inRangeTo(s.pos, 1)) {
-                    return false;
-                  }
+    let targets: Structure[] = [];
+    for (const room of originRoom.neighborhood) {
+      const roomTargets = room.find(FIND_STRUCTURES, {
+        filter: s => {
+          if (s instanceof StructureContainer) {
+            if (avoidControllerStorage) {
+              const controller = this.room.controller;
+              if (controller) {
+                if (controller.pos.inRangeTo(s.pos, 1)) {
+                  return false;
                 }
               }
-              return s.store.getUsedCapacity() >= this.store.getCapacity();
-            } else if (s instanceof StructureStorage && useStorage) {
-              return s.store.getUsedCapacity() >= this.store.getCapacity();
             }
-            return false;
+            return s.store.getUsedCapacity() >= this.store.getCapacity();
+          } else if (s instanceof StructureStorage && useStorage) {
+            return s.store.getUsedCapacity() >= this.store.getCapacity();
           }
-        }),
-        s => s.pos.findPathTo(this.pos, { ignoreCreeps: true }).length
-      )
-    ) as StoreStructure;
+          return false;
+        }
+      });
+      targets = targets.concat(roomTargets);
+    }
+    const target = _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
     if (!target) {
       return resource;
     }

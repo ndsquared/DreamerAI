@@ -79,7 +79,7 @@ export class RemoteHarvestThought extends FigmentThought {
         }
       }
     } else {
-      shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.REMOTE_PICKUP) > 0;
+      shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
     }
 
     let targetOptions = null;

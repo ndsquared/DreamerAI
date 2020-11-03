@@ -18,13 +18,15 @@ export class WorkerThought extends FigmentThought {
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
       const target = figment.getNextBuildTarget({ originRoom: this.idea.spawn.room });
-      const controller = figment.room.controller;
-      if (target && controller && controller.my && controller.ticksToDowngrade > 4000) {
-        figment.addNeuron(NeuronType.BUILD, target.id, target.pos);
-      } else {
-        if (controller && controller.my) {
+      const controller = this.idea.spawn.room.controller;
+      if (controller && controller.my) {
+        if (target && controller.ticksToDowngrade > 4000) {
+          figment.addNeuron(NeuronType.BUILD, target.id, target.pos);
+        } else {
           figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
         }
+      } else if (target) {
+        figment.addNeuron(NeuronType.BUILD, target.id, target.pos);
       }
     } else {
       const target = figment.getNextPickupOrWithdrawTarget({
