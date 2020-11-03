@@ -184,25 +184,28 @@ export class Figment extends Creep implements Figment {
     return target;
   }
 
-  public getNextRepairTarget(): Structure | null {
+  public getNextRepairTarget(repairThreshold = 10000): Structure | null {
     const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: s => {
-        if (s.hits < s.hitsMax) {
+        if (s.hits < repairThreshold && s.hits < s.hitsMax) {
           return true;
         }
         return false;
       }
     });
+    // if (target) console.log(`current repair target ${target.id}`);
     return target;
   }
 
-  public getNextPickupOrWithdrawTarget(): Resource | Structure | null {
+  public getNextPickupOrWithdrawTarget(useStorage = false): Resource | Structure | null {
     const resource = this.getNextPickupTarget();
-    const container = _.first(
+    const target = _.first(
       _.sortBy(
         this.room.find(FIND_STRUCTURES, {
           filter: s => {
             if (s instanceof StructureContainer) {
+              return s.store.getUsedCapacity() >= this.store.getCapacity();
+            } else if (s instanceof StructureStorage && useStorage) {
               return s.store.getUsedCapacity() >= this.store.getCapacity();
             }
             return false;
@@ -210,19 +213,19 @@ export class Figment extends Creep implements Figment {
         }),
         s => s.pos.findPathTo(this.pos, { ignoreCreeps: true }).length
       )
-    ) as StructureContainer;
-    if (!container) {
+    ) as StoreStructure;
+    if (!target) {
       return resource;
     }
     if (resource) {
       if (
         this.pos.findPathTo(resource, { ignoreCreeps: true }).length <
-        this.pos.findPathTo(container, { ignoreCreeps: true }).length
+        this.pos.findPathTo(target, { ignoreCreeps: true }).length
       ) {
         return resource;
       }
     }
     // console.log(`${this.name} getting energy from container ${container.id}`);
-    return container;
+    return target;
   }
 }

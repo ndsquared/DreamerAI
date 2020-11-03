@@ -27,7 +27,7 @@ export class WorkerThought extends FigmentThought {
         }
       }
     } else {
-      const target = figment.getNextPickupOrWithdrawTarget();
+      const target = figment.getNextPickupOrWithdrawTarget(true);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {
