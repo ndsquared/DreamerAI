@@ -6,7 +6,6 @@ import { NeuronType } from "neurons/neurons";
 export class RepairThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
-    this.figmentsNeeded = 1;
     this.figmentBodySpec = {
       bodyParts: [WORK, CARRY, MOVE],
       ratio: [1, 1, 2],
@@ -32,7 +31,7 @@ export class RepairThought extends FigmentThought {
         }
       }
     } else {
-      const target = figment.getNextPickupOrWithdrawTarget();
+      const target = figment.getNextPickupOrWithdrawTarget(true);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target) {
@@ -43,5 +42,10 @@ export class RepairThought extends FigmentThought {
 
   public adjustPriority(): void {
     this.figmentPriority = 1;
+    if (this.idea.rcl > 3) {
+      this.figmentsNeeded = 2;
+    } else {
+      this.figmentsNeeded = 1;
+    }
   }
 }
