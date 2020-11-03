@@ -140,7 +140,7 @@ export class Figment extends Creep implements Figment {
     return resource;
   }
 
-  public getNextTransferTarget(): Structure | null {
+  public getNextTransferTarget(useStorage = true): Structure | null {
     // First check if towers have minimum energy required
     const structures = this.room.find(FIND_MY_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_TOWER
@@ -160,6 +160,8 @@ export class Figment extends Creep implements Figment {
               if (sources.length) {
                 return false;
               }
+            } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
+              return false;
             }
             return s.hasEnergyCapacity;
           }
