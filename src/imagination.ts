@@ -82,7 +82,7 @@ export class Imagination implements IBrain {
     for (const name in Memory.creeps) {
       if (!(name in Game.creeps)) {
         const idea = this.ideas[Memory.creeps[name].ideaName];
-        idea.adjustFigmentCount(Memory.creeps[name].thoughtName, -1);
+        if (idea) idea.adjustFigmentCount(Memory.creeps[name].thoughtName, -1);
         delete Memory.creeps[name];
       }
     }

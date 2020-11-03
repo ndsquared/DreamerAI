@@ -5,6 +5,7 @@ import { FigmentThoughtName } from "thoughts/figmentThought";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Idea } from "./idea";
 import { PickupThought } from "thoughts/pickupThought";
+import { RemoteHarvestThought } from "thoughts/removeHarvestThought";
 import { RepairThought } from "thoughts/repairThought";
 import { RoadThought } from "thoughts/roadThought";
 import { ScoutThought } from "thoughts/scoutThought";
@@ -37,5 +38,13 @@ export class TabulaRasaIdea extends Idea {
     this.buildThoughts[BuildThoughtName.CONTAINER] = [new ContainerThought(this, BuildThoughtName.CONTAINER, 0)];
     this.buildThoughts[BuildThoughtName.TOWER] = [new TowerThought(this, BuildThoughtName.TOWER, 0)];
     this.buildThoughts[BuildThoughtName.STORAGE] = [new StorageThought(this, BuildThoughtName.STORAGE, 0)];
+    const mapExits = Game.map.describeExits(this.spawn.room.name);
+    for (const roomName of Object.values(mapExits)) {
+      if (roomName) {
+        this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = [
+          new RemoteHarvestThought(this, FigmentThoughtName.REMOTE_HARVEST, 0, roomName)
+        ];
+      }
+    }
   }
 }

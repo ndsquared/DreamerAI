@@ -140,9 +140,9 @@ export class Figment extends Creep implements Figment {
     return resource;
   }
 
-  public getNextTransferTarget(useStorage = true): Structure | null {
+  public getNextTransferTarget(useStorage = true, room: Room = this.room): Structure | null {
     // First check if towers have minimum energy required
-    const structures = this.room.find(FIND_MY_STRUCTURES, {
+    const structures = room.find(FIND_MY_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_TOWER
     });
     for (const structure of structures) {

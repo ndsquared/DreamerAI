@@ -135,9 +135,15 @@ export abstract class Idea implements IBrain {
     }
     while (this.buildQueue.length > 0) {
       const nextBuild = this.buildQueue.dequeue();
-      const buildResult = this.spawn.room.createConstructionSite(nextBuild.pos, nextBuild.structure);
+      const room = Game.rooms[nextBuild.pos.roomName];
+      if (!room) {
+        continue;
+      }
+      const buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
       if (buildResult === OK) {
-        console.log(`Building ${nextBuild.structure} at (${nextBuild.pos.x}, ${nextBuild.pos.y})`);
+        console.log(
+          `Building ${nextBuild.structure} at (${nextBuild.pos.roomName}: ${nextBuild.pos.x}, ${nextBuild.pos.y})`
+        );
         break;
       }
     }

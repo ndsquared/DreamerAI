@@ -8,7 +8,8 @@ export enum FigmentThoughtName {
   WORKER = "Worker",
   REPAIR = "Repair",
   TRANSFER = "Transfer",
-  SCOUT = "Scout"
+  SCOUT = "Scout",
+  REMOTE_HARVEST = "Remote Harvest"
 }
 
 export abstract class FigmentThought extends Thought {
