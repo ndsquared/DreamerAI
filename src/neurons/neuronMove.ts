@@ -12,7 +12,6 @@ export class NeuronMove extends Neuron {
   }
   public impulse(): number {
     const result = this.figment.travelTo(this.targetPos);
-    console.log(result);
     return result;
   }
 }

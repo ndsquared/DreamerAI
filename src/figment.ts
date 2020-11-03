@@ -170,7 +170,7 @@ export class Figment extends Creep implements Figment {
     return target;
   }
 
-  public getNextConstructionSite(): ConstructionSite | undefined {
+  public getNextBuildTarget(): ConstructionSite | undefined {
     let target = _.first(
       _.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => {
         const percentCompleted = s.progress / s.progressTotal;
@@ -181,6 +181,18 @@ export class Figment extends Creep implements Figment {
     if (target !== undefined && target.progress === 0) {
       target = _.first(_.sortBy(this.room.find(FIND_MY_CONSTRUCTION_SITES), s => s.pos.findPathTo(this.pos).length));
     }
+    return target;
+  }
+
+  public getNextRepairTarget(): Structure | null {
+    const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: s => {
+        if (s.hits < s.hitsMax) {
+          return true;
+        }
+        return false;
+      }
+    });
     return target;
   }
 

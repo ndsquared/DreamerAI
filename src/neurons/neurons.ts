@@ -6,6 +6,7 @@ import { NeuronDrop } from "./neuronDrop";
 import { NeuronHarvest } from "./neuronHarvest";
 import { NeuronMove } from "./neuronMove";
 import { NeuronPickup } from "./neuronPickup";
+import { NeuronRepair } from "./neuronRepair";
 import { NeuronTransfer } from "./neuronTransfer";
 import { NeuronUpgrade } from "./neuronUpgrade";
 import { NeuronWithDraw } from "./neuronWithdraw";
@@ -19,7 +20,8 @@ export enum NeuronType {
   BUILD = "BUILD",
   UPGRADE = "UPGRADE",
   WITHDRAW = "WITHDRAW",
-  MOVE = "MOVE"
+  MOVE = "MOVE",
+  REPAIR = "REPAIR"
 }
 export abstract class Neurons {
   public static generateNeuron(figment: Figment, interneuron: Interneuron): Neuron {
@@ -48,6 +50,9 @@ export abstract class Neurons {
         break;
       case NeuronType.MOVE:
         neuron = new NeuronMove(figment, interneuron);
+        break;
+      case NeuronType.REPAIR:
+        neuron = new NeuronRepair(figment, interneuron);
         break;
       default:
         neuron = new NeuronDream(figment, interneuron);

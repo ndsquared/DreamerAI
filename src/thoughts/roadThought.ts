@@ -22,5 +22,14 @@ export class RoadThought extends BuildThought {
       const pathFind = PathFinder.search(spawn.pos, { pos: controller.pos, range: 2 });
       this.idea.addBuild(pathFind.path, STRUCTURE_ROAD, pathFind.cost);
     }
+
+    // Build roads to all containers
+    const containers = spawn.room.find(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_CONTAINER
+    });
+    for (const container of containers) {
+      const pathFind = PathFinder.search(spawn.pos, { pos: container.pos, range: 1 });
+      this.idea.addBuild(pathFind.path, STRUCTURE_ROAD, pathFind.cost);
+    }
   }
 }

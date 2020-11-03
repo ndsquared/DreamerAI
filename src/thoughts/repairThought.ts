@@ -3,10 +3,10 @@ import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
-export class WorkerThought extends FigmentThought {
+export class RepairThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: number) {
     super(idea, name, instance);
-    this.figmentsNeeded = 12;
+    this.figmentsNeeded = 1;
     this.figmentBodySpec = {
       bodyParts: [WORK, CARRY, MOVE],
       ratio: [1, 1, 2],
@@ -17,13 +17,18 @@ export class WorkerThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
-      const target = figment.getNextBuildTarget();
-      const controller = figment.room.controller;
-      if (target && controller && controller.my && controller.ticksToDowngrade > 4000) {
-        figment.addNeuron(NeuronType.BUILD, target.id, target.pos);
+      const repairTarget = figment.getNextRepairTarget();
+      if (repairTarget) {
+        figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
       } else {
-        if (controller && controller.my) {
-          figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
+        const buildTarget = figment.getNextBuildTarget();
+        const controller = figment.room.controller;
+        if (buildTarget && controller && controller.my && controller.ticksToDowngrade > 4000) {
+          figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
+        } else {
+          if (controller && controller.my) {
+            figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
+          }
         }
       }
     } else {
@@ -37,8 +42,6 @@ export class WorkerThought extends FigmentThought {
   }
 
   public adjustPriority(): void {
-    if (this.figments.length >= 4) {
-      this.figmentPriority = 2;
-    }
+    this.figmentPriority = 1;
   }
 }
