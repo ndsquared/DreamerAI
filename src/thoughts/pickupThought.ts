@@ -10,7 +10,7 @@ export class PickupThought extends FigmentThought {
       bodyParts: [MOVE, CARRY],
       ratio: [1, 1],
       minParts: 6,
-      maxParts: 20
+      maxParts: 30
     };
   }
 

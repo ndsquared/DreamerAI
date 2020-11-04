@@ -8,9 +8,9 @@ export class RepairThought extends FigmentThought {
     super(idea, name, instance);
     this.figmentBodySpec = {
       bodyParts: [WORK, CARRY, MOVE],
-      ratio: [1, 1, 2],
+      ratio: [1, 1, 1],
       minParts: 4,
-      maxParts: 20
+      maxParts: 12
     };
   }
 
