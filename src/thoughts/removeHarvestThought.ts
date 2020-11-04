@@ -13,7 +13,7 @@ export class RemoteHarvestThought extends FigmentThought {
     this.figmentBodySpec = {
       bodyParts: [WORK, MOVE, CARRY],
       ratio: [2, 2, 1],
-      minParts: 4,
+      minParts: 5,
       maxParts: 12
     };
   }

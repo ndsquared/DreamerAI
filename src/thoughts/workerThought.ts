@@ -6,12 +6,12 @@ import { NeuronType } from "neurons/neurons";
 export class WorkerThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentsNeeded = 8;
+    this.figmentsNeeded = 6;
     this.figmentBodySpec = {
       bodyParts: [WORK, CARRY, MOVE],
-      ratio: [1, 1, 2],
+      ratio: [1, 1, 1],
       minParts: 4,
-      maxParts: 20
+      maxParts: 15
     };
   }
 
