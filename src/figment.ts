@@ -110,7 +110,8 @@ export class Figment extends Creep implements Figment {
     const defaultTargetOptions: InterneuronTargetOptions = {
       ignoreFigmentCapacity: false,
       targetRange: 1,
-      moveOffRoadDuringImpulse: false
+      moveOffRoadDuringImpulse: false,
+      minCapacity: false
     };
     let options = defaultTargetOptions;
     if (targetOptions) {
@@ -172,6 +173,9 @@ export class Figment extends Creep implements Figment {
     for (const room of originRoom.neighborhood) {
       const roomTargets = room.find(FIND_STRUCTURES, {
         filter: s => {
+          if (s.structureType === STRUCTURE_ROAD) {
+            return false;
+          }
           if (s.hits < repairThreshold && s.hits < s.hitsMax) {
             return true;
           }

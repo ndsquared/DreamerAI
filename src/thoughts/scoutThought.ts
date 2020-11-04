@@ -11,7 +11,7 @@ export class ScoutThought extends FigmentThought {
       bodyParts: [MOVE],
       ratio: [1],
       minParts: 1,
-      maxParts: 3
+      maxParts: 1
     };
   }
 

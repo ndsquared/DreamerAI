@@ -11,6 +11,12 @@ export class NeuronPickup extends Neuron {
     return this.figment.store.getFreeCapacity(this.resourceType) > 0 && this.figment.getActiveBodyparts(CARRY) > 0;
   }
   public isValidTarget(): boolean {
+    if (!this.target) {
+      return false;
+    }
+    if (this.interneuron.target.options.minCapacity) {
+      return this.target.amount > this.figment.store.getFreeCapacity(this.resourceType);
+    }
     return this.target && this.target.amount > 0;
   }
   public impulse(): number {

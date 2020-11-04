@@ -12,7 +12,7 @@ import { RepairThought } from "thoughts/repairThought";
 import { ReserveThought } from "thoughts/reserveThought";
 import { RoadThought } from "thoughts/roadThought";
 import { ScoutThought } from "thoughts/scoutThought";
-import { StorageThought } from "thoughts/storageThough";
+import { StorageThought } from "thoughts/storageThought";
 import { TowerThought } from "thoughts/towerThought";
 import { TransferThought } from "thoughts/transferThought";
 import { WorkerThought } from "thoughts/workerThought";
