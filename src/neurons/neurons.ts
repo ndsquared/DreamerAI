@@ -1,9 +1,11 @@
 import { Figment } from "../figment";
 import { Neuron } from "./neuron";
+import { NeuronAttack } from "./neuronAttack";
 import { NeuronBuild } from "./neuronBuild";
 import { NeuronDream } from "./neuronDream";
 import { NeuronDrop } from "./neuronDrop";
 import { NeuronHarvest } from "./neuronHarvest";
+import { NeuronHeal } from "./neuronHeal";
 import { NeuronMove } from "./neuronMove";
 import { NeuronPickup } from "./neuronPickup";
 import { NeuronRepair } from "./neuronRepair";
@@ -23,7 +25,9 @@ export enum NeuronType {
   WITHDRAW = "WITHDRAW",
   MOVE = "MOVE",
   REPAIR = "REPAIR",
-  RESERVE = "RESERVE"
+  RESERVE = "RESERVE",
+  ATTACK = "ATTACK",
+  HEAL = "HEAL"
 }
 export abstract class Neurons {
   public static generateNeuron(figment: Figment, interneuron: Interneuron): Neuron {
@@ -58,6 +62,12 @@ export abstract class Neurons {
         break;
       case NeuronType.RESERVE:
         neuron = new NeuronReserve(figment, interneuron);
+        break;
+      case NeuronType.ATTACK:
+        neuron = new NeuronAttack(figment, interneuron);
+        break;
+      case NeuronType.HEAL:
+        neuron = new NeuronHeal(figment, interneuron);
         break;
       default:
         neuron = new NeuronDream(figment, interneuron);

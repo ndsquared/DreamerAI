@@ -60,6 +60,7 @@ interface RoomPosition {
   isWalkable(ignoreCreeps: boolean): boolean;
   isVisible: boolean;
   isEdge: boolean;
+  toString(): string;
 }
 
 interface SpawnQueuePayload {

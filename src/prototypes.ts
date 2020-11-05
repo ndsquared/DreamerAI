@@ -125,6 +125,10 @@ RoomPosition.prototype.isWalkable = function (ignoreCreeps = false): boolean {
   return true;
 };
 
+RoomPosition.prototype.toString = function (): string {
+  return `(${this.roomName}, ${this.x}, ${this.y})`;
+};
+
 // Structure
 Object.defineProperty(Structure.prototype, "isWalkable", {
   get() {

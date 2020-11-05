@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { AttackThought } from "thoughts/attackThought";
 import { BuildThoughtName } from "thoughts/buildThought";
 import { ContainerThought } from "thoughts/containerThought";
+import { DefenseThought } from "thoughts/defenseThought";
 import { ExtensionThought } from "thoughts/extensionThought";
 import { FigmentThoughtName } from "thoughts/figmentThought";
 import { HarvestThought } from "../thoughts/harvestThought";
@@ -54,7 +56,9 @@ export class TabulaRasaIdea extends Idea {
     const figmentThoughts: ThoughtMapping[] = [
       { name: FigmentThoughtName.TRANSFER, thought: TransferThought },
       { name: FigmentThoughtName.WORKER, thought: WorkerThought },
-      { name: FigmentThoughtName.UPGRADE, thought: UpgradeThought }
+      { name: FigmentThoughtName.UPGRADE, thought: UpgradeThought },
+      { name: FigmentThoughtName.ATTACK, thought: AttackThought },
+      { name: FigmentThoughtName.DEFENSE, thought: DefenseThought }
     ];
     for (const figmentThought of figmentThoughts) {
       this.figmentThoughts[figmentThought.name] = {};

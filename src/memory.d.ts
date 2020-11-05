@@ -4,6 +4,7 @@ interface CreepMemory {
   thoughtName: string;
   thoughtInstance: string;
   interneurons: Interneuron[];
+  underAttack: boolean;
 }
 
 interface IdeaMemory {

@@ -89,7 +89,8 @@ export abstract class Idea implements IBrain {
           interneurons: [],
           ideaName: this.spawn.room.name,
           thoughtName: nextSpawn.thoughtName,
-          thoughtInstance: nextSpawn.thoughtInstance
+          thoughtInstance: nextSpawn.thoughtInstance,
+          underAttack: false
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
         console.log(`Spawning ${nextSpawn.name}[${nextSpawn.thoughtName}] with priority ${nextSpawn.priority}`);

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+import { NeuronType, Neurons } from "neurons/neurons";
 import { PathFindWithRoad, ShuffleArray } from "utils/misc";
-import { Neurons } from "neurons/neurons";
 
 export class Figment extends Creep implements Figment {
   public constructor(creepId: Id<Creep>) {
@@ -85,7 +85,42 @@ export class Figment extends Creep implements Figment {
     return this.neurons.length === 0;
   }
 
+  private preRunChecks(): void {
+    if (this.memory.underAttack) {
+      this.memory.underAttack = false;
+      const enemies = this.room.find(FIND_HOSTILE_CREEPS);
+      if (enemies.length) {
+        for (const enemy of enemies) {
+          if (enemy.pos.inRangeTo(this.pos, 8)) {
+            this.memory.underAttack = true;
+          }
+        }
+      }
+    } else {
+      if (this.getActiveBodyparts(ATTACK) > 0) {
+        return;
+      }
+      const target = Game.spawns.Spawn1;
+      const enemies = this.room.find(FIND_HOSTILE_CREEPS);
+      if (enemies.length) {
+        for (const enemy of enemies) {
+          if (enemy.pos.inRangeTo(this.pos, 8)) {
+            this.say("Noooo!", true);
+            console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
+            this.memory.interneurons = [];
+            this.addNeuron(NeuronType.MOVE, "", target.pos);
+            this.memory.underAttack = true;
+          }
+        }
+      }
+    }
+  }
+
   public run(): void {
+    this.preRunChecks();
+    if (this.memory.underAttack) {
+      return;
+    }
     while (this.neurons.length > 0) {
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {
