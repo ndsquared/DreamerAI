@@ -20,7 +20,10 @@ export class PickupThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      figment.addNeuron(NeuronType.MOVE, "", this.sourcePos, { moveRange: 3 });
+      if (!figment.pos.inRangeTo(this.sourcePos, 4)) {
+        figment.addNeuron(NeuronType.MOVE, "", this.sourcePos, { moveRange: 3 });
+        return;
+      }
       let target = figment.getNextPickupOrWithdrawTarget({ originRoom: figment.room });
       if (!target) {
         target = figment.getNextPickupOrWithdrawTargetNeighborhood({ originRoom: this.idea.spawn.room });

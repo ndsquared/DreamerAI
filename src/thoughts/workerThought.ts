@@ -11,7 +11,7 @@ export class WorkerThought extends FigmentThought {
       bodyParts: [WORK, CARRY, MOVE],
       ratio: [1, 1, 1],
       minParts: 4,
-      maxParts: 12
+      maxParts: 15
     };
   }
 
