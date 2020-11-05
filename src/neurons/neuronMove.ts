@@ -2,13 +2,7 @@ import { Neuron } from "./neuron";
 
 export class NeuronMove extends Neuron {
   public isValidNeuron(): boolean {
-    if (
-      this.figment.pos.inRangeTo(this.targetPos, this.interneuron.target.options.moveRange) &&
-      !this.targetPos.availableToMove
-    ) {
-      return false;
-    }
-    return !this.figment.pos.isEqualTo(this.targetPos);
+    return !this.figment.pos.inRangeTo(this.targetPos, this.interneuron.target.options.moveRange);
   }
   public isValidTarget(): boolean {
     return true;

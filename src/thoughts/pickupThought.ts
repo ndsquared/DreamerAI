@@ -23,7 +23,7 @@ export class PickupThought extends FigmentThought {
       figment.addNeuron(NeuronType.MOVE, "", this.sourcePos, { moveRange: 3 });
       let target = figment.getNextPickupOrWithdrawTarget({ originRoom: figment.room });
       if (!target) {
-        target = figment.getNextPickupOrWithdrawTarget({ originRoom: figment.room });
+        target = figment.getNextPickupOrWithdrawTargetNeighborhood({ originRoom: this.idea.spawn.room });
       }
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });

@@ -55,7 +55,7 @@ export class HarvestThought extends FigmentThought {
       } else {
         const figments = containers[0].pos.lookFor(LOOK_CREEPS);
         if (figments.length === 0) {
-          figment.addNeuron(NeuronType.MOVE, containers[0].id, containers[0].pos);
+          figment.addNeuron(NeuronType.MOVE, containers[0].id, containers[0].pos, { moveRange: 0 });
           return;
         } else {
           shouldDropHarvest = true;
