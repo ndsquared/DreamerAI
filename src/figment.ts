@@ -97,18 +97,21 @@ export class Figment extends Creep implements Figment {
         }
       }
     } else {
-      if (this.getActiveBodyparts(ATTACK) > 0) {
-        return;
-      }
-      if (this.getActiveBodyparts(RANGED_ATTACK) > 0) {
-        return;
-      }
-      if (this.getActiveBodyparts(HEAL) > 0) {
-        return;
-      }
       const target = Game.spawns.Spawn1;
       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
       if (enemies.length) {
+        if (this.getActiveBodyparts(ATTACK) > 0) {
+          this.memory.interneurons = [];
+          return;
+        }
+        if (this.getActiveBodyparts(RANGED_ATTACK) > 0) {
+          this.memory.interneurons = [];
+          return;
+        }
+        if (this.getActiveBodyparts(HEAL) > 0) {
+          this.memory.interneurons = [];
+          return;
+        }
         for (const enemy of enemies) {
           if (enemy.pos.inRangeTo(this.pos, 8)) {
             this.say("Noooo!", true);
