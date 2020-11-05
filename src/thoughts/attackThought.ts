@@ -38,7 +38,7 @@ export class AttackThought extends FigmentThought {
           controllers.push(controller);
         }
       }
-      if (controllers.length) {
+      if (controllers.length > 1) {
         const randomController = controllers[_.random(0, controllers.length - 1)];
         figment.addNeuron(NeuronType.MOVE, "", randomController.pos, { moveRange: 5 });
       } else {
