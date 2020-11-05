@@ -146,7 +146,7 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(resources, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextTransferTarget({ useStorage = true, originRoom }: NextTarget): Structure | null {
+  public getNextTransferTarget({ useStorage = true, originRoom, emptyTarget = false }: NextTarget): Structure | null {
     const roomTargets = originRoom.find(FIND_STRUCTURES, {
       filter: s => {
         if (s.structureType === STRUCTURE_CONTAINER) {
@@ -157,16 +157,23 @@ export class Figment extends Creep implements Figment {
         } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
           return false;
         }
+        if (emptyTarget && s.hasEnergyCapacity) {
+          return !s.hasEnergy;
+        }
         return s.hasEnergyCapacity;
       }
     });
     return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextTransferTargetNeighborhood({ useStorage = true, originRoom }: NextTarget): Structure | null {
+  public getNextTransferTargetNeighborhood({
+    useStorage = true,
+    originRoom,
+    emptyTarget = false
+  }: NextTarget): Structure | null {
     let targets: Structure[] = [];
     for (const room of originRoom.neighborhood) {
-      const target = this.getNextTransferTarget({ useStorage, originRoom: room });
+      const target = this.getNextTransferTarget({ useStorage, originRoom: room, emptyTarget });
       if (target) {
         targets = targets.concat(target);
       }

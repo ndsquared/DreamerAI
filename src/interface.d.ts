@@ -86,6 +86,7 @@ interface NextTarget {
   avoidControllerStorage?: boolean;
   originRoom: Room;
   repairThreshold?: number;
+  emptyTarget?: boolean;
 }
 
 interface TravelToReturnData {

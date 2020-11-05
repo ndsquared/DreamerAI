@@ -25,8 +25,19 @@ export class TransferThought extends FigmentThought {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
       }
     } else {
-      const target = figment.getNextTransferTarget({ useStorage: false, originRoom: this.idea.spawn.room });
+      let target = figment.getNextTransferTarget({
+        useStorage: false,
+        originRoom: this.idea.spawn.room,
+        emptyTarget: true
+      });
+      if (!target) {
+        target = figment.getNextTransferTarget({
+          useStorage: false,
+          originRoom: this.idea.spawn.room
+        });
+      }
       if (target) {
+        console.log(target.id);
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
     }

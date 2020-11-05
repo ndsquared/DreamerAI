@@ -22,13 +22,14 @@ export class NeuronTransfer extends Neuron {
         return false;
       }
     } else if (isEnergyStructure(this.target)) {
-      if (this.target.energy === 0) {
+      if (this.target.energy === this.target.energyCapacity) {
         return false;
       }
     }
     return true;
   }
   public impulse(): number {
-    return this.figment.transfer(this.target, this.resourceType);
+    const result = this.figment.transfer(this.target, this.resourceType);
+    return result;
   }
 }
