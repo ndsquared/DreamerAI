@@ -90,6 +90,18 @@ Object.defineProperty(RoomPosition.prototype, "availableToMove", {
     if (figments.length) {
       return false;
     }
+    const sources = (this as RoomPosition).lookFor(LOOK_SOURCES);
+    if (sources.length) {
+      return false;
+    }
+    const structures = (this as RoomPosition).lookFor(LOOK_STRUCTURES);
+    if (structures.length) {
+      for (const structure of structures) {
+        if (!structure.isWalkable) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 });
