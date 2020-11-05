@@ -100,6 +100,12 @@ export class Figment extends Creep implements Figment {
       if (this.getActiveBodyparts(ATTACK) > 0) {
         return;
       }
+      if (this.getActiveBodyparts(RANGED_ATTACK) > 0) {
+        return;
+      }
+      if (this.getActiveBodyparts(HEAL) > 0) {
+        return;
+      }
       const target = Game.spawns.Spawn1;
       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
       if (enemies.length) {
@@ -118,9 +124,6 @@ export class Figment extends Creep implements Figment {
 
   public run(): void {
     this.preRunChecks();
-    if (this.memory.underAttack) {
-      return;
-    }
     while (this.neurons.length > 0) {
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {

@@ -35,8 +35,20 @@ export class DefenseThought extends FigmentThought {
     } else if (healTarget) {
       figment.addNeuron(NeuronType.HEAL, healTarget.id, healTarget.pos);
     } else {
-      const randomDir = _.random(1, 8);
-      figment.move(randomDir as DirectionConstant);
+      const controllers: StructureController[] = [];
+      for (const room of this.idea.spawn.room.neighborhood) {
+        const controller = room.controller;
+        if (controller) {
+          controllers.push(controller);
+        }
+      }
+      if (controllers.length) {
+        const randomController = controllers[_.random(0, controllers.length - 1)];
+        figment.addNeuron(NeuronType.MOVE, "", randomController.pos, { moveRange: 5 });
+      } else {
+        const randomDir = _.random(1, 8);
+        figment.move(randomDir as DirectionConstant);
+      }
     }
   }
 
@@ -48,6 +60,7 @@ export class DefenseThought extends FigmentThought {
       if (enemies.length) {
         this.figmentsNeeded = 4;
         this.figmentPriority = 14;
+        return;
       }
     }
   }
