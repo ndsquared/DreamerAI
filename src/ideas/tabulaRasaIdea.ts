@@ -13,6 +13,7 @@ import { ScoutThought } from "thoughts/scoutThought";
 import { StorageThought } from "thoughts/storageThought";
 import { TowerThought } from "thoughts/towerThought";
 import { TransferThought } from "thoughts/transferThought";
+import { UpgradeThought } from "thoughts/upgradeThought";
 import { WorkerThought } from "thoughts/workerThought";
 
 interface ThoughtMapping {
@@ -51,7 +52,8 @@ export class TabulaRasaIdea extends Idea {
 
     const figmentThoughts: ThoughtMapping[] = [
       { name: FigmentThoughtName.TRANSFER, thought: TransferThought },
-      { name: FigmentThoughtName.WORKER, thought: WorkerThought }
+      { name: FigmentThoughtName.WORKER, thought: WorkerThought },
+      { name: FigmentThoughtName.UPGRADE, thought: UpgradeThought }
     ];
     for (const figmentThought of figmentThoughts) {
       this.figmentThoughts[figmentThought.name] = {};
