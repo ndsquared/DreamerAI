@@ -101,15 +101,12 @@ export class Figment extends Creep implements Figment {
       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
       if (enemies.length) {
         if (this.getActiveBodyparts(ATTACK) > 0) {
-          this.memory.interneurons = [];
           return;
         }
         if (this.getActiveBodyparts(RANGED_ATTACK) > 0) {
-          this.memory.interneurons = [];
           return;
         }
         if (this.getActiveBodyparts(HEAL) > 0) {
-          this.memory.interneurons = [];
           return;
         }
         for (const enemy of enemies) {
