@@ -31,9 +31,9 @@ export class DefenseThought extends FigmentThought {
     const target = _.first(_.sortBy(targets, c => PathFindWithRoad(figment.pos, c.pos).cost));
     const healTarget = _.first(_.sortBy(healTargets, c => PathFindWithRoad(figment.pos, c.pos).cost));
     if (target) {
-      figment.addNeuron(NeuronType.ATTACK, target.id, target.pos);
+      figment.addNeuron(NeuronType.RANGED_ATTACK, target.id, target.pos);
     } else if (healTarget) {
-      figment.addNeuron(NeuronType.HEAL, healTarget.id, healTarget.pos);
+      figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
     } else {
       const controllers: StructureController[] = [];
       for (const room of this.idea.spawn.room.neighborhood) {
