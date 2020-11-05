@@ -1,8 +1,8 @@
 import { FigmentThought, FigmentThoughtName } from "./figmentThought";
+import { PathFindWithRoad, isStoreStructure } from "utils/misc";
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
-import { isStoreStructure } from "utils/misc";
 
 export class PickupThought extends FigmentThought {
   private sourcePos: RoomPosition;
@@ -10,6 +10,12 @@ export class PickupThought extends FigmentThought {
     super(idea, name, source.id);
     this.sourcePos = source.pos;
     this.figmentsNeeded = 1;
+    const pf = PathFindWithRoad(this.idea.spawn.pos, source.pos);
+    if (pf.cost > 65) {
+      this.figmentsNeeded = 3;
+    } else if (pf.cost > 45) {
+      this.figmentsNeeded = 2;
+    }
     this.figmentBodySpec = {
       bodyParts: [MOVE, CARRY],
       ratio: [1, 1],
