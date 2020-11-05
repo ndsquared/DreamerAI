@@ -111,7 +111,8 @@ export class Figment extends Creep implements Figment {
       ignoreFigmentCapacity: false,
       targetRange: 1,
       moveOffRoadDuringImpulse: false,
-      minCapacity: false
+      minCapacity: false,
+      moveRange: 1
     };
     let options = defaultTargetOptions;
     if (targetOptions) {
