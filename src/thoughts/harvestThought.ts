@@ -62,9 +62,10 @@ export class HarvestThought extends FigmentThought {
         }
       }
     } else {
-      shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
       if (this.name === FigmentThoughtName.REMOTE_HARVEST) {
         shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.REMOTE_PICKUP) > 0;
+      } else if (this.name === FigmentThoughtName.HARVEST) {
+        shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.TRANSFER) > 0;
       }
     }
 

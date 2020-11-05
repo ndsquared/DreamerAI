@@ -16,15 +16,16 @@ Object.defineProperty(Room.prototype, "neighbors", {
     const adjRooms: Room[] = [];
 
     const exits = Game.map.describeExits(this.name);
-    for (const roomName of Object.values(exits)) {
-      if (roomName) {
-        const room = Game.rooms[roomName];
-        if (room) {
-          adjRooms.push(room);
+    if (exits) {
+      for (const roomName of Object.values(exits)) {
+        if (roomName) {
+          const room = Game.rooms[roomName];
+          if (room) {
+            adjRooms.push(room);
+          }
         }
       }
     }
-
     return adjRooms;
   }
 });
@@ -34,9 +35,11 @@ Object.defineProperty(Room.prototype, "neighborNames", {
     const adjRoomNames: string[] = [];
 
     const exits = Game.map.describeExits(this.name);
-    for (const roomName of Object.values(exits)) {
-      if (roomName) {
-        adjRoomNames.push(roomName);
+    if (exits) {
+      for (const roomName of Object.values(exits)) {
+        if (roomName) {
+          adjRoomNames.push(roomName);
+        }
       }
     }
 

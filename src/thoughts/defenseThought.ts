@@ -53,6 +53,9 @@ export class DefenseThought extends FigmentThought {
   }
 
   public adjustPriority(): void {
+    if (this.idea.rcl < 3) {
+      return;
+    }
     this.figmentsNeeded = 1;
     this.figmentPriority = 3;
     for (const room of this.idea.spawn.room.neighborhood) {
