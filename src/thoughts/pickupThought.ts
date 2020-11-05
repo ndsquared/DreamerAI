@@ -21,7 +21,10 @@ export class PickupThought extends FigmentThought {
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
-      const target = figment.getNextPickupOrWithdrawTarget({ originRoom: figment.room });
+      let target = figment.getNextPickupOrWithdrawTarget({ originRoom: figment.room });
+      if (!target) {
+        target = figment.getNextPickupOrWithdrawTarget({ originRoom: figment.room });
+      }
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
       } else if (target && isStoreStructure(target)) {
