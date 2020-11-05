@@ -37,7 +37,6 @@ export class TransferThought extends FigmentThought {
         });
       }
       if (target) {
-        console.log(target.id);
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
     }
