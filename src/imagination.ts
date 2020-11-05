@@ -2,6 +2,7 @@
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
+import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
   private ideas: { [name: string]: Idea };
@@ -127,3 +128,5 @@ export class Imagination implements IBrain {
     }
   }
 }
+
+profiler.registerClass(Imagination, "Imagination");

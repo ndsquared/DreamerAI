@@ -7,8 +7,6 @@ import { FigmentThoughtName } from "thoughts/figmentThought";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Idea } from "./idea";
 import { PickupThought } from "thoughts/pickupThought";
-import { RemoteHarvestThought } from "thoughts/removeHarvestThought";
-import { RepairThought } from "thoughts/repairThought";
 import { ReserveThought } from "thoughts/reserveThought";
 import { RoadThought } from "thoughts/roadThought";
 import { ScoutThought } from "thoughts/scoutThought";
@@ -29,21 +27,31 @@ export class TabulaRasaIdea extends Idea {
       Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
       s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
     );
+
+    // Initialize thoughts
     this.figmentThoughts[FigmentThoughtName.HARVEST] = {};
-    for (let index = 0; index < sources.length; index++) {
-      const source = sources[index];
-      this.figmentThoughts[FigmentThoughtName.HARVEST][index] = new HarvestThought(
+    this.figmentThoughts[FigmentThoughtName.PICKUP] = {};
+    this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = {};
+    this.figmentThoughts[FigmentThoughtName.REMOTE_PICKUP] = {};
+    this.figmentThoughts[FigmentThoughtName.SCOUT] = {};
+    this.figmentThoughts[FigmentThoughtName.RESERVE] = {};
+
+    for (const source of sources) {
+      this.figmentThoughts[FigmentThoughtName.HARVEST][source.id] = new HarvestThought(
         this,
         FigmentThoughtName.HARVEST,
-        index.toString(),
+        source
+      );
+      this.figmentThoughts[FigmentThoughtName.PICKUP][source.id] = new PickupThought(
+        this,
+        FigmentThoughtName.PICKUP,
         source
       );
     }
+
     const figmentThoughts: ThoughtMapping[] = [
-      { name: FigmentThoughtName.PICKUP, thought: PickupThought },
       { name: FigmentThoughtName.TRANSFER, thought: TransferThought },
-      { name: FigmentThoughtName.WORKER, thought: WorkerThought },
-      { name: FigmentThoughtName.REPAIR, thought: RepairThought }
+      { name: FigmentThoughtName.WORKER, thought: WorkerThought }
     ];
     for (const figmentThought of figmentThoughts) {
       this.figmentThoughts[figmentThought.name] = {};
@@ -61,10 +69,6 @@ export class TabulaRasaIdea extends Idea {
       this.buildThoughts[buildThought.name] = {};
       this.buildThoughts[buildThought.name]["0"] = new buildThought.thought(this, buildThought.name, "0");
     }
-
-    this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = {};
-    this.figmentThoughts[FigmentThoughtName.SCOUT] = {};
-    this.figmentThoughts[FigmentThoughtName.RESERVE] = {};
   }
 
   public ponder(): void {
@@ -74,11 +78,14 @@ export class TabulaRasaIdea extends Idea {
         const sources = _.sortBy(room.find(FIND_SOURCES));
         for (const source of sources) {
           if (!this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST][source.id]) {
-            this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST][source.id] = new RemoteHarvestThought(
+            this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST][source.id] = new HarvestThought(
               this,
               FigmentThoughtName.REMOTE_HARVEST,
-              source.id,
-              roomName,
+              source
+            );
+            this.figmentThoughts[FigmentThoughtName.REMOTE_PICKUP][source.id] = new PickupThought(
+              this,
+              FigmentThoughtName.REMOTE_PICKUP,
               source
             );
           }

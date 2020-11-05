@@ -1,11 +1,15 @@
+import { FigmentThought, FigmentThoughtName } from "./figmentThought";
 import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
+import { isStoreStructure } from "utils/misc";
 
 export class PickupThought extends FigmentThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  private sourcePos: RoomPosition;
+  public constructor(idea: Idea, name: string, source: Source) {
+    super(idea, name, source.id);
+    this.sourcePos = source.pos;
+    this.figmentsNeeded = 1;
     this.figmentBodySpec = {
       bodyParts: [MOVE, CARRY],
       ratio: [1, 1],
@@ -16,14 +20,15 @@ export class PickupThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
+      figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
       const target = figment.getNextPickupOrWithdrawTarget({ originRoom: this.idea.spawn.room });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
-      } else if (target) {
+      } else if (target && isStoreStructure(target)) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
       }
     } else {
-      const target = figment.getNextTransferTarget({ originRoom: this.idea.spawn.room });
+      const target = figment.getNextTransferTargetNeighborhood({ originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
@@ -31,16 +36,9 @@ export class PickupThought extends FigmentThought {
   }
 
   public adjustPriority(): void {
-    if (this.figments.length >= 1) {
-      this.figmentPriority = 4;
-    }
-    const neighborRooms = this.idea.spawn.room.neighbors;
-    if (neighborRooms.length > 1) {
-      this.figmentsNeeded = 6;
-    } else if (neighborRooms.length === 1) {
-      this.figmentsNeeded = 3;
-    } else {
-      this.figmentsNeeded = 2;
+    this.figmentPriority = 4;
+    if (this.name === FigmentThoughtName.REMOTE_PICKUP) {
+      this.figmentPriority = 2;
     }
   }
 }

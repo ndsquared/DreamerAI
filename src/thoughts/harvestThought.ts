@@ -5,9 +5,13 @@ import { NeuronType } from "neurons/neurons";
 
 export class HarvestThought extends FigmentThought {
   private source: Source | null;
-  public constructor(idea: Idea, name: string, instance: string, source: Source) {
-    super(idea, name, instance);
+  private sourceId: Id<Source>;
+  private sourcePos: RoomPosition;
+  public constructor(idea: Idea, name: string, source: Source) {
+    super(idea, name, source.id);
     this.source = source;
+    this.sourceId = source.id;
+    this.sourcePos = source.pos;
     this.figmentBodySpec = {
       bodyParts: [WORK, MOVE, CARRY],
       ratio: [2, 1, 1],
@@ -17,6 +21,8 @@ export class HarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
+    this.source = Game.getObjectById(this.sourceId);
+
     const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
     if (totalWorkParts >= 5) {
       this.figmentsNeeded = 0;
@@ -24,14 +30,12 @@ export class HarvestThought extends FigmentThought {
       this.figmentsNeeded = this.figments.length + 1;
     }
 
-    if (this.source) {
-      this.source = Game.getObjectById(this.source.id);
-    }
     super.ponder();
   }
 
   public handleFigment(figment: Figment): void {
     if (!this.source) {
+      figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
       return;
     } else if (this.source.energy === 0) {
       if (figment.store.getUsedCapacity() > 0) {
@@ -46,10 +50,8 @@ export class HarvestThought extends FigmentThought {
 
     let shouldDropHarvest = false;
     if (containers.length > 0) {
-      // console.log(`Found container near source ${this.source.id}`);
       if (containers[0].pos.isEqualTo(figment.pos)) {
         shouldDropHarvest = true;
-        // console.log(`${figment.name} is drop harvesting`);
       } else {
         const figments = containers[0].pos.lookFor(LOOK_CREEPS);
         if (figments.length === 0) {
@@ -61,6 +63,9 @@ export class HarvestThought extends FigmentThought {
       }
     } else {
       shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.PICKUP) > 0;
+      if (this.name === FigmentThoughtName.REMOTE_HARVEST) {
+        shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.REMOTE_PICKUP) > 0;
+      }
     }
 
     let targetOptions = null;
@@ -73,7 +78,7 @@ export class HarvestThought extends FigmentThought {
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
     } else {
-      const target = figment.getNextTransferTarget({ originRoom: this.idea.spawn.room });
+      const target = figment.getNextTransferTargetNeighborhood({ originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
@@ -83,11 +88,14 @@ export class HarvestThought extends FigmentThought {
   public adjustPriority(): void {
     const count = this.idea.getFigmentCount(FigmentThoughtName.HARVEST);
     if (count > 6) {
-      this.figmentPriority = 1;
+      this.figmentPriority = 3;
     } else if (count > 2) {
       this.figmentPriority = 8;
     } else {
       this.figmentPriority = 12;
+    }
+    if (this.name === FigmentThoughtName.REMOTE_HARVEST) {
+      this.figmentPriority = 2;
     }
   }
 }

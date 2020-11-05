@@ -130,6 +130,13 @@ export class Figment extends Creep implements Figment {
   }
 
   public getNextPickupTarget({ originRoom }: NextTarget): Resource | null {
+    const roomResources = originRoom.find(FIND_DROPPED_RESOURCES, {
+      filter: s => s.amount >= this.store.getCapacity()
+    });
+    return _.first(_.sortBy(roomResources, r => PathFindWithRoad(this.pos, r.pos).cost));
+  }
+
+  public getNextPickupTargetNeighborhood({ originRoom }: NextTarget): Resource | null {
     let resources: Resource[] = [];
     for (const room of originRoom.neighborhood) {
       const roomResources = room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() });
@@ -139,50 +146,72 @@ export class Figment extends Creep implements Figment {
   }
 
   public getNextTransferTarget({ useStorage = true, originRoom }: NextTarget): Structure | null {
-    let targets: Structure[] = [];
-    for (const room of originRoom.neighborhood) {
-      const roomTargets = room.find(FIND_STRUCTURES, {
-        filter: s => {
-          if (s.structureType === STRUCTURE_CONTAINER) {
-            const sources = s.pos.findInRange(FIND_SOURCES, 1);
-            if (sources.length) {
-              return false;
-            }
-          } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
+    const roomTargets = originRoom.find(FIND_STRUCTURES, {
+      filter: s => {
+        if (s.structureType === STRUCTURE_CONTAINER) {
+          const sources = s.pos.findInRange(FIND_SOURCES, 1);
+          if (sources.length) {
             return false;
           }
-          return s.hasEnergyCapacity;
+        } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
+          return false;
         }
-      });
-      targets = targets.concat(roomTargets);
+        return s.hasEnergyCapacity;
+      }
+    });
+    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
+  }
+
+  public getNextTransferTargetNeighborhood({ useStorage = true, originRoom }: NextTarget): Structure | null {
+    let targets: Structure[] = [];
+    for (const room of originRoom.neighborhood) {
+      const target = this.getNextTransferTarget({ useStorage, originRoom: room });
+      if (target) {
+        targets = targets.concat(target);
+      }
     }
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
   public getNextBuildTarget({ originRoom }: NextTarget): ConstructionSite | undefined {
+    const roomTargets = originRoom.find(FIND_MY_CONSTRUCTION_SITES);
+    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
+  }
+
+  public getNextBuildTargetNeighborhood({ originRoom }: NextTarget): ConstructionSite | undefined {
     let targets: ConstructionSite[] = [];
     for (const room of originRoom.neighborhood) {
-      const roomTargets = room.find(FIND_MY_CONSTRUCTION_SITES);
-      targets = targets.concat(roomTargets);
+      const target = this.getNextBuildTarget({ originRoom: room });
+      if (target) {
+        targets = targets.concat(target);
+      }
     }
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
   public getNextRepairTarget({ repairThreshold = 10000, originRoom }: NextTarget): Structure | null {
-    let targets: Structure[] = [];
-    for (const room of originRoom.neighborhood) {
-      const roomTargets = room.find(FIND_STRUCTURES, {
-        filter: s => {
-          if (s.structureType === STRUCTURE_ROAD) {
-            return false;
-          }
-          if (s.hits < repairThreshold && s.hits < s.hitsMax) {
-            return true;
-          }
+    const roomTargets = originRoom.find(FIND_STRUCTURES, {
+      filter: s => {
+        if (s.structureType === STRUCTURE_ROAD) {
           return false;
         }
-      });
-      targets = targets.concat(roomTargets);
+        if (s.hits < repairThreshold && s.hits < s.hitsMax) {
+          return true;
+        }
+        return false;
+      }
+    });
+
+    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
+  }
+
+  public getNextRepairTargetNeighborhood({ repairThreshold = 10000, originRoom }: NextTarget): Structure | null {
+    let targets: Structure[] = [];
+    for (const room of originRoom.neighborhood) {
+      const target = this.getNextRepairTarget({ repairThreshold, originRoom: room });
+      if (target) {
+        targets = targets.concat(target);
+      }
     }
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
@@ -191,42 +220,47 @@ export class Figment extends Creep implements Figment {
     useStorage = false,
     avoidControllerStorage = true,
     originRoom
-  }: NextTarget): Resource | Structure | null {
+  }: NextTarget): RoomObject | null {
+    let targets: RoomObject[] = [];
     const resource = this.getNextPickupTarget({ originRoom });
-    let targets: Structure[] = [];
-    for (const room of originRoom.neighborhood) {
-      const roomTargets = room.find(FIND_STRUCTURES, {
-        filter: s => {
-          if (s instanceof StructureContainer) {
-            if (avoidControllerStorage) {
-              const controller = room.controller;
-              if (controller) {
-                if (controller.pos.inRangeTo(s.pos, 1)) {
-                  return false;
-                }
+    if (resource) {
+      targets.push(resource);
+    }
+    const roomTargets = originRoom.find(FIND_STRUCTURES, {
+      filter: s => {
+        if (s instanceof StructureContainer) {
+          if (avoidControllerStorage) {
+            const controller = originRoom.controller;
+            if (controller) {
+              if (controller.pos.inRangeTo(s.pos, 1)) {
+                return false;
               }
             }
-            return s.store.getUsedCapacity() >= this.store.getCapacity();
-          } else if (s instanceof StructureStorage && useStorage) {
-            return s.store.getUsedCapacity() >= this.store.getCapacity();
           }
-          return false;
+          return s.store.getUsedCapacity() >= this.store.getCapacity();
+        } else if (s instanceof StructureStorage && useStorage) {
+          return s.store.getUsedCapacity() >= this.store.getCapacity();
         }
-      });
-      targets = targets.concat(roomTargets);
-    }
-    const target = _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
-    if (!target) {
-      return resource;
-    }
-    if (resource) {
-      if (
-        this.pos.findPathTo(resource, { ignoreCreeps: true }).length <
-        this.pos.findPathTo(target, { ignoreCreeps: true }).length
-      ) {
-        return resource;
+        return false;
+      }
+    });
+
+    targets = targets.concat(roomTargets);
+    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
+  }
+
+  public getNextPickupOrWithdrawTargetNeighborhood({
+    useStorage = false,
+    avoidControllerStorage = true,
+    originRoom
+  }: NextTarget): RoomObject | null {
+    const targets: RoomObject[] = [];
+    for (const room of originRoom.neighborhood) {
+      const target = this.getNextPickupOrWithdrawTarget({ useStorage, avoidControllerStorage, originRoom: room });
+      if (target) {
+        targets.push(target);
       }
     }
-    return target;
+    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 }

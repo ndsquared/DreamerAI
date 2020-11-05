@@ -63,6 +63,8 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/screeps-profiler": "^1.2.2",
+    "screeps-profiler": "^2.0.1",
     "source-map": "~0.6.1",
     "ts-priority-queue": "^0.1.1"
   }

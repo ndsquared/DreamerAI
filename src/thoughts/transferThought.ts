@@ -2,10 +2,12 @@ import { Figment } from "figment";
 import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
+import { isStoreStructure } from "utils/misc";
 
 export class TransferThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
+    this.figmentsNeeded = 2;
     this.figmentBodySpec = {
       bodyParts: [MOVE, CARRY],
       ratio: [1, 1],
@@ -19,7 +21,7 @@ export class TransferThought extends FigmentThought {
       const target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
-      } else if (target) {
+      } else if (target && isStoreStructure(target)) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
       }
     } else {
@@ -31,12 +33,8 @@ export class TransferThought extends FigmentThought {
   }
 
   public adjustPriority(): void {
-    this.figmentPriority = 6;
-    const storage = this.idea.spawn.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_STORAGE });
-    if (storage.length) {
-      this.figmentsNeeded = 1;
-    } else {
-      this.figmentsNeeded = 0;
+    if (this.figments.length >= 1) {
+      this.figmentPriority = 4;
     }
   }
 }

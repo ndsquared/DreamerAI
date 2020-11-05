@@ -6,7 +6,7 @@ export function ShuffleArray(array: any[]): void {
   }
 }
 
-export function isStoreStructure(structure: Structure): structure is StoreStructure {
+export function isStoreStructure(structure: Structure | RoomObject): structure is StoreStructure {
   return (structure as StoreStructure).store !== undefined;
 }
 
