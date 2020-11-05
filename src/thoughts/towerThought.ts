@@ -1,5 +1,6 @@
 import { BuildThought } from "./buildThought";
 import { Idea } from "ideas/idea";
+import { PathFindWithRoad } from "utils/misc";
 
 export class TowerThought extends BuildThought {
   private towers: StructureTower[];
@@ -37,6 +38,19 @@ export class TowerThought extends BuildThought {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
       if (closestHostile) {
         tower.attack(closestHostile);
+      } else {
+        const structuresToRepair = tower.room.find(FIND_STRUCTURES, {
+          filter: s => {
+            if (s.structureType === STRUCTURE_ROAD && s.hits < s.hitsMax) {
+              return true;
+            }
+            return false;
+          }
+        });
+        const structure = _.first(_.sortBy(structuresToRepair, s => PathFindWithRoad(tower.pos, s.pos).cost));
+        if (structure) {
+          tower.repair(structure);
+        }
       }
     }
   }
