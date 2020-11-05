@@ -34,7 +34,8 @@ export class WorkerThought extends FigmentThought {
     } else {
       const target = figment.getNextPickupOrWithdrawTargetNeighborhood({
         useStorage: true,
-        originRoom: this.idea.spawn.room
+        originRoom: this.idea.spawn.room,
+        avoidControllerStorage: false
       });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);

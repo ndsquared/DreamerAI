@@ -7,7 +7,10 @@ export enum BuildThoughtName {
   ROAD = "Road",
   CONTAINER = "Container",
   TOWER = "Tower",
-  STORAGE = "Storage"
+  STORAGE = "Storage",
+  RAMPART = "Rampart",
+  LINK = "Link",
+  TERMINAL = "Terminal"
 }
 
 export abstract class BuildThought extends Thought {
