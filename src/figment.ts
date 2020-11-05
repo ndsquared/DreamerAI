@@ -213,7 +213,7 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextRepairTargetNeighborhood({ repairThreshold = 10000, originRoom }: NextTarget): Structure | null {
+  public getNextRepairTargetNeighborhood({ repairThreshold = 20000, originRoom }: NextTarget): Structure | null {
     let targets: Structure[] = [];
     for (const room of originRoom.neighborhood) {
       const target = this.getNextRepairTarget({ repairThreshold, originRoom: room });
