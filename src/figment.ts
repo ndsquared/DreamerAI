@@ -264,6 +264,7 @@ export class Figment extends Creep implements Figment {
 
   public getNextPickupOrWithdrawTarget({
     useStorage = false,
+    useSpawn = false,
     avoidControllerStorage = true,
     originRoom
   }: NextTarget): RoomObject | null {
@@ -286,6 +287,8 @@ export class Figment extends Creep implements Figment {
           return s.store.getUsedCapacity() >= this.store.getCapacity();
         } else if (s instanceof StructureStorage && useStorage) {
           return s.store.getUsedCapacity() >= this.store.getCapacity();
+        } else if (s instanceof StructureSpawn && useSpawn) {
+          return s.store.getUsedCapacity(RESOURCE_ENERGY) >= this.store.getCapacity(RESOURCE_ENERGY);
         }
         return false;
       }
@@ -297,12 +300,18 @@ export class Figment extends Creep implements Figment {
 
   public getNextPickupOrWithdrawTargetNeighborhood({
     useStorage = false,
+    useSpawn = false,
     avoidControllerStorage = true,
     originRoom
   }: NextTarget): RoomObject | null {
     const targets: RoomObject[] = [];
     for (const room of originRoom.neighborhood) {
-      const target = this.getNextPickupOrWithdrawTarget({ useStorage, avoidControllerStorage, originRoom: room });
+      const target = this.getNextPickupOrWithdrawTarget({
+        useStorage,
+        useSpawn,
+        avoidControllerStorage,
+        originRoom: room
+      });
       if (target) {
         targets.push(target);
       }

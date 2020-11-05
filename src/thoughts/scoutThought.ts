@@ -2,11 +2,11 @@ import { Figment } from "figment";
 import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
+import { PathFindWithRoad } from "utils/misc";
 
 export class ScoutThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentsNeeded = 1;
     this.figmentBodySpec = {
       bodyParts: [MOVE],
       ratio: [1],
@@ -38,5 +38,12 @@ export class ScoutThought extends FigmentThought {
 
   public adjustPriority(): void {
     this.figmentPriority = 1;
+    const targetPos = new RoomPosition(25, 25, this.instance);
+    const pf = PathFindWithRoad(this.idea.spawn.pos, targetPos);
+    if (pf.incomplete) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = 1;
+    }
   }
 }

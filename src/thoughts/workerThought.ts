@@ -32,8 +32,21 @@ export class WorkerThought extends FigmentThought {
         }
       }
     } else {
+      const containers = figment.room.find(FIND_STRUCTURES, {
+        filter: s => {
+          if (s.structureType === STRUCTURE_CONTAINER) {
+            return true;
+          }
+          return false;
+        }
+      });
+      let useSpawn = false;
+      if (containers.length < 2) {
+        useSpawn = true;
+      }
       const target = figment.getNextPickupOrWithdrawTargetNeighborhood({
         useStorage: true,
+        useSpawn,
         originRoom: this.idea.spawn.room,
         avoidControllerStorage: false
       });
@@ -49,8 +62,8 @@ export class WorkerThought extends FigmentThought {
     this.figmentPriority = 2;
     this.figmentsNeeded = 2;
     for (const room of this.idea.spawn.room.neighborhood) {
-      if (this.idea.shouldBuild[room.name]) {
-        this.figmentsNeeded = 5;
+      if (!this.idea.shouldBuild[room.name]) {
+        this.figmentsNeeded = 10;
         this.figmentPriority = 3;
         return;
       }

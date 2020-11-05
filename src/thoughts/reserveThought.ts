@@ -9,8 +9,8 @@ export class ReserveThought extends FigmentThought {
     this.figmentsNeeded = 1;
     this.figmentBodySpec = {
       bodyParts: [CLAIM, MOVE],
-      ratio: [1, 2],
-      minParts: 3,
+      ratio: [1, 1],
+      minParts: 2,
       maxParts: 8
     };
   }

@@ -7,6 +7,9 @@ export class RampartThought extends BuildThought {
   }
 
   public ponder(): void {
+    if (this.idea.rcl < 3) {
+      return;
+    }
     const spawn = this.idea.spawn;
     // Protect spawn
     this.idea.addBuild([spawn.pos], STRUCTURE_RAMPART, 3);
