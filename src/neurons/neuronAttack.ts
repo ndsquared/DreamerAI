@@ -15,6 +15,6 @@ export class NeuronAttack extends Neuron {
     if (this.figment.pos.isNearTo(this.target)) {
       return this.figment.attack(this.target);
     }
-    return this.figment.travelTo(this.target);
+    return this.figment.travelTo(this.target, { movingTarget: true });
   }
 }
