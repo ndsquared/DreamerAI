@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { NeuronType, Neurons } from "neurons/neurons";
 import { PathFindWithRoad, ShuffleArray } from "utils/misc";
+import profiler from "screeps-profiler";
 
 export class Figment extends Creep implements Figment {
   public constructor(creepId: Id<Creep>) {
@@ -92,6 +93,7 @@ export class Figment extends Creep implements Figment {
   private preRunChecks(): void {
     if (this.memory.underAttack) {
       this.memory.underAttack = false;
+      this.memory.underAttackCooldown--;
       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
       if (enemies.length) {
         for (const enemy of enemies) {
@@ -101,7 +103,6 @@ export class Figment extends Creep implements Figment {
         }
       }
       if (!this.memory.underAttack) {
-        this.memory.underAttackCooldown--;
         if (this.memory.underAttackCooldown <= 0) {
           this.memory.interneurons = [];
           this.memory.underAttackCooldown = 5;
@@ -140,6 +141,11 @@ export class Figment extends Creep implements Figment {
   public run(): void {
     this.preRunChecks();
     while (this.neurons.length > 0) {
+      // if (this.memory.interneurons[0].type === "PICKUP") {
+      //   console.log(`${this.name} running pickup`);
+      // } else if (this.memory.interneurons[0].type === "MOVE") {
+      //   console.log(`${this.name} running move`);
+      // }
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {
         neuron.run();
@@ -165,7 +171,8 @@ export class Figment extends Creep implements Figment {
       targetRange: 1,
       moveOffRoadDuringImpulse: false,
       minCapacity: false,
-      moveRange: 1
+      moveRange: 1,
+      movingTarget: false
     };
     let options = defaultTargetOptions;
     if (targetOptions) {
@@ -363,3 +370,5 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 }
+
+profiler.registerClass(Figment, "Figment");
