@@ -79,7 +79,7 @@ export abstract class Idea implements IBrain {
   }
 
   private processSpawnQueue() {
-    if (this.spawnQueue.length > 0) {
+    while (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
       const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, this.spawn.room.energyAvailable);
       const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
@@ -96,6 +96,7 @@ export abstract class Idea implements IBrain {
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
         console.log(`Spawning ${nextSpawn.name}[${nextSpawn.thoughtName}] with priority ${nextSpawn.priority}`);
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
+        break;
       }
     }
   }
