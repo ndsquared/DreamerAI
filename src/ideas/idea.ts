@@ -79,8 +79,14 @@ export abstract class Idea implements IBrain {
   }
 
   private processSpawnQueue() {
+    let currentPriority: number | null = null;
     while (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
+      if (currentPriority === null) {
+        currentPriority = nextSpawn.priority;
+      } else if (nextSpawn.priority < currentPriority) {
+        break;
+      }
       const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, this.spawn.room.energyAvailable);
       const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
       if (status === OK && body.length >= nextSpawn.bodySpec.minParts) {
