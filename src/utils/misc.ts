@@ -45,3 +45,9 @@ export function PathFindWithRoad(originPos: RoomPosition, dstPos: RoomPosition):
   );
   return pathFind;
 }
+
+export function RandomRoomPos(room: Room): RoomPosition {
+  const ranX = _.random(0, 49);
+  const ranY = _.random(0, 49);
+  return new RoomPosition(ranX, ranY, room.name);
+}

@@ -12,7 +12,9 @@ export class NeuronAttack extends Neuron {
     return this.target.hits > 0;
   }
   public impulse(): number {
-    const result = this.figment.attack(this.target);
-    return result;
+    if (this.figment.pos.isNearTo(this.target)) {
+      return this.figment.attack(this.target);
+    }
+    return this.figment.travelTo(this.target);
   }
 }

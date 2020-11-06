@@ -13,7 +13,9 @@ export class NeuronHeal extends Neuron {
     return this.target.hits < this.target.hitsMax;
   }
   public impulse(): number {
-    const result = this.figment.heal(this.target);
-    return result;
+    if (this.figment.pos.isNearTo(this.target)) {
+      return this.figment.heal(this.target);
+    }
+    return this.figment.travelTo(this.target);
   }
 }

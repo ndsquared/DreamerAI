@@ -12,7 +12,7 @@ export class NeuronRangedAttack extends Neuron {
     return this.target.hits > 0;
   }
   public impulse(): number {
-    const result = this.figment.rangedAttack(this.target);
-    return result;
+    this.figment.travelTo(this.target);
+    return this.figment.rangedAttack(this.target);
   }
 }

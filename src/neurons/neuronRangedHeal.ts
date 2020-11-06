@@ -13,8 +13,9 @@ export class NeuronRangedHeal extends Neuron {
   }
   public impulse(): number {
     if (this.figment.pos.isNearTo(this.target)) {
-      return this.figment.rangedHeal(this.target);
+      return this.figment.heal(this.target);
     }
-    return this.figment.travelTo(this.targetPos);
+    this.figment.travelTo(this.target);
+    return this.figment.rangedHeal(this.target);
   }
 }

@@ -1,8 +1,8 @@
+import { PathFindWithRoad, RandomRoomPos } from "utils/misc";
 import { Figment } from "figment";
 import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
-import { PathFindWithRoad } from "utils/misc";
 
 export class DefenseThought extends FigmentThought {
   private patrolPos: RoomPosition | null = null;
@@ -37,21 +37,19 @@ export class DefenseThought extends FigmentThought {
       figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
     } else {
       if (!this.patrolPos) {
-        let randomPositions: RoomPosition[] = [];
-        const controller = this.idea.spawn.room.controller;
-        if (controller) {
-          randomPositions.push(controller.pos);
+        console.log("Getting random room position");
+        this.patrolPos = RandomRoomPos(this.idea.spawn.room);
+        while (!this.patrolPos.isWalkable(true)) {
+          this.patrolPos = RandomRoomPos(this.idea.spawn.room);
         }
-        const sources = this.idea.spawn.room.find(FIND_SOURCES);
-        const sourcePosiitions = _.map(sources, s => s.pos);
-        randomPositions = randomPositions.concat(sourcePosiitions);
-        const randomPos = randomPositions[_.random(0, randomPositions.length - 1)];
-        this.patrolPos = randomPos;
-      } else if (figment.pos.inRangeTo(this.patrolPos, 4)) {
+      } else if (figment.pos.inRangeTo(this.patrolPos, 2)) {
         this.patrolPos = null;
       }
       if (this.patrolPos) {
-        figment.travelTo(this.patrolPos);
+        const result = figment.travelTo(this.patrolPos, { ignoreRoads: true });
+        if (result !== OK && result !== ERR_TIRED) {
+          this.patrolPos = null;
+        }
       }
     }
   }

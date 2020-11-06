@@ -113,12 +113,14 @@ export class Figment extends Creep implements Figment {
           return;
         }
         for (const enemy of enemies) {
-          if (enemy.pos.inRangeTo(this.pos, 8)) {
-            this.say("Noooo!", true);
-            console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
-            this.memory.interneurons = [];
-            this.addNeuron(NeuronType.MOVE, "", target.pos);
-            this.memory.underAttack = true;
+          if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
+            if (enemy.pos.inRangeTo(this.pos, 8)) {
+              this.say("Noooo!", true);
+              console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
+              this.memory.interneurons = [];
+              this.addNeuron(NeuronType.MOVE, "", target.pos);
+              this.memory.underAttack = true;
+            }
           }
         }
       }
