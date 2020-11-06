@@ -62,7 +62,8 @@ export class WorkerThought extends FigmentThought {
     this.figmentPriority = 2;
     this.figmentsNeeded = 2;
     for (const room of this.idea.spawn.room.neighborhood) {
-      if (!this.idea.shouldBuild[room.name]) {
+      const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
+      if (constructionSites.length) {
         this.figmentsNeeded = 10;
         this.figmentPriority = 3;
         return;
