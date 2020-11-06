@@ -69,11 +69,11 @@ export class Figment extends Creep implements Figment {
           return 3;
         case CARRY:
           return 4;
-        case HEAL:
-          return 5;
         case CLAIM:
-          return 6;
+          return 5;
         case MOVE:
+          return 6;
+        case HEAL:
           return 7;
         default:
           return 10;
