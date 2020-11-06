@@ -1,4 +1,4 @@
-import { PathFindWithRoad, RandomRoomPos } from "utils/misc";
+import { PathFindWithRoad, RandomRoomPatrolPos } from "utils/misc";
 import { Figment } from "figment";
 import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
@@ -33,15 +33,20 @@ export class AttackThought extends FigmentThought {
       figment.addNeuron(NeuronType.ATTACK, structure.id, structure.pos);
     } else {
       if (!this.patrolPos) {
-        console.log("Getting random room position");
-        this.patrolPos = RandomRoomPos(this.idea.spawn.room);
+        this.patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
+        let count = 0;
         while (!this.patrolPos.isWalkable(true)) {
-          this.patrolPos = RandomRoomPos(this.idea.spawn.room);
+          if (count > 5) {
+            console.log("Getting random room patrol position");
+          }
+          this.patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
+          count++;
         }
       } else if (figment.pos.inRangeTo(this.patrolPos, 2)) {
         this.patrolPos = null;
       }
       if (this.patrolPos) {
+        // console.log(this.patrolPos.toString());
         const result = figment.travelTo(this.patrolPos, { ignoreRoads: true });
         if (result !== OK && result !== ERR_TIRED) {
           this.patrolPos = null;

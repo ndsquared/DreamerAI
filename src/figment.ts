@@ -21,9 +21,13 @@ export class Figment extends Creep implements Figment {
 
   public static GetUniqueName(): string {
     let name = this.GenerateName();
+    let count = 0;
     while (Game.creeps[name]) {
-      console.log(`unique name conflict, trying again: ${name}`);
       name = this.GenerateName();
+      if (count > 5) {
+        console.log(`unique name conflict, trying again: ${name}`);
+      }
+      count++;
     }
     return name;
   }

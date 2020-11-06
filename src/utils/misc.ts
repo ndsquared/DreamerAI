@@ -51,3 +51,31 @@ export function RandomRoomPos(room: Room): RoomPosition {
   const ranY = _.random(0, 49);
   return new RoomPosition(ranX, ranY, room.name);
 }
+
+export function RandomRoomPatrolPos(room: Room): RoomPosition {
+  const exits = Game.map.describeExits(room.name);
+  if (!exits) {
+    return RandomRoomPos(room);
+  }
+  const exitDirs = _.map(Object.keys(exits));
+  const randomDir = exitDirs[_.random(0, exitDirs.length - 1)];
+  let ranX = _.random(0, 49);
+  let ranY = _.random(0, 49);
+  switch (randomDir) {
+    case "1":
+      ranY = 0;
+      break;
+    case "3":
+      ranX = 49;
+      break;
+    case "5":
+      ranY = 49;
+      break;
+    case "7":
+      ranX = 0;
+      break;
+    default:
+      break;
+  }
+  return new RoomPosition(ranX, ranY, room.name);
+}
