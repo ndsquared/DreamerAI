@@ -8,6 +8,9 @@ export class ContainerThought extends BuildThought {
   }
 
   public ponder(): void {
+    if (Game.time % 50 !== 0) {
+      return;
+    }
     const spawn = this.idea.spawn;
     if (spawn) {
       const containers = spawn.pos.findInRange(FIND_STRUCTURES, 2, {

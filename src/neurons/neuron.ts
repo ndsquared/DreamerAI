@@ -34,8 +34,6 @@ export abstract class Neuron {
   abstract isValidTarget(): boolean;
 
   public isValid(): boolean {
-    // console.log(this.isValidNeuron());
-    // console.log(this.isValidTarget());
     return this.isValidNeuron() && this.isValidTarget();
   }
 
@@ -50,8 +48,10 @@ export abstract class Neuron {
       this.moveFigmentOffRoad(this.figment, this.targetPos, true);
     }
     const impulseResult = this.impulse();
-    if (impulseResult === ERR_NOT_IN_RANGE) {
-      const result = this.figment.travelTo(this.targetPos);
+    if (impulseResult === ERR_NOT_IN_RANGE || this.interneuron.target.options.movingTarget) {
+      const result = this.figment.travelTo(this.targetPos, {
+        movingTarget: this.interneuron.target.options.movingTarget
+      });
       if (result === global.ERR_INVALID_NEURON) {
         this.figment.memory.interneurons = [];
       }

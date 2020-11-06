@@ -1,7 +1,12 @@
+import { Figment } from "figment";
 import { Neuron } from "./neuron";
 
 export class NeuronRangedHeal extends Neuron {
   public target!: Creep;
+  public constructor(figment: Figment, interneuron: Interneuron) {
+    super(figment, interneuron);
+    this.interneuron.target.options.movingTarget = true;
+  }
   public isValidNeuron(): boolean {
     return this.figment.getActiveBodyparts(HEAL) > 0;
   }
@@ -15,7 +20,6 @@ export class NeuronRangedHeal extends Neuron {
     if (this.figment.pos.isNearTo(this.target)) {
       return this.figment.heal(this.target);
     }
-    this.figment.travelTo(this.target);
     return this.figment.rangedHeal(this.target);
   }
 }

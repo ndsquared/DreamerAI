@@ -7,6 +7,9 @@ export class StorageThought extends BuildThought {
   }
 
   public ponder(): void {
+    if (Game.time % 50 !== 0) {
+      return;
+    }
     const storageDeltas: Coord[] = [];
     storageDeltas.push({ x: 0, y: 0 });
     storageDeltas.push({ x: 1, y: 1 });

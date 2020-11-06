@@ -17,6 +17,9 @@ export class LinkThought extends BuildThought {
         return false;
       }
     }) as StructureLink[];
+    if (Game.time % 50 !== 0) {
+      return;
+    }
     if (this.links.length < 1) {
       // Build link next to spawn
       const linkDeltas: Coord[] = [];
@@ -66,7 +69,10 @@ export class LinkThought extends BuildThought {
     }
     for (const outputLink of outputLinks) {
       for (const inputLink of inputLinks) {
-        outputLink.transferEnergy(inputLink);
+        const result = outputLink.transferEnergy(inputLink);
+        if (result === OK) {
+          break;
+        }
       }
     }
   }

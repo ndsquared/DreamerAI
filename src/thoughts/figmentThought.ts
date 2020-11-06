@@ -1,6 +1,7 @@
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";
+import profiler from "screeps-profiler";
 
 export enum FigmentThoughtName {
   HARVEST = "Harvest",
@@ -63,3 +64,5 @@ export abstract class FigmentThought extends Thought {
   public abstract handleFigment(figment: Figment): void;
   public abstract adjustPriority(): void;
 }
+
+profiler.registerClass(FigmentThought, "FigmentThought");

@@ -7,6 +7,9 @@ export class RampartThought extends BuildThought {
   }
 
   public ponder(): void {
+    if (Game.time % 50 !== 0) {
+      return;
+    }
     if (this.idea.rcl < 3) {
       return;
     }

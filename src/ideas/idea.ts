@@ -146,6 +146,10 @@ export abstract class Idea implements IBrain {
     if (!this.shouldBuild) {
       return;
     }
+    if (Game.time % 50 !== 0) {
+      return;
+    }
+    console.log("building!");
     while (this.buildQueue.length > 0) {
       const nextBuild = this.buildQueue.dequeue();
       const room = Game.rooms[nextBuild.pos.roomName];

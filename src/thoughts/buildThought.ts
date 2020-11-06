@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";
+import profiler from "screeps-profiler";
 
 export enum BuildThoughtName {
   EXTENSION = "Extension",
@@ -93,3 +94,5 @@ export abstract class BuildThought extends Thought {
     return result;
   }
 }
+
+profiler.registerClass(BuildThought, "BuildThought");

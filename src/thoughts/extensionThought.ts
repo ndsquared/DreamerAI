@@ -7,6 +7,9 @@ export class ExtensionThought extends BuildThought {
   }
 
   public ponder(): void {
+    if (Game.time % 50 !== 0) {
+      return;
+    }
     const extensionDeltas: Coord[] = [];
     extensionDeltas.push({ x: 0, y: 0 });
     extensionDeltas.push({ x: 1, y: 1 });

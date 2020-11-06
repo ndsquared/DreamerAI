@@ -1,7 +1,12 @@
+import { Figment } from "figment";
 import { Neuron } from "./neuron";
 
 export class NeuronAttack extends Neuron {
   public target!: Creep;
+  public constructor(figment: Figment, interneuron: Interneuron) {
+    super(figment, interneuron);
+    this.interneuron.target.options.movingTarget = true;
+  }
   public isValidNeuron(): boolean {
     return this.figment.getActiveBodyparts(ATTACK) > 0;
   }
@@ -12,9 +17,6 @@ export class NeuronAttack extends Neuron {
     return this.target.hits > 0;
   }
   public impulse(): number {
-    if (this.figment.pos.isNearTo(this.target)) {
-      return this.figment.attack(this.target);
-    }
-    return this.figment.travelTo(this.target, { movingTarget: true });
+    return this.figment.attack(this.target);
   }
 }

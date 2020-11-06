@@ -10,8 +10,8 @@ export class DefenseThought extends FigmentThought {
     super(idea, name, instance);
     this.figmentBodySpec = {
       bodyParts: [TOUGH, RANGED_ATTACK, HEAL, MOVE],
-      ratio: [1, 1, 1, 3],
-      minParts: 6,
+      ratio: [1, 1, 1, 4],
+      minParts: 7,
       maxParts: 20
     };
   }
@@ -50,7 +50,6 @@ export class DefenseThought extends FigmentThought {
         this.patrolPos = null;
       }
       if (this.patrolPos) {
-        // console.log(this.patrolPos.toString());
         const result = figment.travelTo(this.patrolPos, { ignoreRoads: true });
         if (result !== OK && result !== ERR_TIRED) {
           this.patrolPos = null;

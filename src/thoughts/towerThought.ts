@@ -10,6 +10,13 @@ export class TowerThought extends BuildThought {
   }
 
   public ponder(): void {
+    this.towers = this.idea.spawn.room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_TOWER
+    }) as StructureTower[];
+
+    if (Game.time % 50 !== 0) {
+      return;
+    }
     const towerDeltas: Coord[] = [];
     towerDeltas.push({ x: 0, y: 0 });
     towerDeltas.push({ x: 1, y: 1 });
@@ -23,10 +30,6 @@ export class TowerThought extends BuildThought {
       const towerPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, towerDeltas);
       this.idea.addBuild(towerPositions, STRUCTURE_TOWER, 1);
     }
-
-    this.towers = this.idea.spawn.room.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_TOWER
-    }) as StructureTower[];
   }
 
   public think(): void {
