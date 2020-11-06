@@ -39,6 +39,13 @@ export class LinkThought extends BuildThought {
           break;
         }
       }
+    } else if (this.links.length < 3) {
+      // Build link at controller
+      const controller = spawn.room.controller;
+      if (controller && controller.my) {
+        const linkPos = controller.pos.availableNeighbors(true);
+        this.idea.addBuild(linkPos, STRUCTURE_LINK, 3);
+      }
     }
   }
 
@@ -59,9 +66,6 @@ export class LinkThought extends BuildThought {
     }
     for (const outputLink of outputLinks) {
       for (const inputLink of inputLinks) {
-        // if (inputLink.store.getFreeCapacity(RESOURCE_ENERGY) >= outputLink.store.getUsedCapacity(RESOURCE_ENERGY)) {
-        //   outputLink.transferEnergy(inputLink);
-        // }
         outputLink.transferEnergy(inputLink);
       }
     }
