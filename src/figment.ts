@@ -170,7 +170,6 @@ export class Figment extends Creep implements Figment {
       ignoreFigmentCapacity: false,
       targetRange: 1,
       moveOffRoadDuringImpulse: false,
-      minCapacity: false,
       moveRange: 1,
       movingTarget: false
     };
@@ -292,6 +291,59 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
+  public getNextPickupOrWithdrawTargetInRange(range: number, { minCapacity = 0 }: NextTarget): RoomObject | null {
+    const roomTargets = this.pos.findInRange(FIND_STRUCTURES, range, {
+      filter: s => this.filterPickupOrWithdrawTarget(s, { minCapacity, originRoom: this.room })
+    });
+    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
+  }
+
+  public filterPickupOrWithdrawTarget(
+    s: Structure,
+    {
+      useStorage = false,
+      useSpawn = false,
+      avoidControllerContainer = true,
+      avoidSpawnContainer = true,
+      minCapacity = 0
+    }: NextTarget
+  ): boolean {
+    if (s instanceof StructureContainer) {
+      if (avoidControllerContainer) {
+        const controller = s.room.controller;
+        if (controller) {
+          if (controller.pos.inRangeTo(s.pos, 1)) {
+            return false;
+          }
+        }
+      }
+      if (avoidSpawnContainer) {
+        const spawns = s.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: spawn => {
+            if (spawn.structureType === STRUCTURE_SPAWN) {
+              return true;
+            }
+            return false;
+          }
+        });
+        if (spawns.length) {
+          return false;
+        }
+      }
+      return s.store.getUsedCapacity() >= minCapacity;
+    } else if (s instanceof StructureStorage && useStorage) {
+      return s.store.getUsedCapacity() >= minCapacity;
+    } else if (s instanceof StructureSpawn && useSpawn) {
+      return s.store.getUsedCapacity(RESOURCE_ENERGY) >= minCapacity;
+    } else if (s instanceof StructureLink) {
+      const findSources = s.pos.findInRange(FIND_SOURCES, 2);
+      if (findSources.length === 0) {
+        return s.store.getUsedCapacity(RESOURCE_ENERGY) >= minCapacity;
+      }
+    }
+    return false;
+  }
+
   public getNextPickupOrWithdrawTarget({
     useStorage = false,
     useSpawn = false,
@@ -305,42 +357,14 @@ export class Figment extends Creep implements Figment {
       targets.push(resource);
     }
     const roomTargets = originRoom.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s instanceof StructureContainer) {
-          if (avoidControllerContainer) {
-            const controller = originRoom.controller;
-            if (controller) {
-              if (controller.pos.inRangeTo(s.pos, 1)) {
-                return false;
-              }
-            }
-          }
-          if (avoidSpawnContainer) {
-            const spawns = s.pos.findInRange(FIND_STRUCTURES, 2, {
-              filter: spawn => {
-                if (spawn.structureType === STRUCTURE_SPAWN) {
-                  return true;
-                }
-                return false;
-              }
-            });
-            if (spawns.length) {
-              return false;
-            }
-          }
-          return s.store.getUsedCapacity() >= this.store.getCapacity();
-        } else if (s instanceof StructureStorage && useStorage) {
-          return s.store.getUsedCapacity() >= this.store.getCapacity();
-        } else if (s instanceof StructureSpawn && useSpawn) {
-          return s.store.getUsedCapacity(RESOURCE_ENERGY) >= this.store.getCapacity(RESOURCE_ENERGY);
-        } else if (s.structureType === STRUCTURE_LINK) {
-          const findSources = s.pos.findInRange(FIND_SOURCES, 2);
-          if (findSources.length === 0) {
-            return s.store.getUsedCapacity(RESOURCE_ENERGY) >= this.store.getCapacity(RESOURCE_ENERGY);
-          }
-        }
-        return false;
-      }
+      filter: s =>
+        this.filterPickupOrWithdrawTarget(s, {
+          useStorage,
+          useSpawn,
+          avoidControllerContainer,
+          avoidSpawnContainer,
+          originRoom
+        })
     });
 
     targets = targets.concat(roomTargets);

@@ -91,6 +91,7 @@ interface NextTarget {
   originRoom: Room;
   repairThreshold?: number;
   emptyTarget?: boolean;
+  minCapacity?: number;
 }
 
 interface TravelToReturnData {

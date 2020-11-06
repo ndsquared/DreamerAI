@@ -18,7 +18,13 @@ export class TransferThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      const target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
+      let target = figment.getNextPickupOrWithdrawTargetInRange(5, {
+        minCapacity: figment.store.getCapacity(RESOURCE_ENERGY),
+        originRoom: figment.room
+      });
+      if (!target) {
+        target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
+      }
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
       } else if (target && isStoreStructure(target)) {
