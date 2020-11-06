@@ -5,6 +5,7 @@ import { NeuronType } from "neurons/neurons";
 import { PathFindWithRoad } from "utils/misc";
 
 export class DefenseThought extends FigmentThought {
+  private patrolPos: RoomPosition | null = null;
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
@@ -35,19 +36,22 @@ export class DefenseThought extends FigmentThought {
     } else if (healTarget) {
       figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
     } else {
-      const controllers: StructureController[] = [];
-      for (const room of this.idea.spawn.room.neighborhood) {
-        const controller = room.controller;
+      if (!this.patrolPos) {
+        let randomPositions: RoomPosition[] = [];
+        const controller = this.idea.spawn.room.controller;
         if (controller) {
-          controllers.push(controller);
+          randomPositions.push(controller.pos);
         }
+        const sources = this.idea.spawn.room.find(FIND_SOURCES);
+        const sourcePosiitions = _.map(sources, s => s.pos);
+        randomPositions = randomPositions.concat(sourcePosiitions);
+        const randomPos = randomPositions[_.random(0, randomPositions.length - 1)];
+        this.patrolPos = randomPos;
+      } else if (figment.pos.inRangeTo(this.patrolPos, 4)) {
+        this.patrolPos = null;
       }
-      if (controllers.length > 1) {
-        const randomController = controllers[_.random(0, controllers.length - 1)];
-        figment.addNeuron(NeuronType.MOVE, "", randomController.pos, { moveRange: 5 });
-      } else {
-        const randomDir = _.random(1, 8);
-        figment.move(randomDir as DirectionConstant);
+      if (this.patrolPos) {
+        figment.travelTo(this.patrolPos);
       }
     }
   }

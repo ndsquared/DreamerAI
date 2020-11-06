@@ -96,6 +96,9 @@ export class Figment extends Creep implements Figment {
           }
         }
       }
+      if (!this.memory.underAttack) {
+        this.memory.interneurons = [];
+      }
     } else {
       const target = Game.spawns.Spawn1;
       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
