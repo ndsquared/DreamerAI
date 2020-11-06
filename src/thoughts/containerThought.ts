@@ -9,6 +9,21 @@ export class ContainerThought extends BuildThought {
 
   public ponder(): void {
     const spawn = this.idea.spawn;
+    if (spawn) {
+      const containers = spawn.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: s => s.structureType === STRUCTURE_CONTAINER
+      });
+      if (containers.length === 0) {
+        // Build container next to spawn
+        const containerDeltas: Coord[] = [];
+        containerDeltas.push({ x: 1, y: 1 });
+        containerDeltas.push({ x: 1, y: -1 });
+        containerDeltas.push({ x: -1, y: -1 });
+        containerDeltas.push({ x: -1, y: 1 });
+        const containerPositions = this.getPositionsFromDelta(this.idea.spawn.pos, containerDeltas);
+        this.idea.addBuild(containerPositions, STRUCTURE_CONTAINER, 4);
+      }
+    }
 
     // Build container next to controller
     const controller = spawn.room.controller;

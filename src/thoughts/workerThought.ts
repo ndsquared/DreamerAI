@@ -50,7 +50,8 @@ export class WorkerThought extends FigmentThought {
         useStorage: true,
         useSpawn,
         originRoom: this.idea.spawn.room,
-        avoidControllerStorage: false
+        avoidControllerContainer: false,
+        avoidSpawnContainer: false
       });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);

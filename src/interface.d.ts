@@ -86,7 +86,8 @@ interface NextTarget {
   useStorage?: boolean;
   useSpawn?: boolean;
   useLink?: boolean;
-  avoidControllerStorage?: boolean;
+  avoidControllerContainer?: boolean;
+  avoidSpawnContainer?: boolean;
   originRoom: Room;
   repairThreshold?: number;
   emptyTarget?: boolean;

@@ -45,6 +45,8 @@ export class HarvestThought extends FigmentThought {
     } else if (this.source.energy === 0) {
       if (figment.store.getUsedCapacity() > 0) {
         figment.addNeuron(NeuronType.DROP);
+      } else if (!figment.pos.inRangeTo(this.sourcePos, 3)) {
+        figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
       }
       return;
     }

@@ -288,7 +288,8 @@ export class Figment extends Creep implements Figment {
   public getNextPickupOrWithdrawTarget({
     useStorage = false,
     useSpawn = false,
-    avoidControllerStorage = true,
+    avoidControllerContainer = true,
+    avoidSpawnContainer = true,
     originRoom
   }: NextTarget): RoomObject | null {
     let targets: RoomObject[] = [];
@@ -299,12 +300,25 @@ export class Figment extends Creep implements Figment {
     const roomTargets = originRoom.find(FIND_STRUCTURES, {
       filter: s => {
         if (s instanceof StructureContainer) {
-          if (avoidControllerStorage) {
+          if (avoidControllerContainer) {
             const controller = originRoom.controller;
             if (controller) {
               if (controller.pos.inRangeTo(s.pos, 1)) {
                 return false;
               }
+            }
+          }
+          if (avoidSpawnContainer) {
+            const spawns = s.pos.findInRange(FIND_STRUCTURES, 2, {
+              filter: spawn => {
+                if (spawn.structureType === STRUCTURE_SPAWN) {
+                  return true;
+                }
+                return false;
+              }
+            });
+            if (spawns.length) {
+              return false;
             }
           }
           return s.store.getUsedCapacity() >= this.store.getCapacity();
@@ -329,7 +343,8 @@ export class Figment extends Creep implements Figment {
   public getNextPickupOrWithdrawTargetNeighborhood({
     useStorage = false,
     useSpawn = false,
-    avoidControllerStorage = true,
+    avoidControllerContainer = true,
+    avoidSpawnContainer = true,
     originRoom
   }: NextTarget): RoomObject | null {
     const targets: RoomObject[] = [];
@@ -337,7 +352,8 @@ export class Figment extends Creep implements Figment {
       const target = this.getNextPickupOrWithdrawTarget({
         useStorage,
         useSpawn,
-        avoidControllerStorage,
+        avoidControllerContainer,
+        avoidSpawnContainer,
         originRoom: room
       });
       if (target) {

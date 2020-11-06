@@ -25,7 +25,8 @@ export class UpgradeThought extends FigmentThought {
       const target = figment.getNextPickupOrWithdrawTargetNeighborhood({
         useStorage: true,
         originRoom: this.idea.spawn.room,
-        avoidControllerStorage: false
+        avoidControllerContainer: false,
+        avoidSpawnContainer: false
       });
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
