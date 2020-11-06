@@ -70,7 +70,14 @@ export class HarvestThought extends FigmentThought {
     }
 
     let targetOptions = null;
-    if (shouldDropHarvest) {
+    let useLink = false;
+    const links = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
+      filter: s => s.structureType === STRUCTURE_LINK
+    });
+    if (links.length) {
+      useLink = true;
+    }
+    if (shouldDropHarvest && !useLink) {
       targetOptions = {
         ignoreFigmentCapacity: true
       };
@@ -79,7 +86,7 @@ export class HarvestThought extends FigmentThought {
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
     } else {
-      const target = figment.getNextTransferTargetNeighborhood({ originRoom: this.idea.spawn.room });
+      const target = figment.getNextTransferTargetNeighborhood({ useLink, originRoom: this.idea.spawn.room });
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

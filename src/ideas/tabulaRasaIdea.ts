@@ -8,6 +8,7 @@ import { ExtensionThought } from "thoughts/extensionThought";
 import { FigmentThoughtName } from "thoughts/figmentThought";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Idea } from "./idea";
+import { LinkThought } from "thoughts/linkThought";
 import { PickupThought } from "thoughts/pickupThought";
 import { RampartThought } from "thoughts/rampartThought";
 import { ReserveThought } from "thoughts/reserveThought";
@@ -71,7 +72,8 @@ export class TabulaRasaIdea extends Idea {
       { name: BuildThoughtName.CONTAINER, thought: ContainerThought },
       { name: BuildThoughtName.TOWER, thought: TowerThought },
       { name: BuildThoughtName.STORAGE, thought: StorageThought },
-      { name: BuildThoughtName.RAMPART, thought: RampartThought }
+      { name: BuildThoughtName.RAMPART, thought: RampartThought },
+      { name: BuildThoughtName.LINK, thought: LinkThought }
     ];
     for (const buildThought of buildThoughts) {
       this.buildThoughts[buildThought.name] = {};

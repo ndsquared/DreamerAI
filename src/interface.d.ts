@@ -85,6 +85,7 @@ interface Structure {
 interface NextTarget {
   useStorage?: boolean;
   useSpawn?: boolean;
+  useLink?: boolean;
   avoidControllerStorage?: boolean;
   originRoom: Room;
   repairThreshold?: number;

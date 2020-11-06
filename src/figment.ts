@@ -184,7 +184,12 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(resources, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextTransferTarget({ useStorage = true, originRoom, emptyTarget = false }: NextTarget): Structure | null {
+  public getNextTransferTarget({
+    useStorage = true,
+    useLink = false,
+    originRoom,
+    emptyTarget = false
+  }: NextTarget): Structure | null {
     const roomTargets = originRoom.find(FIND_STRUCTURES, {
       filter: s => {
         if (s.structureType === STRUCTURE_CONTAINER) {
@@ -193,6 +198,8 @@ export class Figment extends Creep implements Figment {
             return false;
           }
         } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
+          return false;
+        } else if (s.structureType === STRUCTURE_LINK && !useLink) {
           return false;
         }
         if (emptyTarget && s.hasEnergyCapacity) {
@@ -206,12 +213,13 @@ export class Figment extends Creep implements Figment {
 
   public getNextTransferTargetNeighborhood({
     useStorage = true,
+    useLink = false,
     originRoom,
     emptyTarget = false
   }: NextTarget): Structure | null {
     let targets: Structure[] = [];
     for (const room of originRoom.neighborhood) {
-      const target = this.getNextTransferTarget({ useStorage, originRoom: room, emptyTarget });
+      const target = this.getNextTransferTarget({ useStorage, useLink, originRoom: room, emptyTarget });
       if (target) {
         targets = targets.concat(target);
       }
@@ -289,6 +297,11 @@ export class Figment extends Creep implements Figment {
           return s.store.getUsedCapacity() >= this.store.getCapacity();
         } else if (s instanceof StructureSpawn && useSpawn) {
           return s.store.getUsedCapacity(RESOURCE_ENERGY) >= this.store.getCapacity(RESOURCE_ENERGY);
+        } else if (s.structureType === STRUCTURE_LINK) {
+          const findSources = s.pos.findInRange(FIND_SOURCES, 2);
+          if (findSources.length === 0) {
+            return s.store.getUsedCapacity(RESOURCE_ENERGY) >= this.store.getCapacity(RESOURCE_ENERGY);
+          }
         }
         return false;
       }
