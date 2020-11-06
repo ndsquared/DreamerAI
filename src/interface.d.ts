@@ -119,6 +119,7 @@ interface TravelToOptions {
   movingTarget?: boolean;
   freshMatrix?: boolean;
   offRoad?: boolean;
+  showVisuals?: boolean;
   stuckValue?: number;
   maxRooms?: number;
   repath?: number;

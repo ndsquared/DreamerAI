@@ -21,11 +21,16 @@ export abstract class Neuron {
   }
 
   protected get targetPos(): RoomPosition {
-    const roomPosition = new RoomPosition(
-      this.interneuron.target.pos.x,
-      this.interneuron.target.pos.y,
-      this.interneuron.target.pos.roomName
-    );
+    let roomPosition: RoomPosition;
+    if (this.target) {
+      roomPosition = new RoomPosition(this.target.pos.x, this.target.pos.y, this.target.pos.roomName);
+    } else {
+      roomPosition = new RoomPosition(
+        this.interneuron.target.pos.x,
+        this.interneuron.target.pos.y,
+        this.interneuron.target.pos.roomName
+      );
+    }
     return roomPosition;
   }
 
@@ -49,9 +54,13 @@ export abstract class Neuron {
     }
     const impulseResult = this.impulse();
     if (impulseResult === ERR_NOT_IN_RANGE || this.interneuron.target.options.movingTarget) {
-      const result = this.figment.travelTo(this.targetPos, {
-        movingTarget: this.interneuron.target.options.movingTarget
-      });
+      let result: number = OK;
+      if (this.interneuron.target.options.movingTarget) {
+        result = this.figment.travelTo(this.targetPos, { showVisuals: true });
+      } else {
+        result = this.figment.travelTo(this.targetPos);
+      }
+      // console.log(result);
       if (result === global.ERR_INVALID_NEURON) {
         this.figment.memory.interneurons = [];
       }

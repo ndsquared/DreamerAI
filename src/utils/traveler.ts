@@ -35,12 +35,7 @@ export class Traveler {
    * @returns {number}
    */
 
-  public static travelTo(
-    creep: Creep,
-    destination: HasPos | RoomPosition,
-    options: TravelToOptions = {},
-    showVisuals = false
-  ): number {
+  public static travelTo(creep: Creep, destination: HasPos | RoomPosition, options: TravelToOptions = {}): number {
     // uncomment if you would like to register hostile rooms entered
     // this.updateRoomStatus(creep.room);
 
@@ -49,7 +44,7 @@ export class Traveler {
     }
 
     if (creep.fatigue > 0) {
-      if (showVisuals) {
+      if (options.showVisuals) {
         Traveler.circle(creep.pos, "aqua", 0.3);
       }
       return ERR_TIRED;
@@ -82,7 +77,7 @@ export class Traveler {
     const state = this.deserializeState(travelData, destination);
 
     // uncomment to visualize destination
-    if (showVisuals) {
+    if (options.showVisuals) {
       this.circle(destination, "orange");
     }
 
@@ -155,7 +150,7 @@ export class Traveler {
         options.returnData.pathfinderReturn = ret;
       }
 
-      travelData.path = Traveler.serializePath(creep.pos, ret.path, color, showVisuals);
+      travelData.path = Traveler.serializePath(creep.pos, ret.path, color, options.showVisuals ? true : false);
       state.stuckCount = 0;
     }
 

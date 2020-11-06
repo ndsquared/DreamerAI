@@ -9,7 +9,10 @@ export class NeuronReserve extends Neuron {
     return this.target instanceof StructureController;
   }
   public impulse(): number {
-    const result = this.figment.reserveController(this.target);
+    let result = this.figment.reserveController(this.target);
+    if (result === ERR_INVALID_TARGET) {
+      result = this.figment.attackController(this.target);
+    }
     return result;
   }
 }

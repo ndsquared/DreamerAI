@@ -18,6 +18,7 @@ export class DefenseThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     let targets: Creep[] = [];
+    let structures: Structure[] = [];
     let healTargets: Creep[] = [];
     for (const room of this.idea.spawn.room.neighborhood) {
       const enemies = room.find(FIND_HOSTILE_CREEPS);
@@ -28,13 +29,18 @@ export class DefenseThought extends FigmentThought {
         }
       });
       healTargets = healTargets.concat(figments);
+      const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
+      structures = structures.concat(enemyStructures);
     }
     const target = _.first(_.sortBy(targets, c => PathFindWithRoad(figment.pos, c.pos).cost));
     const healTarget = _.first(_.sortBy(healTargets, c => PathFindWithRoad(figment.pos, c.pos).cost));
+    const structure = _.first(_.sortBy(structures, c => PathFindWithRoad(figment.pos, c.pos).cost));
     if (target) {
       figment.addNeuron(NeuronType.RANGED_ATTACK, target.id, target.pos);
     } else if (healTarget) {
       figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
+    } else if (structure) {
+      figment.addNeuron(NeuronType.RANGED_ATTACK, structure.id, structure.pos);
     } else {
       if (!this.patrolPos) {
         this.patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
