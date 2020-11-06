@@ -67,7 +67,7 @@ export class WorkerThought extends FigmentThought {
     for (const room of this.idea.spawn.room.neighborhood) {
       const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
       if (constructionSites.length) {
-        this.figmentsNeeded = 10;
+        this.figmentsNeeded = 4;
         this.figmentPriority = 3;
         return;
       }

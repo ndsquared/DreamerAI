@@ -27,6 +27,9 @@ export abstract class BuildThought extends Thought {
     const positions: RoomPosition[] = [];
     for (const delta of deltas) {
       const pos = new RoomPosition(pivotPos.x + delta.x, pivotPos.y + delta.y, pivotPos.roomName);
+      if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+        continue;
+      }
       positions.push(pos);
     }
     return positions;
@@ -68,26 +71,26 @@ export abstract class BuildThought extends Thought {
     let result = false;
     const positions = this.getPositionsFromDelta(pivotPos, deltas);
     for (const lookPos of positions) {
-      // const rv = new RoomVisual(lookPos.roomName);
+      const rv = new RoomVisual(lookPos.roomName);
       const lookConstructionSite = lookPos.lookFor(LOOK_CONSTRUCTION_SITES);
       if (lookConstructionSite.length) {
         // console.log(`Found construction site at (${lookPos.x}, ${lookPos.y})`);
-        // rv.circle(lookPos.x, lookPos.y, { fill: "#00ff00" });
+        rv.circle(lookPos.x, lookPos.y, { fill: "#ff0000" });
         continue;
       }
       const lookStructure = lookPos.lookFor(LOOK_STRUCTURES);
       if (lookStructure.length) {
         // console.log(`Found structure at (${lookPos.x}, ${lookPos.y})`);
-        // rv.circle(lookPos.x, lookPos.y, { fill: "#00ff00" });
+        rv.circle(lookPos.x, lookPos.y, { fill: "#ff0000" });
         continue;
       }
       const lookTerrain = lookPos.lookFor(LOOK_TERRAIN);
       if (lookTerrain.length && lookTerrain[0] === "wall") {
         // console.log(`Found wall at (${lookPos.x}, ${lookPos.y})`);
-        // rv.circle(lookPos.x, lookPos.y, { fill: "#00ff00" });
+        rv.circle(lookPos.x, lookPos.y, { fill: "#ff0000" });
         continue;
       }
-      // rv.circle(lookPos.x, lookPos.y, { fill: "#0000ff" });
+      rv.circle(lookPos.x, lookPos.y, { fill: "#0000ff" });
       result = true;
     }
     // console.log(result);
