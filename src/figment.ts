@@ -101,7 +101,11 @@ export class Figment extends Creep implements Figment {
         }
       }
       if (!this.memory.underAttack) {
-        this.memory.interneurons = [];
+        this.memory.underAttackCooldown--;
+        if (this.memory.underAttackCooldown <= 0) {
+          this.memory.interneurons = [];
+          this.memory.underAttackCooldown = 5;
+        }
       }
     } else {
       const target = Game.spawns.Spawn1;
@@ -122,6 +126,8 @@ export class Figment extends Creep implements Figment {
               this.say("Noooo!", true);
               console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
               this.memory.interneurons = [];
+              const randomDir = _.random(1, 8);
+              this.move(randomDir as DirectionConstant);
               this.addNeuron(NeuronType.MOVE, "", target.pos);
               this.memory.underAttack = true;
             }

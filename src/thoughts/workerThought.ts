@@ -1,8 +1,8 @@
+import { PathFindWithRoad, isStoreStructure } from "utils/misc";
 import { Figment } from "figment";
 import { FigmentThought } from "./figmentThought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
-import { isStoreStructure } from "utils/misc";
 
 export class WorkerThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
@@ -18,18 +18,20 @@ export class WorkerThought extends FigmentThought {
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
       const repairTarget = figment.getNextRepairTargetNeighborhood({ originRoom: this.idea.spawn.room });
-      if (repairTarget) {
+      const buildTarget = figment.getNextBuildTargetNeighborhood({ originRoom: this.idea.spawn.room });
+      const controller = this.idea.spawn.room.controller;
+      if (
+        repairTarget &&
+        buildTarget &&
+        PathFindWithRoad(figment.pos, repairTarget.pos).cost < PathFindWithRoad(figment.pos, buildTarget.pos).cost
+      ) {
         figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
-      } else {
-        const buildTarget = figment.getNextBuildTargetNeighborhood({ originRoom: this.idea.spawn.room });
-        const controller = this.idea.spawn.room.controller;
-        if (controller && controller.my) {
-          if (buildTarget && controller.ticksToDowngrade > 4000) {
-            figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
-          } else {
-            figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
-          }
-        }
+      } else if (buildTarget) {
+        figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
+      } else if (repairTarget) {
+        figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
+      } else if (controller && controller.my) {
+        figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
       }
     } else {
       const containers = figment.room.find(FIND_STRUCTURES, {

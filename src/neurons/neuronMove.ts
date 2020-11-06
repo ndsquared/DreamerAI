@@ -5,10 +5,14 @@ export class NeuronMove extends Neuron {
     return !this.figment.pos.inRangeTo(this.targetPos, this.interneuron.target.options.moveRange);
   }
   public isValidTarget(): boolean {
+    if (this.figment.pos.inRangeTo(this.targetPos, 1) && !this.targetPos.isWalkable(false)) {
+      return false;
+    }
     return true;
   }
   public impulse(): number {
     const result = this.figment.travelTo(this.targetPos);
+    // console.log(result);
     return result;
   }
 }
