@@ -8,8 +8,8 @@ export class WorkerThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [WORK, MOVE, CARRY],
-      ratio: [1, 2, 1],
+      bodyParts: [MOVE, WORK, CARRY],
+      ratio: [2, 1, 1],
       minParts: 4,
       maxParts: 15
     };

@@ -9,8 +9,8 @@ export class DefenseThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [TOUGH, MOVE, RANGED_ATTACK, HEAL],
-      ratio: [1, 3, 1, 1],
+      bodyParts: [MOVE, TOUGH, RANGED_ATTACK, HEAL],
+      ratio: [3, 1, 1, 1],
       minParts: 7,
       maxParts: 20
     };
