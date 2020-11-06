@@ -12,8 +12,6 @@ export class PickupThought extends FigmentThought {
     this.figmentsNeeded = 1;
     const pf = PathFindWithRoad(this.idea.spawn.pos, source.pos);
     if (pf.cost > 65) {
-      this.figmentsNeeded = 3;
-    } else if (pf.cost > 45) {
       this.figmentsNeeded = 2;
     }
     this.figmentBodySpec = {
@@ -35,9 +33,9 @@ export class PickupThought extends FigmentThought {
         target = figment.getNextPickupOrWithdrawTargetNeighborhood({ originRoom: this.idea.spawn.room });
       }
       if (target instanceof Resource) {
-        figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
+        figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {
-        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
+        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     } else {
       const target = figment.getNextTransferTargetNeighborhood({ originRoom: this.idea.spawn.room });

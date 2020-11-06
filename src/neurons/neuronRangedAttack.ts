@@ -17,6 +17,20 @@ export class NeuronRangedAttack extends Neuron {
     return this.target.hits > 0;
   }
   public impulse(): number {
+    if (this.figment.getActiveBodyparts(HEAL) > 0) {
+      const hurtFigments = this.figment.pos.findInRange(FIND_MY_CREEPS, 3, {
+        filter: f => {
+          if (f.hits < f.hitsMax) {
+            return true;
+          }
+          return false;
+        }
+      });
+      if (hurtFigments) {
+        const closestHurtFigment = _.first(_.sortBy(hurtFigments, f => this.figment.pos.getRangeTo(f.pos)));
+        this.figment.rangedHeal(closestHurtFigment);
+      }
+    }
     return this.figment.rangedAttack(this.target);
   }
 }
