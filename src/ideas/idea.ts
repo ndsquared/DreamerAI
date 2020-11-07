@@ -157,7 +157,7 @@ export abstract class Idea implements IBrain {
   }
 
   private processBuildQueue(): void {
-    let buildOps = 100;
+    let buildOps = 1000;
     while (this.buildQueue.length > 0) {
       if (buildOps <= 0) {
         break;
