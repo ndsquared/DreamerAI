@@ -189,9 +189,9 @@ export class Figment extends Creep implements Figment {
     this.say(type);
   }
 
-  public getNextPickupTarget({ originRoom }: NextTarget): Resource | null {
+  public getNextPickupTarget({ originRoom, minCapacity = 0 }: NextTarget): Resource | null {
     const roomResources = originRoom.find(FIND_DROPPED_RESOURCES, {
-      filter: s => s.amount >= this.store.getCapacity()
+      filter: s => s.amount >= minCapacity
     });
     return _.first(_.sortBy(roomResources, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
@@ -291,11 +291,22 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextPickupOrWithdrawTargetInRange(range: number, { minCapacity = 0 }: NextTarget): RoomObject | null {
-    const roomTargets = this.pos.findInRange(FIND_STRUCTURES, range, {
-      filter: s => this.filterPickupOrWithdrawTarget(s, { minCapacity, originRoom: this.room })
+  public getNextPickupOrWithdrawTargetInRange(
+    range: number,
+    { useStorage = false, minCapacity = 0 }: NextTarget
+  ): RoomObject | null {
+    let targets: RoomObject[] = [];
+    const roomResources = this.pos.findInRange(FIND_DROPPED_RESOURCES, range, {
+      filter: s => s.amount > minCapacity
     });
-    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
+    // console.log(`found ${roomResources.length} resource(s)`);
+    targets = targets.concat(roomResources);
+    const roomTargets = this.pos.findInRange(FIND_STRUCTURES, range, {
+      filter: s => this.filterPickupOrWithdrawTarget(s, { useStorage, minCapacity, originRoom: this.room })
+    });
+    // console.log(`found ${roomTargets.length} structure(s)`);
+    targets = targets.concat(roomTargets);
+    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
   public filterPickupOrWithdrawTarget(
@@ -305,7 +316,7 @@ export class Figment extends Creep implements Figment {
       useSpawn = false,
       avoidControllerContainer = true,
       avoidSpawnContainer = true,
-      minCapacity = 0
+      minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3
     }: NextTarget
   ): boolean {
     if (s instanceof StructureContainer) {
@@ -330,15 +341,15 @@ export class Figment extends Creep implements Figment {
           return false;
         }
       }
-      return s.store.getUsedCapacity() >= minCapacity;
+      return s.store.getUsedCapacity() > minCapacity;
     } else if (s instanceof StructureStorage && useStorage) {
-      return s.store.getUsedCapacity() >= minCapacity;
+      return s.store.getUsedCapacity() > minCapacity;
     } else if (s instanceof StructureSpawn && useSpawn) {
-      return s.store.getUsedCapacity(RESOURCE_ENERGY) >= minCapacity;
+      return s.store.getUsedCapacity(RESOURCE_ENERGY) > minCapacity;
     } else if (s instanceof StructureLink) {
       const findSources = s.pos.findInRange(FIND_SOURCES, 2);
       if (findSources.length === 0) {
-        return s.store.getUsedCapacity(RESOURCE_ENERGY) >= minCapacity;
+        return s.store.getUsedCapacity(RESOURCE_ENERGY) > minCapacity;
       }
     }
     return false;

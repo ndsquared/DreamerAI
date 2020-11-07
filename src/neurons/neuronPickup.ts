@@ -14,9 +14,6 @@ export class NeuronPickup extends Neuron {
     if (!this.target) {
       return false;
     }
-    if (this.interneuron.target.options.minCapacity) {
-      return this.target.amount > this.figment.store.getFreeCapacity(this.resourceType);
-    }
     return this.target && this.target.amount > 0;
   }
   public impulse(): number {

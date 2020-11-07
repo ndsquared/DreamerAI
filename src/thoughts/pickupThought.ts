@@ -28,10 +28,11 @@ export class PickupThought extends FigmentThought {
         figment.addNeuron(NeuronType.MOVE, "", this.sourcePos, { moveRange: 3 });
         return;
       }
-      let target = figment.getNextPickupOrWithdrawTargetInRange(5, {
+      let target = figment.getNextPickupOrWithdrawTargetInRange(10, {
         minCapacity: figment.store.getCapacity(RESOURCE_ENERGY),
         originRoom: figment.room
       });
+      // if (target) console.log(`pickup target ${target.pos.toString()}`);
       if (!target) {
         target = figment.getNextPickupOrWithdrawTargetNeighborhood({ originRoom: this.idea.spawn.room });
       }

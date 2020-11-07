@@ -18,10 +18,12 @@ export class TransferThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      let target = figment.getNextPickupOrWithdrawTargetInRange(5, {
+      let target = figment.getNextPickupOrWithdrawTargetInRange(10, {
+        useStorage: true,
         minCapacity: figment.store.getCapacity(RESOURCE_ENERGY),
         originRoom: figment.room
       });
+      // if (target) console.log(`transfer target ${target.pos.toString()}`);
       if (!target) {
         target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
       }
