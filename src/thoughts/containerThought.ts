@@ -7,10 +7,7 @@ export class ContainerThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public ponder(): void {
-    if (Game.time % 50 !== 0) {
-      return;
-    }
+  public buildPlan(): void {
     const spawn = this.idea.spawn;
     if (spawn) {
       const containers = spawn.pos.findInRange(FIND_STRUCTURES, 2, {
@@ -18,13 +15,8 @@ export class ContainerThought extends BuildThought {
       });
       if (containers.length === 0) {
         // Build container next to spawn
-        const containerDeltas: Coord[] = [];
-        containerDeltas.push({ x: 1, y: 1 });
-        containerDeltas.push({ x: 1, y: -1 });
-        containerDeltas.push({ x: -1, y: -1 });
-        containerDeltas.push({ x: -1, y: 1 });
-        const containerPositions = this.getPositionsFromDelta(this.idea.spawn.pos, containerDeltas);
-        this.idea.addBuild(containerPositions, STRUCTURE_CONTAINER, 4);
+        const containerPositions = this.getPositionsStandard(this.idea.spawn.pos);
+        this.idea.addBuilds(containerPositions, STRUCTURE_CONTAINER, 4);
       }
     }
 
@@ -36,7 +28,8 @@ export class ContainerThought extends BuildThought {
       });
       if (containers.length === 0) {
         const buildPositions = controller.pos.availableNeighbors(true);
-        this.idea.addBuild(buildPositions, STRUCTURE_CONTAINER, 5);
+        const priority = PathFindWithRoad(spawn.pos, controller.pos).cost;
+        this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority);
       }
     }
 
@@ -49,11 +42,8 @@ export class ContainerThought extends BuildThought {
         });
         if (containers.length === 0) {
           const buildPositions = source.pos.availableNeighbors(true);
-          this.idea.addBuild(
-            buildPositions,
-            STRUCTURE_CONTAINER,
-            _.min([PathFindWithRoad(spawn.pos, source.pos).cost, 10])
-          );
+          const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
+          this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority);
         }
       }
     }

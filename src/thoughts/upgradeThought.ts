@@ -39,13 +39,20 @@ export class UpgradeThought extends FigmentThought {
 
   public adjustPriority(): void {
     this.figmentPriority = 3;
-    this.figmentsNeeded = 3;
     for (const room of this.idea.spawn.room.neighborhood) {
       const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
       if (constructionSites.length) {
         this.figmentPriority = 1;
         return;
       }
+    }
+  }
+  public setFigmentsNeeded(): void {
+    const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
+    if (totalWorkParts >= 8) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = this.figments.length + 1;
     }
   }
 }

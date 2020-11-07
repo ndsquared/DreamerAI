@@ -8,6 +8,7 @@ import { ExtensionThought } from "thoughts/extensionThought";
 import { FigmentThoughtName } from "thoughts/figmentThought";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Idea } from "./idea";
+import { Imagination } from "imagination";
 import { LinkThought } from "thoughts/linkThought";
 import { PickupThought } from "thoughts/pickupThought";
 import { RampartThought } from "thoughts/rampartThought";
@@ -26,8 +27,8 @@ interface ThoughtMapping {
 }
 
 export class TabulaRasaIdea extends Idea {
-  public constructor(spawn: StructureSpawn) {
-    super(spawn);
+  public constructor(spawn: StructureSpawn, imagination: Imagination) {
+    super(spawn, imagination);
     const sources = _.sortBy(
       Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
       s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length

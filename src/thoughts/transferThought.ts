@@ -24,7 +24,6 @@ export class TransferThought extends FigmentThought {
         minCapacity: figment.store.getCapacity(RESOURCE_ENERGY),
         originRoom: figment.room
       });
-      // if (target) console.log(`transfer target ${target.pos.toString()}`);
       if (!target) {
         target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
       }
@@ -54,6 +53,14 @@ export class TransferThought extends FigmentThought {
   public adjustPriority(): void {
     if (this.figments.length >= 1) {
       this.figmentPriority = 2;
+    }
+  }
+  public setFigmentsNeeded(): void {
+    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CARRY));
+    if (totalParts >= 10) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = this.figments.length + 1;
     }
   }
 }

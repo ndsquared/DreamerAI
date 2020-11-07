@@ -6,22 +6,19 @@ export class RampartThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public ponder(): void {
-    if (Game.time % 50 !== 0) {
-      return;
-    }
+  public buildPlan(): void {
     if (this.idea.rcl < 3) {
       return;
     }
     const spawn = this.idea.spawn;
     // Protect spawn
-    this.idea.addBuild([spawn.pos], STRUCTURE_RAMPART, 3);
+    this.idea.addBuilds([spawn.pos], STRUCTURE_RAMPART, 3);
 
     // Protect controller
     const controller = this.idea.spawn.room.controller;
     if (controller) {
       const controllerNeighbors = controller.pos.availableNeighbors(true);
-      this.idea.addBuild(controllerNeighbors, STRUCTURE_RAMPART, 4);
+      this.idea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4);
     }
 
     // Protect towers
@@ -34,7 +31,7 @@ export class RampartThought extends BuildThought {
       }
     });
     const towerPos = _.map(towers, t => t.pos);
-    this.idea.addBuild(towerPos, STRUCTURE_RAMPART, 5);
+    this.idea.addBuilds(towerPos, STRUCTURE_RAMPART, 5);
 
     // Protect base
   }

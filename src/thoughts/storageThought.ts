@@ -6,22 +6,12 @@ export class StorageThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public ponder(): void {
-    if (Game.time % 50 !== 0) {
-      return;
-    }
-    const storageDeltas: Coord[] = [];
-    storageDeltas.push({ x: 0, y: 0 });
-    storageDeltas.push({ x: 1, y: 1 });
-    storageDeltas.push({ x: 1, y: -1 });
-    storageDeltas.push({ x: -1, y: -1 });
-    storageDeltas.push({ x: -1, y: 1 });
-
-    const pivotPos = this.getNextPivotPos(this.idea.spawn.pos, storageDeltas);
+  public buildPlan(): void {
+    const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
 
     if (pivotPos) {
-      const storagePositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, storageDeltas);
-      this.idea.addBuild(storagePositions, STRUCTURE_STORAGE, 2);
+      const storagePositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
+      this.idea.addBuilds(storagePositions, STRUCTURE_STORAGE, 2);
     }
   }
 }

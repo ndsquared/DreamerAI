@@ -6,6 +6,7 @@ import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
   private ideas: { [name: string]: Idea };
+  private consoleStatus: string[] = [];
 
   public constructor() {
     console.log("Global reset...");
@@ -67,13 +68,15 @@ export class Imagination implements IBrain {
   private fantasize() {
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
-      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn);
+      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn, this);
     }
   }
 
   public imagine(): void {
     const figments = Object.keys(Game.creeps).length;
-    console.log(`Tick: ${Game.time} | Figments: ${figments}`);
+    this.consoleStatus = [];
+    this.addStatus(`Tick: ${Game.time}`);
+    this.addStatus(`Figments: ${figments}`);
     this.ponder();
     this.think();
     this.reflect();
@@ -126,6 +129,16 @@ export class Imagination implements IBrain {
     for (const name in this.ideas) {
       this.ideas[name].reflect();
     }
+    this.printStatus();
+  }
+
+  public addStatus(status: string): void {
+    this.consoleStatus.push(status);
+  }
+
+  private printStatus(): void {
+    const status = this.consoleStatus.join(" | ");
+    console.log(status);
   }
 }
 

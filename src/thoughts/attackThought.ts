@@ -47,7 +47,6 @@ export class AttackThought extends FigmentThought {
         this.patrolPos = null;
       }
       if (this.patrolPos) {
-        // console.log(this.patrolPos.toString());
         const result = figment.travelTo(this.patrolPos, { ignoreRoads: true });
         if (result !== OK && result !== ERR_TIRED) {
           this.patrolPos = null;
@@ -60,16 +59,22 @@ export class AttackThought extends FigmentThought {
     if (this.idea.rcl < 3) {
       return;
     }
-    this.figmentsNeeded = 1;
     this.figmentPriority = 2;
     for (const room of this.idea.spawn.room.neighborhood) {
       const enemies = room.find(FIND_HOSTILE_CREEPS);
       const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
       if (enemies.length || enemyStructures.length) {
-        this.figmentsNeeded = 4;
         this.figmentPriority = 14;
         return;
       }
+    }
+  }
+  public setFigmentsNeeded(): void {
+    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(ATTACK));
+    if (totalParts >= 5) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = this.figments.length + 1;
     }
   }
 }

@@ -79,3 +79,10 @@ export function RandomRoomPatrolPos(room: Room): RoomPosition {
   }
   return new RoomPosition(ranX, ranY, room.name);
 }
+
+export function GetRoomPosition(x: number, y: number, roomName: string): RoomPosition | null {
+  if (x < 0 || x > 49 || y < 0 || y > 49) {
+    return null;
+  }
+  return new RoomPosition(x, y, roomName);
+}

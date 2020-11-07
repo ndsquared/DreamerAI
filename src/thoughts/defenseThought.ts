@@ -81,4 +81,12 @@ export class DefenseThought extends FigmentThought {
       }
     }
   }
+  public setFigmentsNeeded(): void {
+    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(RANGED_ATTACK));
+    if (totalParts >= 5) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = this.figments.length + 1;
+    }
+  }
 }

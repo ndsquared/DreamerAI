@@ -1,12 +1,14 @@
 import { FigmentThought, FigmentThoughtName } from "thoughts/figmentThought";
 import { BuildThought } from "thoughts/buildThought";
 import { Figment } from "figment";
+import { Imagination } from "imagination";
 import PriorityQueue from "ts-priority-queue";
 
 export abstract class Idea implements IBrain {
   public figmentThoughts: { [name: string]: { [instance: string]: FigmentThought } } = {};
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
   public spawn: StructureSpawn;
+  public imagination: Imagination;
   private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Higher priority is dequeued first
@@ -19,21 +21,25 @@ export abstract class Idea implements IBrain {
       return a.priority - b.priority;
     }
   });
-  public shouldBuild: { [roomName: string]: boolean };
+  public hasConstructionSite: { [roomName: string]: boolean };
   public rcl = 0;
-  public constructor(spawn: StructureSpawn) {
+  public constructor(spawn: StructureSpawn, imagination: Imagination) {
     this.spawn = spawn;
+    this.imagination = imagination;
     // Initialize memory
     if (!Memory.imagination.ideas[spawn.room.name]) {
       Memory.imagination.ideas[spawn.room.name] = {
         figmentCount: {}
       };
     }
-    this.shouldBuild = {};
+    this.hasConstructionSite = {};
   }
 
   public ponder(): void {
     this.spawn = Game.spawns[this.spawn.name];
+    if (Game.time % global.BUILD_PLAN_INTERVAL === 0) {
+      this.buildQueue.clear();
+    }
     const thoughts = { ...this.buildThoughts, ...this.figmentThoughts };
     for (const thoughtName in thoughts) {
       for (const thoughtInstance in thoughts[thoughtName]) {
@@ -41,14 +47,15 @@ export abstract class Idea implements IBrain {
         thought.ponder();
       }
     }
+    this.imagination.addStatus(`Build Queue: ${this.buildQueue.length}`);
     this.rcl = this.spawn.room.controller?.level === undefined ? 0 : this.spawn.room.controller.level;
 
     if (this.rcl > 1) {
       for (const room of this.spawn.room.neighborhood) {
-        this.shouldBuild[room.name] = true;
+        this.hasConstructionSite[room.name] = false;
         const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
         if (constructionSites.length > 0) {
-          this.shouldBuild[room.name] = false;
+          this.hasConstructionSite[room.name] = true;
         }
       }
     }
@@ -75,7 +82,6 @@ export abstract class Idea implements IBrain {
       }
     }
     this.spawnQueue.clear();
-    this.buildQueue.clear();
   }
 
   private processSpawnQueue() {
@@ -100,7 +106,9 @@ export abstract class Idea implements IBrain {
           underAttackCooldown: 5
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
-        console.log(`Spawning ${nextSpawn.name}[${nextSpawn.thoughtName}] with priority ${nextSpawn.priority}`);
+        this.imagination.addStatus(
+          `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} priority ${nextSpawn.priority}`
+        );
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
         break;
       }
@@ -133,7 +141,6 @@ export abstract class Idea implements IBrain {
   }
 
   public adjustFigmentCount(figmentThoughtName: FigmentThoughtName | string, delta: number): void {
-    // console.log(`adjust figment count ${figmentThoughtName} by ${delta}`);
     const count = Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName];
     if (count) {
       Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentThoughtName] += delta;
@@ -142,38 +149,47 @@ export abstract class Idea implements IBrain {
     }
   }
 
+  public canBuild(roomName: string): boolean {
+    if (this.hasConstructionSite[roomName]) {
+      return false;
+    }
+    return true;
+  }
+
   private processBuildQueue(): void {
-    if (!this.shouldBuild) {
-      return;
-    }
-    if (Game.time % 50 !== 0) {
-      return;
-    }
-    console.log("building!");
+    let buildOps = 100;
     while (this.buildQueue.length > 0) {
-      const nextBuild = this.buildQueue.dequeue();
+      if (buildOps <= 0) {
+        break;
+      }
+      buildOps--;
+
+      let nextBuild = this.buildQueue.peek();
       const room = Game.rooms[nextBuild.pos.roomName];
-      if (!room || !this.shouldBuild[room.name]) {
+      if (!room || !this.canBuild(room.name)) {
         continue;
       }
+      nextBuild = this.buildQueue.dequeue();
       const buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
       if (buildResult === OK) {
-        console.log(
-          `Building ${nextBuild.structure} at (${nextBuild.pos.roomName}: ${nextBuild.pos.x}, ${nextBuild.pos.y})`
-        );
+        this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
         break;
       }
     }
   }
 
-  public addBuild(positions: RoomPosition[], structure: StructureConstant, priority: number): void {
+  public addBuilds(positions: RoomPosition[], structure: StructureConstant, priority: number): void {
     for (const pos of positions) {
-      const buildPayload = {
-        pos,
-        structure,
-        priority
-      };
-      this.buildQueue.queue(buildPayload);
+      this.addBuild(pos, structure, priority);
     }
+  }
+
+  public addBuild(pos: RoomPosition, structure: StructureConstant, priority: number): void {
+    const buildPayload = {
+      pos,
+      structure,
+      priority
+    };
+    this.buildQueue.queue(buildPayload);
   }
 }

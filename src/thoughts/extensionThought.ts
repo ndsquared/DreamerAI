@@ -6,17 +6,8 @@ export class ExtensionThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public ponder(): void {
-    if (Game.time % 50 !== 0) {
-      return;
-    }
-    const extensionDeltas: Coord[] = [];
-    extensionDeltas.push({ x: 0, y: 0 });
-    extensionDeltas.push({ x: 1, y: 1 });
-    extensionDeltas.push({ x: 1, y: -1 });
-    extensionDeltas.push({ x: -1, y: -1 });
-    extensionDeltas.push({ x: -1, y: 1 });
-
+  public buildPlan(): void {
+    const extensionDeltas: Coord[] = this.standardDeltas();
     const roadDeltas: Coord[] = [];
     roadDeltas.push({ x: 1, y: 0 });
     roadDeltas.push({ x: -1, y: 0 });
@@ -24,14 +15,14 @@ export class ExtensionThought extends BuildThought {
     roadDeltas.push({ x: 0, y: -1 });
 
     const allDeltas = extensionDeltas.concat(roadDeltas);
-    const pivotPos = this.getNextPivotPos(this.idea.spawn.pos, allDeltas);
+    const pivotPos = this.getNextPivotPos(this.idea.spawn.pos, allDeltas, 3);
 
     if (pivotPos) {
-      const extensionPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, extensionDeltas);
+      const extensionPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
       const roadPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, roadDeltas);
 
-      this.idea.addBuild(extensionPositions, STRUCTURE_EXTENSION, 2);
-      this.idea.addBuild(roadPositions, STRUCTURE_ROAD, 50);
+      this.idea.addBuilds(extensionPositions, STRUCTURE_EXTENSION, 2);
+      this.idea.addBuilds(roadPositions, STRUCTURE_ROAD, 50);
     }
   }
 }

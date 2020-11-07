@@ -7,6 +7,35 @@ export class LinkThought extends BuildThought {
     super(idea, name, instance);
   }
 
+  public buildPlan(): void {
+    const spawn = this.idea.spawn;
+    if (this.links.length < 1) {
+      // Build link next to spawn
+      const linkPositions = this.getPositionsStandard(this.idea.spawn.pos);
+      this.idea.addBuilds(linkPositions, STRUCTURE_LINK, 2);
+    } else if (this.links.length < 2) {
+      // Build link at furthest source
+      const sources = _.sortBy(
+        Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
+        s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
+      ).reverse();
+      for (const source of sources) {
+        const linkPos = source.pos.availableNeighbors(true);
+        if (linkPos.length > 1) {
+          this.idea.addBuilds(linkPos, STRUCTURE_LINK, 3);
+          break;
+        }
+      }
+    } else if (this.links.length < 3) {
+      // Build link at controller
+      const controller = spawn.room.controller;
+      if (controller && controller.my) {
+        const linkPos = controller.pos.availableNeighbors(true);
+        this.idea.addBuilds(linkPos, STRUCTURE_LINK, 3);
+      }
+    }
+  }
+
   public ponder(): void {
     const spawn = this.idea.spawn;
     this.links = spawn.room.find(FIND_STRUCTURES, {
@@ -17,39 +46,7 @@ export class LinkThought extends BuildThought {
         return false;
       }
     }) as StructureLink[];
-    if (Game.time % 50 !== 0) {
-      return;
-    }
-    if (this.links.length < 1) {
-      // Build link next to spawn
-      const linkDeltas: Coord[] = [];
-      linkDeltas.push({ x: 1, y: 1 });
-      linkDeltas.push({ x: 1, y: -1 });
-      linkDeltas.push({ x: -1, y: -1 });
-      linkDeltas.push({ x: -1, y: 1 });
-      const linkPositions = this.getPositionsFromDelta(this.idea.spawn.pos, linkDeltas);
-      this.idea.addBuild(linkPositions, STRUCTURE_LINK, 2);
-    } else if (this.links.length < 2) {
-      // Build link at furthest source
-      const sources = _.sortBy(
-        Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
-        s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
-      ).reverse();
-      for (const source of sources) {
-        const linkPos = source.pos.availableNeighbors(true);
-        if (linkPos.length > 1) {
-          this.idea.addBuild(linkPos, STRUCTURE_LINK, 3);
-          break;
-        }
-      }
-    } else if (this.links.length < 3) {
-      // Build link at controller
-      const controller = spawn.room.controller;
-      if (controller && controller.my) {
-        const linkPos = controller.pos.availableNeighbors(true);
-        this.idea.addBuild(linkPos, STRUCTURE_LINK, 3);
-      }
-    }
+    super.ponder();
   }
 
   public think(): void {

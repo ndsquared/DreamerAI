@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import { GetRoomPosition } from "utils/misc";
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";
 import profiler from "screeps-profiler";
@@ -19,14 +20,58 @@ export abstract class BuildThought extends Thought {
     super(idea, name, instance);
   }
 
-  public ponder(): void {}
+  public abstract buildPlan(): void;
+
+  public ponder(): void {
+    if (Game.time % global.BUILD_PLAN_INTERVAL === 0) {
+      this.buildPlan();
+    }
+  }
   public think(): void {}
   public reflect(): void {}
+
+  public cardinalDirections(): Coord[] {
+    const dirs: Coord[] = [];
+    dirs.push({ x: 1, y: 0 });
+    dirs.push({ x: -1, y: 0 });
+    dirs.push({ x: 0, y: -1 });
+    dirs.push({ x: 0, y: 1 });
+    return dirs;
+  }
+
+  public ordinalDirections(): Coord[] {
+    const dirs: Coord[] = [];
+    dirs.push({ x: 1, y: 1 });
+    dirs.push({ x: 1, y: -1 });
+    dirs.push({ x: -1, y: -1 });
+    dirs.push({ x: -1, y: 1 });
+    return dirs;
+  }
+
+  public cardinalAndOrdinalDirections(): Coord[] {
+    return this.cardinalDirections().concat(this.ordinalDirections());
+  }
+
+  public standardDeltas(): Coord[] {
+    let deltas: Coord[] = [];
+    deltas.push({ x: 0, y: 0 });
+    deltas = deltas.concat(this.ordinalDirections());
+    return deltas;
+  }
+
+  public getPositionsStandard(pivotPos: RoomPosition): RoomPosition[] {
+    const deltas = this.standardDeltas();
+    const positions = this.getPositionsFromDelta(pivotPos, deltas);
+    return positions;
+  }
 
   public getPositionsFromDelta(pivotPos: RoomPosition, deltas: Coord[]): RoomPosition[] {
     const positions: RoomPosition[] = [];
     for (const delta of deltas) {
-      const pos = new RoomPosition(pivotPos.x + delta.x, pivotPos.y + delta.y, pivotPos.roomName);
+      const pos = GetRoomPosition(pivotPos.x + delta.x, pivotPos.y + delta.y, pivotPos.roomName);
+      if (!pos) {
+        continue;
+      }
       if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
         continue;
       }
@@ -35,34 +80,36 @@ export abstract class BuildThought extends Thought {
     return positions;
   }
 
-  public getNextPivotPos(startPos: RoomPosition, deltas: Coord[]): RoomPosition | null {
-    // const rv = new RoomVisual(startPos.roomName);
-    // rv.circle(startPos.x, startPos.y, { fill: "#ff0000" });
-    const directions: Coord[] = [];
-    directions.push({ x: -1, y: 0 });
-    directions.push({ x: -1, y: -1 });
-    directions.push({ x: 0, y: -1 });
-    directions.push({ x: 1, y: -1 });
-    directions.push({ x: 1, y: 0 });
-    directions.push({ x: 1, y: 1 });
-    directions.push({ x: 0, y: 1 });
-    directions.push({ x: -1, y: 1 });
-    let xMod = 3;
-    let yMod = 3;
-    let pivotOpts = 0;
-    while (pivotOpts < 100) {
+  public getNextPivotPosStandard(startPos: RoomPosition, deltaMod: number): RoomPosition | null {
+    const deltas = this.standardDeltas();
+    return this.getNextPivotPos(startPos, deltas, deltaMod);
+  }
+
+  public getNextPivotPos(startPos: RoomPosition, deltas: Coord[], deltaMod: number): RoomPosition | null {
+    const visited: { [pos: string]: boolean } = {};
+    const pivotQueue: RoomPosition[] = [startPos];
+    visited[startPos.toString()] = true;
+    const directions: Coord[] = this.cardinalAndOrdinalDirections();
+
+    while (pivotQueue.length > 0) {
+      const currentPos = pivotQueue.shift();
       for (const dir of directions) {
-        // TODO: Need to check that the pivotPos is in bounds
-        const pivotPos = new RoomPosition(startPos.x + xMod * dir.x, startPos.y + yMod * dir.y, startPos.roomName);
-        // rv.circle(pivotPos.x, pivotPos.y, { fill: "#ff00ff" });
-        // console.log(`(${pivotPos.x}, ${pivotPos.y})`);
-        if (this.canBuildAtPivotPos(pivotPos, deltas)) {
-          return pivotPos;
+        if (!currentPos) {
+          break;
         }
-        pivotOpts++;
+        const nextPos = GetRoomPosition(
+          currentPos.x + deltaMod * dir.x,
+          currentPos.y + deltaMod * dir.y,
+          currentPos.roomName
+        );
+        if (nextPos && !visited[nextPos.toString()]) {
+          pivotQueue.push(nextPos);
+          visited[nextPos.toString()] = true;
+        }
       }
-      xMod += 3;
-      yMod += 3;
+      if (currentPos && !currentPos.isEqualTo(startPos) && this.canBuildAtPivotPos(currentPos, deltas)) {
+        return currentPos;
+      }
     }
     return null;
   }
@@ -74,26 +121,17 @@ export abstract class BuildThought extends Thought {
       const rv = new RoomVisual(lookPos.roomName);
       const lookConstructionSite = lookPos.lookFor(LOOK_CONSTRUCTION_SITES);
       if (lookConstructionSite.length) {
-        // console.log(`Found construction site at (${lookPos.x}, ${lookPos.y})`);
-        rv.circle(lookPos.x, lookPos.y, { fill: "#ff0000" });
+        rv.circle(lookPos.x, lookPos.y, { fill: "#00ffff" });
         continue;
       }
       const lookStructure = lookPos.lookFor(LOOK_STRUCTURES);
       if (lookStructure.length) {
-        // console.log(`Found structure at (${lookPos.x}, ${lookPos.y})`);
-        rv.circle(lookPos.x, lookPos.y, { fill: "#ff0000" });
+        rv.circle(lookPos.x, lookPos.y, { fill: "#0000ff" });
         continue;
       }
-      const lookTerrain = lookPos.lookFor(LOOK_TERRAIN);
-      if (lookTerrain.length && lookTerrain[0] === "wall") {
-        // console.log(`Found wall at (${lookPos.x}, ${lookPos.y})`);
-        rv.circle(lookPos.x, lookPos.y, { fill: "#ff0000" });
-        continue;
-      }
-      rv.circle(lookPos.x, lookPos.y, { fill: "#0000ff" });
+      rv.circle(lookPos.x, lookPos.y, { fill: "#ff00ff" });
       result = true;
     }
-    // console.log(result);
     return result;
   }
 }

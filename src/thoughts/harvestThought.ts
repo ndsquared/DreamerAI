@@ -7,7 +7,6 @@ export class HarvestThought extends FigmentThought {
   private source: Source | null;
   private sourceId: Id<Source>;
   private sourcePos: RoomPosition;
-  private reset = true;
   public constructor(idea: Idea, name: string, source: Source) {
     super(idea, name, source.id);
     this.source = source;
@@ -20,23 +19,6 @@ export class HarvestThought extends FigmentThought {
       maxParts: 11,
       ignoreCarry: true
     };
-  }
-
-  public ponder(): void {
-    this.source = Game.getObjectById(this.sourceId);
-
-    const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
-    if (totalWorkParts >= 5) {
-      this.figmentsNeeded = 0;
-    } else if (this.source && this.figments.length < this.source.pos.availableNeighbors(true).length) {
-      if (this.reset) {
-        this.reset = false;
-      } else {
-        this.figmentsNeeded = this.figments.length + 1;
-      }
-    }
-
-    super.ponder();
   }
 
   public handleFigment(figment: Figment): void {
@@ -112,6 +94,15 @@ export class HarvestThought extends FigmentThought {
     }
     if (this.name === FigmentThoughtName.REMOTE_HARVEST) {
       this.figmentPriority = 2;
+    }
+  }
+  public setFigmentsNeeded(): void {
+    this.source = Game.getObjectById(this.sourceId);
+    const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
+    if (totalWorkParts >= 5) {
+      this.figmentsNeeded = 0;
+    } else if (this.source && this.figments.length < this.source.pos.availableNeighbors(true).length) {
+      this.figmentsNeeded = this.figments.length + 1;
     }
   }
 }

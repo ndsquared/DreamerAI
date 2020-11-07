@@ -7,22 +7,20 @@ export class RoadThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public ponder(): void {
-    if (Game.time % 50 !== 0) {
-      return;
-    }
+  public buildPlan(): void {
     const spawn = this.idea.spawn;
     // Build roads to sources in the neighborhood
     for (const room of spawn.room.neighborhood) {
       const remoteSources = room.find(FIND_SOURCES);
-      this.buildRoadToSources(spawn.pos, remoteSources);
+      for (const source of remoteSources) {
+        this.buildRoadToPosition(spawn.pos, source.pos);
+      }
     }
 
     // Build road to controller
     const controller = spawn.room.controller;
     if (controller && controller.my) {
-      const pathFind = PathFindWithRoad(spawn.pos, controller.pos);
-      this.idea.addBuild(pathFind.path, STRUCTURE_ROAD, pathFind.cost);
+      this.buildRoadToPosition(spawn.pos, controller.pos);
     }
 
     // Build roads to all containers
@@ -30,21 +28,18 @@ export class RoadThought extends BuildThought {
       filter: s => s.structureType === STRUCTURE_CONTAINER
     });
     for (const container of containers) {
-      const pathFind = PathFindWithRoad(spawn.pos, container.pos);
-      this.idea.addBuild(pathFind.path, STRUCTURE_ROAD, pathFind.cost);
+      this.buildRoadToPosition(spawn.pos, container.pos);
     }
   }
 
-  private buildRoadToSources(originPos: RoomPosition, sources: Source[]): void {
-    for (const source of sources) {
-      const pathFind = PathFindWithRoad(originPos, source.pos);
-      // if (pathFind.incomplete) {
-      //   console.log(`path to ${source.id} was incomplete`);
-      // }
-      // console.log(`path cost to ${source.id} is ${pathFind.cost}`);
-      // console.log(`path ops to ${source.id} is ${pathFind.ops}`);
-      // console.log(pathFind.path.toString());
-      this.idea.addBuild(pathFind.path, STRUCTURE_ROAD, pathFind.cost);
+  private buildRoadToPosition(originPos: RoomPosition, pos: RoomPosition): void {
+    // const rv = new RoomVisual(originPos.roomName);
+    // rv.line(originPos, pos, { lineStyle: "dotted" });
+    const pathFind = PathFindWithRoad(originPos, pos);
+    let priority = pathFind.cost;
+    for (const pathStep of pathFind.path) {
+      this.idea.addBuild(pathStep, STRUCTURE_ROAD, priority);
+      priority++;
     }
   }
 }

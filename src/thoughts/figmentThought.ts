@@ -23,6 +23,7 @@ export abstract class FigmentThought extends Thought {
   protected figmentsNeeded = 0;
   protected figmentPriority = 10;
   protected figmentBodySpec: FigmentBodySpec;
+  private reset = true;
 
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
@@ -41,6 +42,14 @@ export abstract class FigmentThought extends Thought {
 
   public ponder(): void {
     this.adjustPriority();
+    if (this.reset) {
+      this.reset = false;
+    } else {
+      this.setFigmentsNeeded();
+      if (this.figmentsNeeded > 0) {
+        console.log(`${this.name}:${this.instance} (${this.figments.length}/${this.figmentsNeeded})`);
+      }
+    }
     if (this.figmentsNeeded > this.figments.length) {
       const name = Figment.GetUniqueName();
       this.idea.addSpawn(name, this.figmentBodySpec, this.figmentPriority, this.name, this.instance);
@@ -64,6 +73,7 @@ export abstract class FigmentThought extends Thought {
 
   public abstract handleFigment(figment: Figment): void;
   public abstract adjustPriority(): void;
+  public abstract setFigmentsNeeded(): void;
 }
 
 profiler.registerClass(FigmentThought, "FigmentThought");

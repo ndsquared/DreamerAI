@@ -6,7 +6,6 @@ import { NeuronType } from "neurons/neurons";
 export class ReserveThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentsNeeded = 1;
     this.figmentBodySpec = {
       bodyParts: [CLAIM],
       ratio: [1],
@@ -31,5 +30,13 @@ export class ReserveThought extends FigmentThought {
 
   public adjustPriority(): void {
     this.figmentPriority = 1;
+  }
+  public setFigmentsNeeded(): void {
+    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CLAIM));
+    if (totalParts >= 2) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = this.figments.length + 1;
+    }
   }
 }

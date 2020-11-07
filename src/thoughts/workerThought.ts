@@ -64,14 +64,21 @@ export class WorkerThought extends FigmentThought {
 
   public adjustPriority(): void {
     this.figmentPriority = 2;
-    this.figmentsNeeded = 2;
     for (const room of this.idea.spawn.room.neighborhood) {
       const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
       if (constructionSites.length) {
-        this.figmentsNeeded = 4;
         this.figmentPriority = 3;
         return;
       }
+    }
+  }
+
+  public setFigmentsNeeded(): void {
+    const totalWorkParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
+    if (totalWorkParts >= 10) {
+      this.figmentsNeeded = 0;
+    } else {
+      this.figmentsNeeded = this.figments.length + 1;
     }
   }
 }
