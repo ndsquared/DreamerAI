@@ -9,10 +9,11 @@ export class TransferThought extends FigmentThought {
     super(idea, name, instance);
     this.figmentsNeeded = 2;
     this.figmentBodySpec = {
-      bodyParts: [MOVE, CARRY],
-      ratio: [1, 1],
+      bodyParts: [CARRY],
+      ratio: [1],
       minParts: 6,
-      maxParts: 20
+      maxParts: 24,
+      ignoreCarry: false
     };
   }
 

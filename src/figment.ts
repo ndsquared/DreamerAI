@@ -34,7 +34,7 @@ export class Figment extends Creep implements Figment {
   }
 
   public static GetBodyFromBodySpec(bodySpec: FigmentBodySpec, energyAvailable: number): BodyPartConstant[] {
-    const bodyParts: BodyPartConstant[] = [];
+    let bodyParts: BodyPartConstant[] = [];
     let bodyPartCount = 0;
     let energySpent = 0;
     let shouldReturn = false;
@@ -43,16 +43,29 @@ export class Figment extends Creep implements Figment {
         const bodyPart = bodySpec.bodyParts[i];
         const ratio = bodySpec.ratio[i];
         for (let j = 0; j < ratio; j++) {
-          if (energySpent + BODYPART_COST[bodyPart] <= energyAvailable && bodyPartCount < bodySpec.maxParts) {
-            bodyParts.push(bodyPart);
-            bodyPartCount++;
-            energySpent += BODYPART_COST[bodyPart];
+          const parts: BodyPartConstant[] = [bodyPart, MOVE];
+          if (bodyPart === CARRY && bodySpec.ignoreCarry) {
+            parts.pop();
+          }
+          const cost = _.sum(parts, p => BODYPART_COST[p]);
+          if (energySpent + cost <= energyAvailable && bodyPartCount + parts.length <= bodySpec.maxParts) {
+            bodyParts = bodyParts.concat(parts);
+            bodyPartCount += parts.length;
+            energySpent += cost;
           } else {
             shouldReturn = true;
+            break;
           }
+        }
+        if (shouldReturn) {
+          break;
         }
       }
       if (shouldReturn) {
+        break;
+      }
+      if (bodySpec.bodyParts.length === 0) {
+        bodyParts.push(MOVE);
         break;
       }
     }
@@ -79,6 +92,7 @@ export class Figment extends Creep implements Figment {
           return 10;
       }
     });
+    // console.log(sortedBodyParts);
     return sortedBodyParts;
   }
 

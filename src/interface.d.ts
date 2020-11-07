@@ -27,6 +27,7 @@ interface FigmentBodySpec {
   ratio: number[];
   minParts: number;
   maxParts: number;
+  ignoreCarry: boolean;
 }
 
 interface IBrain {

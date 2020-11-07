@@ -14,10 +14,11 @@ export class HarvestThought extends FigmentThought {
     this.sourceId = source.id;
     this.sourcePos = source.pos;
     this.figmentBodySpec = {
-      bodyParts: [WORK, MOVE, CARRY],
-      ratio: [2, 1, 1],
+      bodyParts: [CARRY, WORK],
+      ratio: [1, 5],
       minParts: 4,
-      maxParts: 10
+      maxParts: 11,
+      ignoreCarry: true
     };
   }
 

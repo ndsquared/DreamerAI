@@ -9,10 +9,11 @@ export class AttackThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [MOVE, TOUGH, ATTACK],
-      ratio: [2, 1, 1],
+      bodyParts: [TOUGH, ATTACK],
+      ratio: [1, 1],
       minParts: 4,
-      maxParts: 20
+      maxParts: 30,
+      ignoreCarry: false
     };
   }
 
@@ -61,14 +62,14 @@ export class AttackThought extends FigmentThought {
     }
     this.figmentsNeeded = 1;
     this.figmentPriority = 2;
-    // for (const room of this.idea.spawn.room.neighborhood) {
-    //   const enemies = room.find(FIND_HOSTILE_CREEPS);
-    //   const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
-    //   if (enemies.length || enemyStructures.length) {
-    //     this.figmentsNeeded = 4;
-    //     this.figmentPriority = 15;
-    //     return;
-    //   }
-    // }
+    for (const room of this.idea.spawn.room.neighborhood) {
+      const enemies = room.find(FIND_HOSTILE_CREEPS);
+      const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
+      if (enemies.length || enemyStructures.length) {
+        this.figmentsNeeded = 4;
+        this.figmentPriority = 14;
+        return;
+      }
+    }
   }
 }

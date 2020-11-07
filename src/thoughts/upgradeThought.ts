@@ -8,10 +8,11 @@ export class UpgradeThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [MOVE, WORK, CARRY],
-      ratio: [1, 2, 1],
+      bodyParts: [CARRY, WORK],
+      ratio: [1, 3],
       minParts: 4,
-      maxParts: 15
+      maxParts: 21,
+      ignoreCarry: true
     };
   }
 

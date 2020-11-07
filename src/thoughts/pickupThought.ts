@@ -15,10 +15,11 @@ export class PickupThought extends FigmentThought {
       this.figmentsNeeded = 2;
     }
     this.figmentBodySpec = {
-      bodyParts: [MOVE, CARRY],
-      ratio: [1, 1],
+      bodyParts: [CARRY],
+      ratio: [1],
       minParts: 6,
-      maxParts: 30
+      maxParts: 30,
+      ignoreCarry: false
     };
   }
 

@@ -8,10 +8,11 @@ export class ScoutThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [MOVE],
-      ratio: [1],
+      bodyParts: [],
+      ratio: [],
       minParts: 1,
-      maxParts: 1
+      maxParts: 1,
+      ignoreCarry: false
     };
   }
 

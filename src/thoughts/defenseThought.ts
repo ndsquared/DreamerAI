@@ -9,10 +9,11 @@ export class DefenseThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [MOVE, TOUGH, RANGED_ATTACK, HEAL],
-      ratio: [3, 1, 1, 1],
-      minParts: 7,
-      maxParts: 20
+      bodyParts: [TOUGH, RANGED_ATTACK, HEAL],
+      ratio: [1, 1, 1],
+      minParts: 6,
+      maxParts: 30,
+      ignoreCarry: false
     };
   }
 
@@ -72,9 +73,10 @@ export class DefenseThought extends FigmentThought {
     this.figmentPriority = 3;
     for (const room of this.idea.spawn.room.neighborhood) {
       const enemies = room.find(FIND_HOSTILE_CREEPS);
-      if (enemies.length) {
+      const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
+      if (enemies.length || enemyStructures.length) {
         this.figmentsNeeded = 4;
-        this.figmentPriority = 14;
+        this.figmentPriority = 15;
         return;
       }
     }

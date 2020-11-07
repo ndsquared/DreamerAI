@@ -27,10 +27,11 @@ export abstract class FigmentThought extends Thought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figmentBodySpec = {
-      bodyParts: [WORK, CARRY, MOVE],
-      ratio: [1, 1, 1],
+      bodyParts: [WORK, CARRY],
+      ratio: [1, 1],
       minParts: 3,
-      maxParts: 20
+      maxParts: 20,
+      ignoreCarry: false
     };
   }
 
