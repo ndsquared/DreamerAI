@@ -40,10 +40,7 @@ export class ScoutThought extends FigmentThought {
     this.figmentPriority = 1;
     const targetPos = new RoomPosition(25, 25, this.instance);
     const pf = PathFindWithRoad(this.idea.spawn.pos, targetPos);
-    if (pf.incomplete) {
-      console.log(`no scout needed for ${this.instance}`);
-      console.log(pf.cost);
-      console.log(pf.ops);
+    if (pf.incomplete && pf.path.length > 0 && !pf.path[pf.path.length - 1].isEdge) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = 1;
