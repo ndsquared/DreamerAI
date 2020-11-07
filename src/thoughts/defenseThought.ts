@@ -69,13 +69,11 @@ export class DefenseThought extends FigmentThought {
     if (this.idea.rcl < 3) {
       return;
     }
-    this.figmentsNeeded = 1;
-    this.figmentPriority = 3;
+    this.figmentPriority = 1;
     for (const room of this.idea.spawn.room.neighborhood) {
       const enemies = room.find(FIND_HOSTILE_CREEPS);
       const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
       if (enemies.length || enemyStructures.length) {
-        this.figmentsNeeded = 4;
         this.figmentPriority = 15;
         return;
       }
