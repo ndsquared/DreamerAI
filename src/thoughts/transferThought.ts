@@ -7,7 +7,6 @@ import { isStoreStructure } from "utils/misc";
 export class TransferThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentsNeeded = 2;
     this.figmentBodySpec = {
       bodyParts: [CARRY],
       ratio: [1],
