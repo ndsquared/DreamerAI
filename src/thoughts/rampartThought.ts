@@ -35,13 +35,13 @@ export class RampartThought extends BuildThought {
     this.idea.addBuilds(towerPos, STRUCTURE_RAMPART, 5);
 
     // Protect base
-    let cpu = Game.cpu.getUsed();
+    // let cpu = Game.cpu.getUsed();
     const rect: Rectangle[] = [];
     const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
     if (pivotPos) {
       const xDelta = Math.abs(pivotPos.x - this.idea.spawn.pos.x);
       const yDelta = Math.abs(pivotPos.y - this.idea.spawn.pos.y);
-      console.log(`xDelta: ${xDelta}, yDelta: ${yDelta}`);
+      // console.log(`xDelta: ${xDelta}, yDelta: ${yDelta}`);
       let basePadding: number;
       if (xDelta) {
         basePadding = xDelta + 4;
@@ -63,7 +63,7 @@ export class RampartThought extends BuildThought {
       this.idea.addBuild(pos, STRUCTURE_RAMPART, 6);
     }
 
-    cpu = Game.cpu.getUsed() - cpu;
-    console.log(`CPU time: ${cpu} | Positions: ${positions.length}`);
+    // cpu = Game.cpu.getUsed() - cpu;
+    // console.log(`CPU time: ${cpu} | Positions: ${positions.length}`);
   }
 }
