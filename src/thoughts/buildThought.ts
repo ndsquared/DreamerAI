@@ -121,15 +121,15 @@ export abstract class BuildThought extends Thought {
       const rv = new RoomVisual(lookPos.roomName);
       const lookConstructionSite = lookPos.lookFor(LOOK_CONSTRUCTION_SITES);
       if (lookConstructionSite.length) {
-        rv.circle(lookPos.x, lookPos.y, { fill: "#00ffff" });
+        rv.circle(lookPos.x, lookPos.y, { radius: 0.5, fill: "#00ffff" });
         continue;
       }
       const lookStructure = lookPos.lookFor(LOOK_STRUCTURES);
       if (lookStructure.length) {
-        rv.circle(lookPos.x, lookPos.y, { fill: "#0000ff" });
+        rv.circle(lookPos.x, lookPos.y, { radius: 0.5, fill: "#0000ff" });
         continue;
       }
-      rv.circle(lookPos.x, lookPos.y, { fill: "#ff00ff" });
+      rv.circle(lookPos.x, lookPos.y, { radius: 0.5, fill: "#ff00ff" });
       result = true;
     }
     return result;

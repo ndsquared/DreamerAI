@@ -8,6 +8,9 @@ export class RoadThought extends BuildThought {
   }
 
   public buildPlan(): void {
+    if (this.idea.rcl < 3) {
+      return;
+    }
     const spawn = this.idea.spawn;
     // Build roads to sources in the neighborhood
     for (const room of spawn.room.neighborhood) {
