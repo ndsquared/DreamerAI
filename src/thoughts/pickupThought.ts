@@ -1,14 +1,21 @@
 import { FigmentThought, FigmentThoughtName } from "./figmentThought";
+import { PathFindWithRoad, isStoreStructure } from "utils/misc";
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
-import { isStoreStructure } from "utils/misc";
 
 export class PickupThought extends FigmentThought {
   private sourcePos: RoomPosition;
+  private carryPartsNeeded = 10;
   public constructor(idea: Idea, name: string, source: Source) {
     super(idea, name, source.id);
     this.sourcePos = source.pos;
+    const pf = PathFindWithRoad(this.idea.spawn.pos, source.pos);
+    if (pf.cost > 65) {
+      this.carryPartsNeeded = 20;
+    } else if (pf.cost > 45) {
+      this.carryPartsNeeded = 15;
+    }
     this.figmentBodySpec = {
       bodyParts: [CARRY],
       ratio: [1],
@@ -28,7 +35,6 @@ export class PickupThought extends FigmentThought {
         minCapacity: figment.store.getCapacity(RESOURCE_ENERGY),
         originRoom: figment.room
       });
-      // if (target) console.log(`pickup target ${target.pos.toString()}`);
       if (!target) {
         target = figment.getNextPickupOrWithdrawTargetNeighborhood({ originRoom: this.idea.spawn.room });
       }
@@ -53,7 +59,7 @@ export class PickupThought extends FigmentThought {
   }
   public setFigmentsNeeded(): void {
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CARRY));
-    if (totalParts >= 10) {
+    if (totalParts >= this.carryPartsNeeded) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = this.figments.length + 1;
