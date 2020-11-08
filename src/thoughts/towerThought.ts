@@ -39,6 +39,8 @@ export class TowerThought extends BuildThought {
           filter: s => {
             if (s.structureType === STRUCTURE_ROAD && s.hits < s.hitsMax) {
               return true;
+            } else if (s.structureType === STRUCTURE_CONTAINER && s.hits < s.hitsMax) {
+              return true;
             }
             return false;
           }

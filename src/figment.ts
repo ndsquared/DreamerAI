@@ -289,6 +289,8 @@ export class Figment extends Creep implements Figment {
       filter: s => {
         if (s.structureType === STRUCTURE_ROAD) {
           return false;
+        } else if (s.structureType === STRUCTURE_CONTAINER) {
+          return false;
         }
         if (s.hits < repairThreshold && s.hits < s.hitsMax) {
           return true;
