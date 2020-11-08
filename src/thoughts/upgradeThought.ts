@@ -49,7 +49,26 @@ export class UpgradeThought extends FigmentThought {
   }
   public setFigmentsNeeded(): void {
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
-    if (totalParts >= 10) {
+    const storage = this.idea.spawn.room.find(FIND_STRUCTURES, {
+      filter: s => {
+        if (s.structureType === STRUCTURE_STORAGE) {
+          return true;
+        }
+        return false;
+      }
+    }) as StructureStorage[];
+    let energyInStorage = 0;
+    if (storage.length) {
+      energyInStorage = storage[0].store.getUsedCapacity(RESOURCE_ENERGY);
+    }
+    let partsRequired = 10;
+    if (energyInStorage > 300000) {
+      partsRequired = 30;
+    }
+    if (this.idea.rcl === 8) {
+      partsRequired = 15;
+    }
+    if (totalParts >= partsRequired) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = this.figments.length + 1;
