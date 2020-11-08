@@ -54,6 +54,8 @@ export class HarvestThought extends FigmentThought {
     } else {
       if (this.name === FigmentThoughtName.HARVEST) {
         shouldDropHarvest = this.idea.getFigmentCount(FigmentThoughtName.TRANSFER) > 0;
+      } else if (this.name === FigmentThoughtName.REMOTE_HARVEST) {
+        shouldDropHarvest = true;
       }
     }
 
