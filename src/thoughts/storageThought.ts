@@ -11,7 +11,7 @@ export class StorageThought extends BuildThought {
 
     if (pivotPos) {
       const storagePositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
-      this.idea.addBuilds(storagePositions, STRUCTURE_STORAGE, 2);
+      this.idea.addBuilds(storagePositions, STRUCTURE_STORAGE, 2, true, false);
     }
   }
 }

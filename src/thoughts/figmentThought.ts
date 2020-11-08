@@ -23,6 +23,7 @@ export abstract class FigmentThought extends Thought {
   protected figmentsNeeded = 0;
   protected figmentPriority = 10;
   protected figmentBodySpec: FigmentBodySpec;
+  protected combatReady = false;
   private reset = true;
 
   public constructor(idea: Idea, name: string, instance: string) {
@@ -52,7 +53,15 @@ export abstract class FigmentThought extends Thought {
     }
     if (this.figmentsNeeded > this.figments.length) {
       const name = Figment.GetUniqueName();
-      this.idea.addSpawn(name, this.figmentBodySpec, this.figmentPriority, this.name, this.instance);
+      const payload = {
+        name,
+        bodySpec: this.figmentBodySpec,
+        priority: this.figmentPriority,
+        thoughtName: this.name,
+        thoughtInstance: this.instance,
+        combatReady: this.combatReady
+      };
+      this.idea.addSpawn(payload);
     }
     for (const figment of this.figments) {
       if (figment.isDreaming) {

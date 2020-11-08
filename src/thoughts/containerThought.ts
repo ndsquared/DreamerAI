@@ -16,7 +16,7 @@ export class ContainerThought extends BuildThought {
       if (containers.length === 0) {
         // Build container next to spawn
         const containerPositions = this.getPositionsStandard(this.idea.spawn.pos);
-        this.idea.addBuilds(containerPositions, STRUCTURE_CONTAINER, 4);
+        this.idea.addBuilds(containerPositions, STRUCTURE_CONTAINER, 4, true, true);
       }
     }
 
@@ -29,7 +29,7 @@ export class ContainerThought extends BuildThought {
       if (containers.length === 0) {
         const buildPositions = controller.pos.availableNeighbors(true);
         const priority = PathFindWithRoad(spawn.pos, controller.pos).cost;
-        this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority);
+        this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, true);
       }
     }
 
@@ -43,7 +43,7 @@ export class ContainerThought extends BuildThought {
         if (containers.length === 0) {
           const buildPositions = source.pos.availableNeighbors(true);
           const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
-          this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority);
+          this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, true);
         }
       }
     }

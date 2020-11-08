@@ -105,46 +105,53 @@ export class Figment extends Creep implements Figment {
   }
 
   private preRunChecks(): void {
-    if (this.memory.underAttack) {
-      this.memory.underAttack = false;
-      this.memory.underAttackCooldown--;
-      const enemies = this.room.find(FIND_HOSTILE_CREEPS);
-      if (enemies.length) {
-        for (const enemy of enemies) {
-          if (enemy.pos.inRangeTo(this.pos, 8)) {
-            this.memory.underAttack = true;
-          }
-        }
-      }
-      if (!this.memory.underAttack) {
-        if (this.memory.underAttackCooldown <= 0) {
+    if (this.memory.combatReady && this.memory.spawnRoomName) {
+      const spawnRoom = Game.rooms[this.memory.spawnRoomName];
+      for (const room of spawnRoom.neighborhood) {
+        const enemies = room.find(FIND_HOSTILE_CREEPS);
+        if (enemies.length) {
           this.memory.interneurons = [];
-          this.memory.underAttackCooldown = 5;
+          return;
+        }
+        const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
+        if (enemyStructures.length) {
+          this.memory.interneurons = [];
+          return;
         }
       }
     } else {
-      const target = Game.spawns.Spawn1;
-      const enemies = this.room.find(FIND_HOSTILE_CREEPS);
-      if (enemies.length) {
-        if (this.getActiveBodyparts(ATTACK) > 0) {
-          return;
-        }
-        if (this.getActiveBodyparts(RANGED_ATTACK) > 0) {
-          return;
-        }
-        if (this.getActiveBodyparts(HEAL) > 0) {
-          return;
-        }
-        for (const enemy of enemies) {
-          if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
+      if (this.memory.underAttack) {
+        this.memory.underAttack = false;
+        this.memory.underAttackCooldown--;
+        const enemies = this.room.find(FIND_HOSTILE_CREEPS);
+        if (enemies.length) {
+          for (const enemy of enemies) {
             if (enemy.pos.inRangeTo(this.pos, 8)) {
-              this.say("Noooo!", true);
-              console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
-              this.memory.interneurons = [];
-              const randomDir = _.random(1, 8);
-              this.move(randomDir as DirectionConstant);
-              this.addNeuron(NeuronType.MOVE, "", target.pos);
               this.memory.underAttack = true;
+            }
+          }
+        }
+        if (!this.memory.underAttack) {
+          if (this.memory.underAttackCooldown <= 0) {
+            this.memory.interneurons = [];
+            this.memory.underAttackCooldown = 5;
+          }
+        }
+      } else {
+        const target = Game.spawns.Spawn1;
+        const enemies = this.room.find(FIND_HOSTILE_CREEPS);
+        if (enemies.length) {
+          for (const enemy of enemies) {
+            if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
+              if (enemy.pos.inRangeTo(this.pos, 8)) {
+                this.say("Noooo!", true);
+                console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
+                this.memory.interneurons = [];
+                const randomDir = _.random(1, 8);
+                this.move(randomDir as DirectionConstant);
+                this.addNeuron(NeuronType.MOVE, "", target.pos, { moveRange: 3 });
+                this.memory.underAttack = true;
+              }
             }
           }
         }
@@ -155,11 +162,6 @@ export class Figment extends Creep implements Figment {
   public run(): boolean {
     this.preRunChecks();
     while (this.neurons.length > 0) {
-      // if (this.memory.interneurons[0].type === "PICKUP") {
-      //   console.log(`${this.name} running pickup`);
-      // } else if (this.memory.interneurons[0].type === "MOVE") {
-      //   console.log(`${this.name} running move`);
-      // }
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {
         neuron.run();

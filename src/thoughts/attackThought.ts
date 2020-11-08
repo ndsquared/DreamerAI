@@ -5,9 +5,9 @@ import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class AttackThought extends FigmentThought {
-  private patrolPos: RoomPosition | null = null;
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
+    this.combatReady = true;
     this.figmentBodySpec = {
       bodyParts: [TOUGH, ATTACK],
       ratio: [1, 1],
@@ -33,25 +33,16 @@ export class AttackThought extends FigmentThought {
     } else if (structure) {
       figment.addNeuron(NeuronType.ATTACK, structure.id, structure.pos);
     } else {
-      if (!this.patrolPos) {
-        this.patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
-        let count = 0;
-        while (!this.patrolPos.isWalkable(true)) {
-          if (count > 5) {
-            console.log("Getting random room patrol position");
-          }
-          this.patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
-          count++;
+      let patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
+      let count = 0;
+      while (!patrolPos.isWalkable(true)) {
+        if (count > 5) {
+          console.log("Getting random room patrol position");
         }
-      } else if (figment.pos.inRangeTo(this.patrolPos, 2)) {
-        this.patrolPos = null;
+        patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
+        count++;
       }
-      if (this.patrolPos) {
-        const result = figment.travelTo(this.patrolPos, { ignoreRoads: true });
-        if (result !== OK && result !== ERR_TIRED) {
-          this.patrolPos = null;
-        }
-      }
+      figment.addNeuron(NeuronType.MOVE, "", patrolPos);
     }
   }
 

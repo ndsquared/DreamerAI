@@ -41,8 +41,10 @@ export class RoadThought extends BuildThought {
     const pathFind = PathFindWithRoad(originPos, pos);
     let priority = pathFind.cost;
     for (const pathStep of pathFind.path) {
-      this.idea.addBuild(pathStep, STRUCTURE_ROAD, priority);
-      priority++;
+      if (Game.map.getRoomTerrain(pathStep.roomName).get(pathStep.x, pathStep.y) === TERRAIN_MASK_SWAMP) {
+        this.idea.addBuild(pathStep, STRUCTURE_ROAD, priority, true);
+        priority++;
+      }
     }
   }
 }

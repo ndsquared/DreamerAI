@@ -103,7 +103,9 @@ export abstract class Idea implements IBrain {
           thoughtName: nextSpawn.thoughtName,
           thoughtInstance: nextSpawn.thoughtInstance,
           underAttack: false,
-          underAttackCooldown: 5
+          underAttackCooldown: 5,
+          combatReady: nextSpawn.combatReady,
+          spawnRoomName: this.spawn.room.name
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
         this.imagination.addStatus(
@@ -115,21 +117,8 @@ export abstract class Idea implements IBrain {
     }
   }
 
-  public addSpawn(
-    name: string,
-    bodySpec: FigmentBodySpec,
-    priority: number,
-    thoughtName: string,
-    thoughtInstance: string
-  ): void {
-    const spawnPayload = {
-      name,
-      bodySpec,
-      priority,
-      thoughtName,
-      thoughtInstance
-    };
-    this.spawnQueue.queue(spawnPayload);
+  public addSpawn(payload: SpawnQueuePayload): void {
+    this.spawnQueue.queue(payload);
   }
 
   public getFigmentCount(figmentThoughtName: FigmentThoughtName): number {
@@ -178,18 +167,36 @@ export abstract class Idea implements IBrain {
     }
   }
 
-  public addBuilds(positions: RoomPosition[], structure: StructureConstant, priority: number): void {
+  public addBuilds(
+    positions: RoomPosition[],
+    structure: StructureConstant,
+    priority: number,
+    firstAcceptable: boolean,
+    showVisual: boolean
+  ): void {
     for (const pos of positions) {
-      this.addBuild(pos, structure, priority);
+      this.addBuild(pos, structure, priority, showVisual);
+      if (firstAcceptable) {
+        break;
+      }
     }
   }
 
-  public addBuild(pos: RoomPosition, structure: StructureConstant, priority: number): void {
+  public addBuild(pos: RoomPosition, structure: StructureConstant, priority: number, showVisual: boolean): void {
     const buildPayload = {
       pos,
       structure,
       priority
     };
+    if (showVisual) {
+      const rv = new RoomVisual(pos.roomName);
+      rv.circle(pos, { radius: 0.4, opacity: 0.2, fill: "#555555" });
+      let text = `${priority}`;
+      if (structure.length > 2) {
+        text = `${structure.substring(0, 1)}:${priority}`;
+      }
+      rv.text(text, pos);
+    }
     this.buildQueue.queue(buildPayload);
   }
 }

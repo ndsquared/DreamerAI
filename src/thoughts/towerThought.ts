@@ -14,7 +14,7 @@ export class TowerThought extends BuildThought {
 
     if (pivotPos) {
       const towerPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
-      this.idea.addBuilds(towerPositions, STRUCTURE_TOWER, 1);
+      this.idea.addBuilds(towerPositions, STRUCTURE_TOWER, 1, false, false);
     }
   }
 

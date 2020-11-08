@@ -70,6 +70,7 @@ interface SpawnQueuePayload {
   priority: number;
   thoughtName: string;
   thoughtInstance: string;
+  combatReady: boolean;
 }
 
 interface StoreStructure extends Structure {

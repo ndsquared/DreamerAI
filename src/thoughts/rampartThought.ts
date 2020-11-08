@@ -13,13 +13,13 @@ export class RampartThought extends BuildThought {
     }
     const spawn = this.idea.spawn;
     // Protect spawn
-    this.idea.addBuilds([spawn.pos], STRUCTURE_RAMPART, 3);
+    this.idea.addBuilds([spawn.pos], STRUCTURE_RAMPART, 3, true, true);
 
     // Protect controller
     const controller = this.idea.spawn.room.controller;
     if (controller) {
       const controllerNeighbors = controller.pos.availableNeighbors(true);
-      this.idea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4);
+      this.idea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, false, true);
     }
 
     // Protect towers
@@ -32,7 +32,7 @@ export class RampartThought extends BuildThought {
       }
     });
     const towerPos = _.map(towers, t => t.pos);
-    this.idea.addBuilds(towerPos, STRUCTURE_RAMPART, 5);
+    this.idea.addBuilds(towerPos, STRUCTURE_RAMPART, 5, false, true);
 
     // Protect base
     // let cpu = Game.cpu.getUsed();
@@ -57,10 +57,10 @@ export class RampartThought extends BuildThought {
     }
 
     const positions = getCutTiles(this.idea.spawn.room.name, rect, true, Infinity, false);
-    const rv = new RoomVisual(this.idea.spawn.room.name);
+    // const rv = new RoomVisual(this.idea.spawn.room.name);
     for (const pos of positions) {
-      rv.circle(pos, { radius: 0.5, fill: "#00ff00" });
-      this.idea.addBuild(pos, STRUCTURE_RAMPART, 6);
+      // rv.circle(pos, { radius: 0.5, fill: "#00ff00" });
+      this.idea.addBuild(pos, STRUCTURE_RAMPART, 6, true);
     }
 
     // cpu = Game.cpu.getUsed() - cpu;

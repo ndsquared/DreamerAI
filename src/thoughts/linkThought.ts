@@ -14,7 +14,7 @@ export class LinkThought extends BuildThought {
       const controller = spawn.room.controller;
       if (controller && controller.my) {
         const linkPos = controller.pos.availableNeighbors(true);
-        this.idea.addBuilds(linkPos, STRUCTURE_LINK, 2);
+        this.idea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, true);
       }
     } else if (this.links.length < 2) {
       // Build link at furthest source
@@ -25,7 +25,7 @@ export class LinkThought extends BuildThought {
       for (const source of sources) {
         const linkPos = source.pos.availableNeighbors(true);
         if (linkPos.length > 1) {
-          this.idea.addBuilds(linkPos, STRUCTURE_LINK, 3);
+          this.idea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, true);
           break;
         }
       }

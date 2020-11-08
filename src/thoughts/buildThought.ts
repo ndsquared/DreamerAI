@@ -72,9 +72,22 @@ export abstract class BuildThought extends Thought {
       if (!pos) {
         continue;
       }
-      if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+      const rv = new RoomVisual(pos.roomName);
+      const lookConstructionSite = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+      if (lookConstructionSite.length) {
+        rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#00ff00" });
         continue;
       }
+      const lookStructure = pos.lookFor(LOOK_STRUCTURES);
+      if (lookStructure.length) {
+        rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#0000ff" });
+        continue;
+      }
+      if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+        rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#ff0000" });
+        continue;
+      }
+      // rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#ff00ff" });
       positions.push(pos);
     }
     return positions;
@@ -117,19 +130,7 @@ export abstract class BuildThought extends Thought {
   public canBuildAtPivotPos(pivotPos: RoomPosition, deltas: Coord[]): boolean {
     let result = false;
     const positions = this.getPositionsFromDelta(pivotPos, deltas);
-    for (const lookPos of positions) {
-      const rv = new RoomVisual(lookPos.roomName);
-      const lookConstructionSite = lookPos.lookFor(LOOK_CONSTRUCTION_SITES);
-      if (lookConstructionSite.length) {
-        rv.circle(lookPos.x, lookPos.y, { radius: 0.4, fill: "#00ffff" });
-        continue;
-      }
-      const lookStructure = lookPos.lookFor(LOOK_STRUCTURES);
-      if (lookStructure.length) {
-        rv.circle(lookPos.x, lookPos.y, { radius: 0.4, fill: "#0000ff" });
-        continue;
-      }
-      rv.circle(lookPos.x, lookPos.y, { radius: 0.4, fill: "#ff00ff" });
+    if (positions.length) {
       result = true;
     }
     return result;

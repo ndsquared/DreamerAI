@@ -6,6 +6,8 @@ interface CreepMemory {
   interneurons: Interneuron[];
   underAttack: boolean;
   underAttackCooldown: number;
+  combatReady: boolean;
+  spawnRoomName: string;
 }
 
 interface IdeaMemory {
