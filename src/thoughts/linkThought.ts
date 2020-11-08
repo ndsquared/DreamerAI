@@ -10,9 +10,12 @@ export class LinkThought extends BuildThought {
   public buildPlan(): void {
     const spawn = this.idea.spawn;
     if (this.links.length < 1) {
-      // Build link next to spawn
-      const linkPositions = this.getPositionsStandard(this.idea.spawn.pos);
-      this.idea.addBuilds(linkPositions, STRUCTURE_LINK, 2);
+      // Build link at controller
+      const controller = spawn.room.controller;
+      if (controller && controller.my) {
+        const linkPos = controller.pos.availableNeighbors(true);
+        this.idea.addBuilds(linkPos, STRUCTURE_LINK, 2);
+      }
     } else if (this.links.length < 2) {
       // Build link at furthest source
       const sources = _.sortBy(
@@ -27,12 +30,9 @@ export class LinkThought extends BuildThought {
         }
       }
     } else if (this.links.length < 3) {
-      // Build link at controller
-      const controller = spawn.room.controller;
-      if (controller && controller.my) {
-        const linkPos = controller.pos.availableNeighbors(true);
-        this.idea.addBuilds(linkPos, STRUCTURE_LINK, 3);
-      }
+      // Build link next to spawn
+      // const linkPositions = this.getPositionsStandard(this.idea.spawn.pos);
+      // this.idea.addBuilds(linkPositions, STRUCTURE_LINK, 2);
     }
   }
 
