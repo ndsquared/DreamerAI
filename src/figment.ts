@@ -152,7 +152,7 @@ export class Figment extends Creep implements Figment {
     }
   }
 
-  public run(): void {
+  public run(): boolean {
     this.preRunChecks();
     while (this.neurons.length > 0) {
       // if (this.memory.interneurons[0].type === "PICKUP") {
@@ -163,10 +163,11 @@ export class Figment extends Creep implements Figment {
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {
         neuron.run();
-        break;
+        return true;
       }
       this.neurons.shift();
     }
+    return false;
   }
 
   public addNeuron(

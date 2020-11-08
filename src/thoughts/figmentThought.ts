@@ -63,7 +63,12 @@ export abstract class FigmentThought extends Thought {
 
   public think(): void {
     for (const figment of this.figments) {
-      figment.run();
+      const tookAction = figment.run();
+      // If we didn't take any action this turn, try to take the next action
+      if (!tookAction) {
+        this.handleFigment(figment);
+        figment.run();
+      }
     }
   }
 
