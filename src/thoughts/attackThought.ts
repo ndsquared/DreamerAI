@@ -13,7 +13,8 @@ export class AttackThought extends FigmentThought {
       ratio: [1, 1],
       minParts: 4,
       maxParts: 30,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 
@@ -51,6 +52,7 @@ export class AttackThought extends FigmentThought {
 
   public adjustPriority(): void {
     if (this.idea.rcl < 3) {
+      this.figmentPriority = 0;
       return;
     }
     this.figmentPriority = 1;

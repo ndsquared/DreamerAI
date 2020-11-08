@@ -12,7 +12,8 @@ export class ScoutThought extends FigmentThought {
       ratio: [],
       minParts: 1,
       maxParts: 1,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 

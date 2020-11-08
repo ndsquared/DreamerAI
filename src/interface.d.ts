@@ -28,6 +28,7 @@ interface FigmentBodySpec {
   minParts: number;
   maxParts: number;
   ignoreCarry: boolean;
+  roadTravel: boolean;
 }
 
 interface IBrain {

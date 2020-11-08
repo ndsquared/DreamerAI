@@ -28,27 +28,43 @@ export class Imagination implements IBrain {
     if (Object.keys(Game.creeps).length > 0) {
       return false;
     }
+    // console.log("no creeps");
     // check if we only see 1 room
     const roomNames = Object.keys(Game.rooms);
     if (roomNames.length !== 1) {
       return false;
     }
-    // check we own the controller
+    // console.log("only see 1 room");
+    // check if we own the controller and if it has any progress
     const room = Game.rooms[roomNames[0]];
+    // console.log(!room.controller);
+    // if (room.controller) {
+    //   console.log(!room.controller.my);
+    //   console.log(room.controller.level !== 1);
+    //   console.log(room.controller.progress);
+    //   console.log(!room.controller.safeMode);
+    //   if (room.controller.safeMode) {
+    //     console.log(room.controller.safeMode <= SAFE_MODE_DURATION - 1);
+    //     console.log(room.controller.safeMode);
+    //     console.log(SAFE_MODE_DURATION - 1);
+    //   }
+    // }
     if (
       !room.controller ||
       !room.controller.my ||
       room.controller.level !== 1 ||
       room.controller.progress ||
       !room.controller.safeMode ||
-      room.controller.safeMode <= SAFE_MODE_DURATION - 1
+      room.controller.safeMode <= SAFE_MODE_DURATION - 1000
     ) {
       return false;
     }
+    // console.log("no controller progress");
     // check for 1 spawn
     if (Object.keys(Game.spawns).length !== 1) {
       return false;
     }
+    // console.log("only 1 spawn");
     return true;
   }
 

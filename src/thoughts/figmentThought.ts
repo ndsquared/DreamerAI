@@ -33,7 +33,8 @@ export abstract class FigmentThought extends Thought {
       ratio: [1, 1],
       minParts: 3,
       maxParts: 20,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 

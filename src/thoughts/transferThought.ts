@@ -12,7 +12,8 @@ export class TransferThought extends FigmentThought {
       ratio: [1],
       minParts: 6,
       maxParts: 24,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 

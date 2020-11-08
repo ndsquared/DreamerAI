@@ -50,13 +50,11 @@ export abstract class Idea implements IBrain {
     this.imagination.addStatus(`Build Queue: ${this.buildQueue.length}`);
     this.rcl = this.spawn.room.controller?.level === undefined ? 0 : this.spawn.room.controller.level;
 
-    if (this.rcl > 1) {
-      for (const room of this.spawn.room.neighborhood) {
-        this.hasConstructionSite[room.name] = false;
-        const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-        if (constructionSites.length > 0) {
-          this.hasConstructionSite[room.name] = true;
-        }
+    for (const room of this.spawn.room.neighborhood) {
+      this.hasConstructionSite[room.name] = false;
+      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+      if (constructionSites.length > 0) {
+        this.hasConstructionSite[room.name] = true;
       }
     }
   }

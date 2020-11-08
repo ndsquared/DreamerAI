@@ -12,7 +12,8 @@ export class UpgradeThought extends FigmentThought {
       ratio: [1, 3],
       minParts: 4,
       maxParts: 21,
-      ignoreCarry: true
+      ignoreCarry: true,
+      roadTravel: true
     };
   }
 

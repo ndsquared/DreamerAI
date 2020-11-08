@@ -13,7 +13,8 @@ export class DefenseThought extends FigmentThought {
       ratio: [1, 1, 1],
       minParts: 6,
       maxParts: 30,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 
@@ -62,6 +63,7 @@ export class DefenseThought extends FigmentThought {
 
   public adjustPriority(): void {
     if (this.idea.rcl < 3) {
+      this.figmentPriority = 0;
       return;
     }
     this.figmentPriority = 1;

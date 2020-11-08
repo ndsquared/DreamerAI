@@ -21,7 +21,8 @@ export class PickupThought extends FigmentThought {
       ratio: [1],
       minParts: 6,
       maxParts: 30,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 

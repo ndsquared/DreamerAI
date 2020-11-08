@@ -17,7 +17,8 @@ export class HarvestThought extends FigmentThought {
       ratio: [1, 5],
       minParts: 4,
       maxParts: 11,
-      ignoreCarry: true
+      ignoreCarry: true,
+      roadTravel: true
     };
   }
 

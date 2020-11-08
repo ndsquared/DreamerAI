@@ -11,7 +11,8 @@ export class ReserveThought extends FigmentThought {
       ratio: [1],
       minParts: 2,
       maxParts: 8,
-      ignoreCarry: false
+      ignoreCarry: false,
+      roadTravel: false
     };
   }
 

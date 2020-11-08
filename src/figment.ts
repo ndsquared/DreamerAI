@@ -46,6 +46,8 @@ export class Figment extends Creep implements Figment {
           const parts: BodyPartConstant[] = [bodyPart, MOVE];
           if (bodyPart === CARRY && bodySpec.ignoreCarry) {
             parts.pop();
+          } else if (bodySpec.roadTravel && bodyPartCount % 2 === 1) {
+            parts.pop();
           }
           const cost = _.sum(parts, p => BODYPART_COST[p]);
           if (energySpent + cost <= energyAvailable && bodyPartCount + parts.length <= bodySpec.maxParts) {
@@ -70,6 +72,7 @@ export class Figment extends Creep implements Figment {
       }
     }
 
+    // console.log(bodyParts);
     const sortedBodyParts = _.sortBy(bodyParts, s => {
       switch (s) {
         case TOUGH:
