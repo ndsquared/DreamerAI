@@ -7,6 +7,7 @@ import profiler from "screeps-profiler";
 export class Imagination implements IBrain {
   private ideas: { [name: string]: Idea };
   private consoleStatus: string[] = [];
+  private generatedPixel = false;
 
   public constructor() {
     console.log("Global reset...");
@@ -76,6 +77,14 @@ export class Imagination implements IBrain {
     const figments = Object.keys(Game.creeps).length;
     this.consoleStatus = [];
     this.addStatus(`Tick: ${Game.time}`);
+    if (Game.cpu.bucket >= 9500 && Game.cpu.generatePixel) {
+      this.addStatus(`Bucket: ${Game.cpu.bucket}`);
+      this.generatedPixel = true;
+      Game.cpu.generatePixel();
+    } else {
+      this.addStatus(`Bucket: ${Game.cpu.bucket}`);
+      this.generatedPixel = false;
+    }
     this.addStatus(`Figments: ${figments}`);
     this.ponder();
     this.think();
@@ -128,6 +137,9 @@ export class Imagination implements IBrain {
   public reflect(): void {
     for (const name in this.ideas) {
       this.ideas[name].reflect();
+    }
+    if (this.generatedPixel) {
+      this.addStatus("GENERATED PIXEL");
     }
     this.printStatus();
   }
