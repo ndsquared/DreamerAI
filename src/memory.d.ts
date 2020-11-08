@@ -7,6 +7,7 @@ interface CreepMemory {
   underAttack: boolean;
   underAttackCooldown: number;
   combatReady: boolean;
+  inCombat: boolean;
   spawnRoomName: string;
 }
 

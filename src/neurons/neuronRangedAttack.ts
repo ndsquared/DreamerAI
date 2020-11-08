@@ -20,7 +20,7 @@ export class NeuronRangedAttack extends Neuron {
     if (this.figment.getActiveBodyparts(HEAL) > 0) {
       const hurtFigments = this.figment.pos.findInRange(FIND_MY_CREEPS, 3, {
         filter: f => {
-          if (f.hits < f.hitsMax) {
+          if (f.hits / f.hitsMax < 0.5) {
             return true;
           }
           return false;

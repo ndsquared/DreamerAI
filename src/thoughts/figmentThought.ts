@@ -23,7 +23,7 @@ export abstract class FigmentThought extends Thought {
   protected figmentsNeeded = 0;
   protected figmentPriority = 10;
   protected figmentBodySpec: FigmentBodySpec;
-  protected combatReady = false;
+  protected figmentCombatReady = false;
   private reset = true;
 
   public constructor(idea: Idea, name: string, instance: string) {
@@ -59,7 +59,7 @@ export abstract class FigmentThought extends Thought {
         priority: this.figmentPriority,
         thoughtName: this.name,
         thoughtInstance: this.instance,
-        combatReady: this.combatReady
+        combatReady: this.figmentCombatReady
       };
       this.idea.addSpawn(payload);
     }

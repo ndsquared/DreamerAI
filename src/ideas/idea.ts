@@ -105,6 +105,7 @@ export abstract class Idea implements IBrain {
           underAttack: false,
           underAttackCooldown: 5,
           combatReady: nextSpawn.combatReady,
+          inCombat: false,
           spawnRoomName: this.spawn.room.name
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });

@@ -106,6 +106,9 @@ export class Figment extends Creep implements Figment {
 
   private preRunChecks(): void {
     if (this.memory.combatReady && this.memory.spawnRoomName) {
+      if (this.memory.inCombat) {
+        return;
+      }
       const spawnRoom = Game.rooms[this.memory.spawnRoomName];
       for (const room of spawnRoom.neighborhood) {
         const enemies = room.find(FIND_HOSTILE_CREEPS);

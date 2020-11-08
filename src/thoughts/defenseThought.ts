@@ -7,7 +7,7 @@ import { NeuronType } from "neurons/neurons";
 export class DefenseThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.combatReady = true;
+    this.figmentCombatReady = true;
     this.figmentBodySpec = {
       bodyParts: [TOUGH, RANGED_ATTACK, HEAL],
       ratio: [1, 1, 1],
@@ -38,10 +38,13 @@ export class DefenseThought extends FigmentThought {
     const structure = _.first(_.sortBy(structures, c => PathFindWithRoad(figment.pos, c.pos).cost));
     if (target) {
       figment.addNeuron(NeuronType.RANGED_ATTACK, target.id, target.pos);
+      figment.memory.inCombat = true;
     } else if (healTarget) {
       figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
+      figment.memory.inCombat = true;
     } else if (structure) {
       figment.addNeuron(NeuronType.RANGED_ATTACK, structure.id, structure.pos);
+      figment.memory.inCombat = true;
     } else {
       let patrolPos = RandomRoomPatrolPos(this.idea.spawn.room);
       let count = 0;
@@ -53,6 +56,7 @@ export class DefenseThought extends FigmentThought {
         count++;
       }
       figment.addNeuron(NeuronType.MOVE, "", patrolPos);
+      figment.memory.inCombat = false;
     }
   }
 

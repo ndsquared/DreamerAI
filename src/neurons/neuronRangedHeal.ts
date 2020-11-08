@@ -20,7 +20,7 @@ export class NeuronRangedHeal extends Neuron {
     if (this.figment.pos.isNearTo(this.target)) {
       return this.figment.heal(this.target);
     }
-    this.figment.rangedMassAttack();
+    // this.figment.rangedMassAttack();
     return this.figment.rangedHeal(this.target);
   }
 }
