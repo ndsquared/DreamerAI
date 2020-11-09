@@ -53,7 +53,7 @@ export class PickupThought extends FigmentThought {
   }
 
   public adjustPriority(): void {
-    this.figmentPriority = 3;
+    this.figmentPriority = 5;
     if (this.name === FigmentThoughtName.REMOTE_PICKUP) {
       this.figmentPriority = 2;
     }

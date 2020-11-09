@@ -52,7 +52,7 @@ export class TransferThought extends FigmentThought {
 
   public adjustPriority(): void {
     if (this.figments.length >= 1) {
-      this.figmentPriority = 2;
+      this.figmentPriority = 4;
     }
   }
   public setFigmentsNeeded(): void {

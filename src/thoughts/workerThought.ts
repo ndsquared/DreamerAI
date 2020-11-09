@@ -46,6 +46,7 @@ export class WorkerThought extends FigmentThought {
       });
       let useSpawn = false;
       if (containers.length < 2) {
+        console.log("using spawn!");
         useSpawn = true;
       }
       const target = figment.getNextPickupOrWithdrawTargetNeighborhood({

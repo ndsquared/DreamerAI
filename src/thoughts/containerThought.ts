@@ -33,16 +33,18 @@ export class ContainerThought extends BuildThought {
       }
     }
 
-    // Build container next to all the sources spawn room
-    const sources = spawn.room.find(FIND_SOURCES);
-    for (const source of sources) {
-      const containers = source.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER
-      });
-      if (containers.length === 0) {
-        const buildPositions = source.pos.availableNeighbors(true);
-        const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
-        this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, true);
+    // Build container next to all the sources in the neighborhood
+    for (const room of spawn.room.neighborhood) {
+      const sources = room.find(FIND_SOURCES);
+      for (const source of sources) {
+        const containers = source.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: s => s.structureType === STRUCTURE_CONTAINER
+        });
+        if (containers.length === 0) {
+          const buildPositions = source.pos.availableNeighbors(true);
+          const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
+          this.idea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, true);
+        }
       }
     }
   }
