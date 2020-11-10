@@ -6,7 +6,7 @@ import { NeuronType } from "neurons/neurons";
 
 export class PickupThought extends FigmentThought {
   private sourcePos: RoomPosition;
-  private carryPartsNeeded = 10;
+  private carryPartsNeeded = 3;
   public constructor(idea: Idea, name: string, source: Source) {
     super(idea, name, source.id);
     this.sourcePos = source.pos;

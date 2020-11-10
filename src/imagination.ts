@@ -2,6 +2,7 @@
 import { Figment } from "figment";
 import { Idea } from "ideas/idea";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
+import { exportStats } from "utils/stats";
 import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
@@ -158,6 +159,7 @@ export class Imagination implements IBrain {
       this.addStatus("GENERATED PIXEL");
     }
     this.printStatus();
+    exportStats();
   }
 
   public addStatus(status: string): void {

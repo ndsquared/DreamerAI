@@ -87,7 +87,7 @@ export class HarvestThought extends FigmentThought {
     const count = this.idea.getFigmentCount(FigmentThoughtName.HARVEST);
     if (count > 6) {
       this.figmentPriority = 3;
-    } else if (count > 2) {
+    } else if (count > 1) {
       this.figmentPriority = 8;
     } else {
       this.figmentPriority = 12;

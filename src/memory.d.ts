@@ -1,3 +1,24 @@
+interface Memory {
+  stats: Stats;
+}
+
+interface Stats {
+  time: number;
+  gcl: {
+    [name: string]: number;
+  };
+  rooms: {
+    [name: string]: RoomStats;
+  };
+  cpu: {
+    [name: string]: number;
+  };
+}
+
+interface RoomStats {
+  [name: string]: number;
+}
+
 interface CreepMemory {
   _trav: any;
   ideaName: string;
