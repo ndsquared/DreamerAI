@@ -100,7 +100,10 @@ export class Figment extends Creep implements Figment {
   }
 
   public get neurons(): Interneuron[] {
-    return this.memory.interneurons;
+    if (this.memory.interneurons) {
+      return this.memory.interneurons;
+    }
+    return [];
   }
 
   public get isDreaming(): boolean {
