@@ -98,7 +98,7 @@ export abstract class Idea implements IBrain {
     while (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
       let energyAvailable = this.spawn.room.energyCapacityAvailable;
-      if (this.emergencyMode) {
+      if (this.emergencyMode || nextSpawn.thoughtName === FigmentThoughtName.TRANSFER) {
         energyAvailable = this.spawn.room.energyAvailable;
       }
       const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, energyAvailable);
