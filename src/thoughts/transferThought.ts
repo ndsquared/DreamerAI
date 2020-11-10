@@ -63,7 +63,7 @@ export class TransferThought extends FigmentThought {
   }
   public setFigmentsNeeded(): void {
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CARRY));
-    if (totalParts >= 8) {
+    if (totalParts >= 4) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = this.figments.length + 1;

@@ -8,11 +8,7 @@ export class ExtensionThought extends BuildThought {
 
   public buildPlan(): void {
     const extensionDeltas: Coord[] = this.standardDeltas();
-    const roadDeltas: Coord[] = [];
-    roadDeltas.push({ x: 1, y: 0 });
-    roadDeltas.push({ x: -1, y: 0 });
-    roadDeltas.push({ x: 0, y: 1 });
-    roadDeltas.push({ x: 0, y: -1 });
+    const roadDeltas: Coord[] = this.cardinalDirections();
 
     const allDeltas = extensionDeltas.concat(roadDeltas);
     const pivotPos = this.getNextPivotPos(this.idea.spawn.pos, allDeltas, 3);

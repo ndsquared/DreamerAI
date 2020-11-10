@@ -23,6 +23,9 @@ export abstract class BuildThought extends Thought {
   public abstract buildPlan(): void;
 
   public ponder(): void {
+    if (Game.cpu.bucket < 1000) {
+      return;
+    }
     if (Game.time % global.BUILD_PLAN_INTERVAL === 0) {
       this.buildPlan();
     }

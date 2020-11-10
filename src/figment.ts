@@ -201,6 +201,7 @@ export class Figment extends Creep implements Figment {
       targetRange: 1,
       moveOffRoadDuringImpulse: false,
       moveRange: 1,
+      moveRandom: false,
       movingTarget: false
     };
     let options = defaultTargetOptions;

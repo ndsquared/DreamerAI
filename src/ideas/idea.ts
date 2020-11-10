@@ -9,6 +9,7 @@ export abstract class Idea implements IBrain {
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
   public spawn: StructureSpawn;
   public imagination: Imagination;
+  private emergencyMode = false;
   private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Higher priority is dequeued first
@@ -37,6 +38,7 @@ export abstract class Idea implements IBrain {
 
   public ponder(): void {
     this.spawn = Game.spawns[this.spawn.name];
+    this.emergencyMode = this.inEmergency();
     if (Game.time % global.BUILD_PLAN_INTERVAL === 0) {
       this.buildQueue.clear();
     }
@@ -82,12 +84,24 @@ export abstract class Idea implements IBrain {
     this.spawnQueue.clear();
   }
 
+  private inEmergency(): boolean {
+    const figments = this.spawn.room.find(FIND_MY_CREEPS);
+    if (figments.length < 3) {
+      return true;
+    }
+    return false;
+  }
+
   private processSpawnQueue() {
     let currentPriority: number | null = null;
     let statusSpawn: SpawnQueuePayload | null = null;
     while (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
-      const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, this.spawn.room.energyAvailable);
+      let energyAvailable = this.spawn.room.energyCapacityAvailable;
+      if (this.emergencyMode) {
+        energyAvailable = this.spawn.room.energyAvailable;
+      }
+      const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, energyAvailable);
       const roomEnergyCapacity = this.spawn.room.energyCapacityAvailable;
       const bodyCost = _.sum(body, b => BODYPART_COST[b]);
       // console.log(

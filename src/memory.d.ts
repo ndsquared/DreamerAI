@@ -62,6 +62,7 @@ interface InterneuronTargetOptions {
   targetRange: number;
   moveOffRoadDuringImpulse: boolean;
   moveRange: number;
+  moveRandom: boolean;
   movingTarget: boolean;
 }
 

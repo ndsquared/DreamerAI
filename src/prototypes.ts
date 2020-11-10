@@ -9,6 +9,32 @@ Creep.prototype.travelTo = function (destination: RoomPosition | { pos: RoomPosi
   return Traveler.travelTo(this, destination, options);
 };
 
+Creep.prototype.moveRandom = function (target: RoomPosition | null = null, dst: number | null = null): number {
+  let randomDir = _.random(1, 8);
+  if (target && dst) {
+    let direction = 0;
+    for (let i = 1; i < 8; i++) {
+      direction = (randomDir + i) % 8;
+      const pos = Traveler.positionAtDirection(this.pos, direction);
+      if (!pos) {
+        continue;
+      }
+      if (pos.isEdge) {
+        continue;
+      }
+      if (!pos.isWalkable) {
+        continue;
+      }
+      if (!pos.inRangeTo(target, dst)) {
+        continue;
+      }
+      break;
+    }
+    randomDir = direction;
+  }
+  return this.move(randomDir as DirectionConstant);
+};
+
 // Room
 
 Object.defineProperty(Room.prototype, "neighbors", {

@@ -65,8 +65,9 @@ export abstract class Neuron {
         this.figment.memory.interneurons = [];
       }
     } else if (impulseResult !== OK) {
-      const randomDir = _.random(1, 8);
-      this.figment.move(randomDir as DirectionConstant);
+      this.figment.moveRandom();
+    } else if (this.interneuron.target.options.moveRandom) {
+      this.figment.moveRandom(this.targetPos, this.interneuron.target.options.targetRange);
     }
   }
 

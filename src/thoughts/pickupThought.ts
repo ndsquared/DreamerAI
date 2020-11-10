@@ -12,9 +12,9 @@ export class PickupThought extends FigmentThought {
     this.sourcePos = source.pos;
     const pf = PathFindWithRoad(this.idea.spawn.pos, source.pos);
     if (pf.cost > 65) {
-      this.carryPartsNeeded = 10;
-    } else if (pf.cost > 45) {
       this.carryPartsNeeded = 8;
+    } else if (pf.cost > 45) {
+      this.carryPartsNeeded = 6;
     }
     this.figmentBodySpec = {
       bodyParts: [CARRY],

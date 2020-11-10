@@ -11,6 +11,7 @@ interface Coord {
 
 interface Creep {
   travelTo(destination: HasPos | RoomPosition, ops?: TravelToOptions): number;
+  moveRandom(target?: RoomPosition | null, dst?: number | null): number;
 }
 
 interface EnergyStructure extends Structure {

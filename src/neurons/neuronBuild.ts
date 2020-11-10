@@ -7,6 +7,7 @@ export class NeuronBuild extends Neuron {
     super(figment, interneuron);
     this.interneuron.target.options.targetRange = 3;
     this.interneuron.target.options.moveOffRoadDuringImpulse = true;
+    this.interneuron.target.options.moveRandom = true;
   }
   public isValidNeuron(): boolean {
     return this.figment.store.getUsedCapacity() > 0 && this.figment.getActiveBodyparts(WORK) > 0;

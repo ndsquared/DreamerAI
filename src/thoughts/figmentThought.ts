@@ -52,7 +52,7 @@ export abstract class FigmentThought extends Thought {
       //   console.log(`${this.name}:${this.instance} (${this.figments.length}/${this.figmentsNeeded})`);
       // }
     }
-    if (this.figmentsNeeded > this.figments.length) {
+    if (this.figmentsNeeded > this.figments.length && Game.cpu.bucket > 500 && Object.keys(Game.creeps).length < 45) {
       const name = Figment.GetUniqueName();
       const payload = {
         name,

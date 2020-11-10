@@ -76,7 +76,7 @@ export class WorkerThought extends FigmentThought {
 
   public setFigmentsNeeded(): void {
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
-    if (totalParts >= 5) {
+    if (totalParts >= 4) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = this.figments.length + 1;
