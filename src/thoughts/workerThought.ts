@@ -36,7 +36,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
       }
     } else {
-      const containers = figment.room.find(FIND_STRUCTURES, {
+      const containers = this.idea.spawn.room.find(FIND_STRUCTURES, {
         filter: s => {
           if (s.structureType === STRUCTURE_CONTAINER) {
             return true;
@@ -46,7 +46,6 @@ export class WorkerThought extends FigmentThought {
       });
       let useSpawn = false;
       if (containers.length < 2) {
-        console.log("using spawn!");
         useSpawn = true;
       }
       const target = figment.getNextPickupOrWithdrawTargetNeighborhood({
@@ -77,7 +76,7 @@ export class WorkerThought extends FigmentThought {
 
   public setFigmentsNeeded(): void {
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
-    if (totalParts >= 10) {
+    if (totalParts >= 5) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = this.figments.length + 1;

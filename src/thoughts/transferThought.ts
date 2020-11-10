@@ -25,7 +25,11 @@ export class TransferThought extends FigmentThought {
         originRoom: figment.room
       });
       if (!target) {
-        target = figment.getNextPickupOrWithdrawTarget({ useStorage: true, originRoom: this.idea.spawn.room });
+        target = figment.getNextPickupOrWithdrawTarget({
+          useStorage: true,
+          avoidSpawnContainer: false,
+          originRoom: this.idea.spawn.room
+        });
       }
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
@@ -35,12 +39,14 @@ export class TransferThought extends FigmentThought {
     } else {
       let target = figment.getNextTransferTarget({
         useStorage: false,
+        avoidSpawnContainer: true,
         originRoom: this.idea.spawn.room,
         emptyTarget: true
       });
       if (!target) {
         target = figment.getNextTransferTarget({
           useStorage: false,
+          avoidSpawnContainer: true,
           originRoom: this.idea.spawn.room
         });
       }
@@ -57,7 +63,7 @@ export class TransferThought extends FigmentThought {
   }
   public setFigmentsNeeded(): void {
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CARRY));
-    if (totalParts >= 10) {
+    if (totalParts >= 8) {
       this.figmentsNeeded = 0;
     } else {
       this.figmentsNeeded = this.figments.length + 1;

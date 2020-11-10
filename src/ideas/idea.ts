@@ -84,14 +84,26 @@ export abstract class Idea implements IBrain {
 
   private processSpawnQueue() {
     let currentPriority: number | null = null;
+    let statusSpawn: SpawnQueuePayload | null = null;
     while (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
+      const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, this.spawn.room.energyAvailable);
+      const roomEnergyCapacity = this.spawn.room.energyCapacityAvailable;
+      const bodyCost = _.sum(body, b => BODYPART_COST[b]);
+      // console.log(
+      //   `nextSpawn: ${nextSpawn.thoughtName}, cost: ${bodyCost}/${roomEnergyCapacity}, body: ${body.toString()}`
+      // );
+      if (body.length === 0 || bodyCost > roomEnergyCapacity) {
+        continue;
+      }
+      if (!statusSpawn) {
+        statusSpawn = nextSpawn;
+      }
       if (currentPriority === null) {
         currentPriority = nextSpawn.priority;
       } else if (nextSpawn.priority < currentPriority) {
         break;
       }
-      const body = Figment.GetBodyFromBodySpec(nextSpawn.bodySpec, this.spawn.room.energyAvailable);
       const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
       if (status === OK && body.length >= nextSpawn.bodySpec.minParts) {
         const memory = {
@@ -107,12 +119,16 @@ export abstract class Idea implements IBrain {
           spawnRoomName: this.spawn.room.name
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
+        statusSpawn = null;
         this.imagination.addStatus(
           `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} priority ${nextSpawn.priority}`
         );
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
         break;
       }
+    }
+    if (statusSpawn) {
+      this.imagination.addStatus(`Next Spawn: ${statusSpawn.thoughtName} with priority ${statusSpawn.priority}`);
     }
   }
 
@@ -146,6 +162,7 @@ export abstract class Idea implements IBrain {
 
   private processBuildQueue(): void {
     let buildOps = 1000;
+    let statusBuild: BuildQueuePayload | null = null;
     while (this.buildQueue.length > 0) {
       if (buildOps <= 0) {
         break;
@@ -153,6 +170,7 @@ export abstract class Idea implements IBrain {
       buildOps--;
 
       let nextBuild = this.buildQueue.peek();
+      statusBuild = nextBuild;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (!room || !this.canBuild(room.name)) {
         continue;
@@ -161,8 +179,12 @@ export abstract class Idea implements IBrain {
       const buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
       if (buildResult === OK) {
         this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
+        statusBuild = null;
         break;
       }
+    }
+    if (statusBuild) {
+      this.imagination.addStatus(`Next Build: ${statusBuild.structure} with priority ${statusBuild.priority}`);
     }
   }
 

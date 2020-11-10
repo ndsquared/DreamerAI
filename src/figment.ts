@@ -72,6 +72,10 @@ export class Figment extends Creep implements Figment {
       }
     }
 
+    if (bodyPartCount < bodySpec.minParts) {
+      return [];
+    }
+
     // console.log(bodyParts);
     const sortedBodyParts = _.sortBy(bodyParts, s => {
       switch (s) {
@@ -135,7 +139,7 @@ export class Figment extends Creep implements Figment {
         const enemies = this.room.find(FIND_HOSTILE_CREEPS);
         if (enemies.length) {
           for (const enemy of enemies) {
-            if (enemy.pos.inRangeTo(this.pos, 8)) {
+            if (enemy.pos.inRangeTo(this.pos, 4)) {
               this.memory.underAttack = true;
             }
           }
@@ -152,7 +156,7 @@ export class Figment extends Creep implements Figment {
         if (enemies.length) {
           for (const enemy of enemies) {
             if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
-              if (enemy.pos.inRangeTo(this.pos, 8)) {
+              if (enemy.pos.inRangeTo(this.pos, 4)) {
                 this.say("Noooo!", true);
                 console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
                 this.memory.interneurons = [];
@@ -234,6 +238,7 @@ export class Figment extends Creep implements Figment {
   public getNextTransferTarget({
     useStorage = true,
     useLink = false,
+    avoidSpawnContainer = false,
     originRoom,
     emptyTarget = false
   }: NextTarget): Structure | null {
@@ -243,6 +248,19 @@ export class Figment extends Creep implements Figment {
           const sources = s.pos.findInRange(FIND_SOURCES, 1);
           if (sources.length) {
             return false;
+          }
+          if (avoidSpawnContainer) {
+            const spawns = s.pos.findInRange(FIND_STRUCTURES, 2, {
+              filter: spawn => {
+                if (spawn.structureType === STRUCTURE_SPAWN) {
+                  return true;
+                }
+                return false;
+              }
+            });
+            if (spawns.length) {
+              return false;
+            }
           }
         } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
           return false;
@@ -261,12 +279,19 @@ export class Figment extends Creep implements Figment {
   public getNextTransferTargetNeighborhood({
     useStorage = true,
     useLink = false,
+    avoidSpawnContainer = false,
     originRoom,
     emptyTarget = false
   }: NextTarget): Structure | null {
     let targets: Structure[] = [];
     for (const room of originRoom.neighborhood) {
-      const target = this.getNextTransferTarget({ useStorage, useLink, originRoom: room, emptyTarget });
+      const target = this.getNextTransferTarget({
+        useStorage,
+        useLink,
+        avoidSpawnContainer,
+        originRoom: room,
+        emptyTarget
+      });
       if (target) {
         targets = targets.concat(target);
       }

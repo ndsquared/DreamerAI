@@ -48,9 +48,9 @@ export abstract class FigmentThought extends Thought {
       this.reset = false;
     } else {
       this.setFigmentsNeeded();
-      if (this.figmentsNeeded > 0) {
-        console.log(`${this.name}:${this.instance} (${this.figments.length}/${this.figmentsNeeded})`);
-      }
+      // if (this.figmentsNeeded > 0) {
+      //   console.log(`${this.name}:${this.instance} (${this.figments.length}/${this.figmentsNeeded})`);
+      // }
     }
     if (this.figmentsNeeded > this.figments.length) {
       const name = Figment.GetUniqueName();
