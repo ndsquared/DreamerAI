@@ -12,7 +12,7 @@ export class AttackThought extends FigmentThought {
       bodyParts: [TOUGH, ATTACK],
       ratio: [1, 1],
       minParts: 4,
-      maxParts: 30,
+      maxParts: 50,
       ignoreCarry: false,
       roadTravel: false
     };

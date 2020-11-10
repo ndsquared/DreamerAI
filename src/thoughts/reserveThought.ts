@@ -33,6 +33,7 @@ export class ReserveThought extends FigmentThought {
     this.figmentPriority = 1;
   }
   public setFigmentsNeeded(): void {
+    // TODO: Set parts lower when controller is above reserve threshold
     const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CLAIM));
     if (totalParts >= 2) {
       this.figmentsNeeded = 0;

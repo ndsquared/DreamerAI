@@ -11,7 +11,7 @@ export class WorkerThought extends FigmentThought {
       bodyParts: [WORK, CARRY],
       ratio: [1, 1],
       minParts: 4,
-      maxParts: 21,
+      maxParts: 50,
       ignoreCarry: false,
       roadTravel: false
     };

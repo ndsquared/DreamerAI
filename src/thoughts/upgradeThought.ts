@@ -11,7 +11,7 @@ export class UpgradeThought extends FigmentThought {
       bodyParts: [CARRY, WORK],
       ratio: [1, 3],
       minParts: 4,
-      maxParts: 21,
+      maxParts: 50,
       ignoreCarry: true,
       roadTravel: true
     };
