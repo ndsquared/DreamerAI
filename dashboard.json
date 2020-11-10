@@ -571,7 +571,7 @@
           "refCount": 0,
           "refId": "A",
           "target": "divideSeries(diffSeries(screeps.dean.gcl.progressTotal, #B), #C)",
-          "targetFull": "divideSeries(diffSeries(screeps.dean.gcl.progressTotal, screeps.dean.gcl.progress), scaleToSeconds(movingAverage(screeps.dean.gcl.progress, '1hour'), 1))"
+          "targetFull": "divideSeries(diffSeries(screeps.dean.gcl.progressTotal, screeps.dean.gcl.progress), nonNegativeDerivative(scaleToSeconds(movingAverage(screeps.dean.gcl.progress, '1hour'), 1)))"
         },
         {
           "hide": true,
@@ -583,7 +583,7 @@
           "hide": true,
           "refCount": 1,
           "refId": "C",
-          "target": "scaleToSeconds(movingAverage(screeps.dean.gcl.progress, '1hour'), 1)"
+          "target": "nonNegativeDerivative(scaleToSeconds(movingAverage(screeps.dean.gcl.progress, '1hour'), 1))"
         }
       ],
       "title": "Time to Next GCL",
@@ -1096,7 +1096,7 @@
           "refCount": 0,
           "refId": "A",
           "target": "divideSeries(diffSeries(screeps.dean.rooms.$room.controllerProgressTotal, #B), #C)",
-          "targetFull": "divideSeries(diffSeries(screeps.dean.rooms.$room.controllerProgressTotal, screeps.dean.rooms.$room.controllerProgress), scaleToSeconds(movingAverage(screeps.dean.rooms.$room.controllerProgress, '1hour'), 1))",
+          "targetFull": "divideSeries(diffSeries(screeps.dean.rooms.$room.controllerProgressTotal, screeps.dean.rooms.$room.controllerProgress), nonNegativeDerivative(scaleToSeconds(movingAverage(screeps.dean.rooms.$room.controllerProgress, '1hour'), 1)))",
           "textEditor": false
         },
         {
@@ -1109,7 +1109,7 @@
           "hide": true,
           "refCount": 1,
           "refId": "C",
-          "target": "scaleToSeconds(movingAverage(screeps.dean.rooms.$room.controllerProgress, '1hour'), 1)"
+          "target": "nonNegativeDerivative(scaleToSeconds(movingAverage(screeps.dean.rooms.$room.controllerProgress, '1hour'), 1))"
         }
       ],
       "title": "Time to Next RCL",
@@ -1409,5 +1409,5 @@
   "timezone": "browser",
   "title": "Screeps Dashboard",
   "uid": "m-EnE_2Mk",
-  "version": 4
+  "version": 5
 }
