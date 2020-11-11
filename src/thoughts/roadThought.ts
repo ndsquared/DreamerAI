@@ -21,7 +21,7 @@ export class RoadThought extends BuildThought {
     for (const room of spawn.room.neighborhood) {
       const remoteSources = room.find(FIND_SOURCES);
       for (const source of remoteSources) {
-        this.buildRoadToPosition(spawn.pos, source.pos, true);
+        this.buildRoadToPosition(spawn.pos, source.pos, false);
       }
     }
 
@@ -36,7 +36,7 @@ export class RoadThought extends BuildThought {
       filter: s => s.structureType === STRUCTURE_CONTAINER
     });
     for (const container of containers) {
-      this.buildRoadToPosition(spawn.pos, container.pos, true);
+      this.buildRoadToPosition(spawn.pos, container.pos, false);
     }
   }
 

@@ -10,7 +10,7 @@ export class ReserveThought extends FigmentThought {
       bodyParts: [CLAIM],
       ratio: [1],
       minParts: 2,
-      maxParts: 8,
+      maxParts: 6,
       ignoreCarry: false,
       roadTravel: false
     };
