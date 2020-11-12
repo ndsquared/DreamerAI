@@ -18,6 +18,7 @@ export class GenesisIdea extends Idea {
   }
 
   public ponder(): void {
+    this.imagination.addStatus(`Spawn Queue: ${this.spawnQueue.length}`);
     if (this.spawnQueue.length === 0) {
       this.setQueuePriorities();
       if (this.idea) {
