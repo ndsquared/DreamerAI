@@ -1,5 +1,5 @@
-import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
+import { FigmentThought, FigmentType } from "./figmentThought";
+import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { isStoreStructure } from "utils/misc";
@@ -7,14 +7,7 @@ import { isStoreStructure } from "utils/misc";
 export class UpgradeThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentBodySpec = {
-      bodyParts: [CARRY, WORK],
-      ratio: [1, 3],
-      minParts: 4,
-      maxParts: 50,
-      ignoreCarry: true,
-      roadTravel: true
-    };
+    this.figments[FigmentType.UPGRADE] = [];
   }
 
   public handleFigment(figment: Figment): void {
@@ -38,18 +31,8 @@ export class UpgradeThought extends FigmentThought {
     }
   }
 
-  public adjustPriority(): void {
-    this.figmentPriority = 3;
-    for (const room of this.idea.spawn.room.neighborhood) {
-      const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-      if (constructionSites.length) {
-        this.figmentPriority = 2;
-        return;
-      }
-    }
-  }
-  public setFigmentsNeeded(): void {
-    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
+  public figmentNeeded(figmentType: FigmentType): boolean {
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
     const storage = this.idea.spawn.room.find(FIND_STRUCTURES, {
       filter: s => {
         if (s.structureType === STRUCTURE_STORAGE) {
@@ -69,10 +52,6 @@ export class UpgradeThought extends FigmentThought {
     if (this.idea.rcl === 8) {
       partsRequired = 15;
     }
-    if (totalParts >= partsRequired) {
-      this.figmentsNeeded = 0;
-    } else {
-      this.figmentsNeeded = this.figments.length + 1;
-    }
+    return totalParts < partsRequired;
   }
 }

@@ -1,11 +1,42 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { NeuronType, Neurons } from "neurons/neurons";
 import { PathFindWithRoad, ShuffleArray } from "utils/misc";
+import { Traveler } from "utils/traveler";
 import profiler from "screeps-profiler";
 
 export class Figment extends Creep implements Figment {
   public constructor(creepId: Id<Creep>) {
     super(creepId);
+  }
+
+  public travelTo(destination: RoomPosition | { pos: RoomPosition }, options?: TravelToOptions): number {
+    return Traveler.travelTo(this, destination, options);
+  }
+
+  public moveRandom(target: RoomPosition | null = null, dst: number | null = null): number {
+    let randomDir = _.random(1, 8);
+    if (target && dst) {
+      let direction = 0;
+      for (let i = 1; i < 8; i++) {
+        direction = (randomDir + i) % 8;
+        const pos = Traveler.positionAtDirection(this.pos, direction);
+        if (!pos) {
+          continue;
+        }
+        if (pos.isEdge) {
+          continue;
+        }
+        if (!pos.isWalkable) {
+          continue;
+        }
+        if (!pos.inRangeTo(target, dst)) {
+          continue;
+        }
+        break;
+      }
+      randomDir = direction;
+    }
+    return this.move(randomDir as DirectionConstant);
   }
 
   private static GenerateName() {
@@ -76,8 +107,11 @@ export class Figment extends Creep implements Figment {
       return [];
     }
 
-    // console.log(bodyParts);
-    const sortedBodyParts = _.sortBy(bodyParts, s => {
+    return Figment.SortedBodyParts(bodyParts);
+  }
+
+  public static SortedBodyParts(parts: BodyPartConstant[]): BodyPartConstant[] {
+    const sortedBodyParts = _.sortBy(parts, s => {
       switch (s) {
         case TOUGH:
           return 0;
@@ -99,7 +133,6 @@ export class Figment extends Creep implements Figment {
           return 10;
       }
     });
-    // console.log(sortedBodyParts);
     return sortedBodyParts;
   }
 

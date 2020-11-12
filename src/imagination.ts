@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Figment } from "figment";
-import { Idea } from "ideas/idea";
+import { Idea, IdeaType } from "ideas/idea";
+import { Figment } from "figments/figment";
+import { FigmentThought } from "thoughts/figmentThought";
+import { GenesisIdea } from "ideas/genesisIdea";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
 import { exportStats } from "utils/stats";
 import profiler from "screeps-profiler";
@@ -29,27 +31,13 @@ export class Imagination implements IBrain {
     if (Object.keys(Game.creeps).length > 0) {
       return false;
     }
-    // console.log("no creeps");
     // check if we only see 1 room
     const roomNames = Object.keys(Game.rooms);
     if (roomNames.length !== 1) {
       return false;
     }
-    // console.log("only see 1 room");
     // check if we own the controller and if it has any progress
     const room = Game.rooms[roomNames[0]];
-    // console.log(!room.controller);
-    // if (room.controller) {
-    //   console.log(!room.controller.my);
-    //   console.log(room.controller.level !== 1);
-    //   console.log(room.controller.progress);
-    //   console.log(!room.controller.safeMode);
-    //   if (room.controller.safeMode) {
-    //     console.log(room.controller.safeMode <= SAFE_MODE_DURATION - 1);
-    //     console.log(room.controller.safeMode);
-    //     console.log(SAFE_MODE_DURATION - 1);
-    //   }
-    // }
     if (
       !room.controller ||
       !room.controller.my ||
@@ -60,7 +48,6 @@ export class Imagination implements IBrain {
     ) {
       return false;
     }
-    // console.log("no controller progress");
     // check for 1 spawn
     if (Object.keys(Game.spawns).length !== 1) {
       return false;
@@ -86,7 +73,7 @@ export class Imagination implements IBrain {
   private fantasize() {
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
-      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn, this);
+      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn, this, IdeaType.TABULA_RASA, null);
     }
   }
 
@@ -112,7 +99,7 @@ export class Imagination implements IBrain {
     for (const name in Memory.creeps) {
       if (!(name in Game.creeps)) {
         const idea = this.ideas[Memory.creeps[name].ideaName];
-        if (idea) idea.adjustFigmentCount(Memory.creeps[name].thoughtName, -1);
+        if (idea) (idea.ideas[IdeaType.GENESIS] as GenesisIdea).adjustFigmentCount(Memory.creeps[name].thoughtType, -1);
         delete Memory.creeps[name];
       }
     }
@@ -123,17 +110,17 @@ export class Imagination implements IBrain {
         continue;
       }
       const ideaName = figment.memory.ideaName;
-      const thoughtName = figment.memory.thoughtName;
+      const thoughtType = figment.memory.thoughtType;
       const thoughtInstance = figment.memory.thoughtInstance;
       const idea = this.ideas[ideaName];
       if (!idea) {
         continue;
       }
-      const thoughtObj = idea.figmentThoughts[thoughtName];
-      if (!thoughtObj) {
+      const thoughtTypeObj = idea.thoughts[thoughtType];
+      if (!thoughtTypeObj) {
         continue;
       }
-      const thought = thoughtObj[thoughtInstance];
+      const thought = thoughtTypeObj[thoughtInstance] as FigmentThought;
       if (thought) {
         thought.addFigment(figment);
       }

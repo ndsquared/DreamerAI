@@ -8,6 +8,6 @@ export class NeuronDream extends Neuron {
     return false;
   }
   public impulse(): number {
-    return global.ERR_INVALID_NEURON;
+    return OK;
   }
 }

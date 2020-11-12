@@ -1,4 +1,5 @@
 import { BuildThought } from "./buildThought";
+import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 
 export class ExtensionThought extends BuildThought {
@@ -6,7 +7,7 @@ export class ExtensionThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public buildPlan(): void {
+  public buildPlan(creationIdea: CreationIdea): void {
     const extensionDeltas: Coord[] = this.standardDeltas();
     const roadDeltas: Coord[] = this.cardinalDirections();
 
@@ -17,8 +18,8 @@ export class ExtensionThought extends BuildThought {
       const extensionPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
       const roadPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, roadDeltas);
 
-      this.idea.addBuilds(extensionPositions, STRUCTURE_EXTENSION, 2, false, true);
-      this.idea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, true);
+      creationIdea.addBuilds(extensionPositions, STRUCTURE_EXTENSION, 2, false, true);
+      creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, true);
     }
   }
 }

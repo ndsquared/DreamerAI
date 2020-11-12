@@ -1,4 +1,5 @@
 import { BuildThought } from "./buildThought";
+import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 import { PathFindWithRoad } from "utils/misc";
 
@@ -9,12 +10,12 @@ export class TowerThought extends BuildThought {
     this.towers = [];
   }
 
-  public buildPlan(): void {
+  public buildPlan(creationIdea: CreationIdea): void {
     const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
 
     if (pivotPos) {
       const towerPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
-      this.idea.addBuilds(towerPositions, STRUCTURE_TOWER, 1, false, false);
+      creationIdea.addBuilds(towerPositions, STRUCTURE_TOWER, 1, true, false, true);
     }
   }
 

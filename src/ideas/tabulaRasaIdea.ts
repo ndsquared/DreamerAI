@@ -1,22 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Idea, IdeaType } from "./idea";
 import { AttackThought } from "thoughts/attackThought";
-import { BuildThoughtName } from "thoughts/buildThought";
-import { ContainerThought } from "thoughts/containerThought";
+import { CombatIdea } from "./combatIdea";
+import { CreationIdea } from "./creationIdea";
 import { DefenseThought } from "thoughts/defenseThought";
-import { ExtensionThought } from "thoughts/extensionThought";
-import { FigmentThoughtName } from "thoughts/figmentThought";
+import { FigmentType } from "thoughts/figmentThought";
+import { GenesisIdea } from "./genesisIdea";
 import { HarvestThought } from "../thoughts/harvestThought";
-import { Idea } from "./idea";
 import { Imagination } from "imagination";
-import { LinkThought } from "thoughts/linkThought";
 import { PickupThought } from "thoughts/pickupThought";
-import { RampartThought } from "thoughts/rampartThought";
 import { ReserveThought } from "thoughts/reserveThought";
-import { RoadThought } from "thoughts/roadThought";
 import { ScoutThought } from "thoughts/scoutThought";
-import { StorageThought } from "thoughts/storageThought";
-import { TowerThought } from "thoughts/towerThought";
 import { TransferThought } from "thoughts/transferThought";
 import { UpgradeThought } from "thoughts/upgradeThought";
 import { WorkerThought } from "thoughts/workerThought";
@@ -27,58 +22,38 @@ interface ThoughtMapping {
 }
 
 export class TabulaRasaIdea extends Idea {
-  public constructor(spawn: StructureSpawn, imagination: Imagination) {
-    super(spawn, imagination);
+  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea | null) {
+    super(spawn, imagination, type, idea);
     const sources = _.sortBy(
       Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
       s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
     );
 
+    // Initialize ideas
+    this.ideas[IdeaType.GENESIS] = new GenesisIdea(spawn, imagination, IdeaType.GENESIS, this);
+    this.ideas[IdeaType.CREATION] = new CreationIdea(spawn, imagination, IdeaType.CREATION, this);
+    this.ideas[IdeaType.COMBAT] = new CombatIdea(spawn, imagination, IdeaType.COMBAT, this);
+
     // Initialize thoughts
-    this.figmentThoughts[FigmentThoughtName.HARVEST] = {};
-    this.figmentThoughts[FigmentThoughtName.PICKUP] = {};
-    this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST] = {};
-    this.figmentThoughts[FigmentThoughtName.REMOTE_PICKUP] = {};
-    this.figmentThoughts[FigmentThoughtName.SCOUT] = {};
-    this.figmentThoughts[FigmentThoughtName.RESERVE] = {};
+    this.thoughts[FigmentType.HARVEST] = {};
+    this.thoughts[FigmentType.SCOUT] = {};
+    this.thoughts[FigmentType.RESERVE] = {};
 
     for (const source of sources) {
-      this.figmentThoughts[FigmentThoughtName.HARVEST][source.id] = new HarvestThought(
-        this,
-        FigmentThoughtName.HARVEST,
-        source
-      );
-      this.figmentThoughts[FigmentThoughtName.PICKUP][source.id] = new PickupThought(
-        this,
-        FigmentThoughtName.PICKUP,
-        source
-      );
+      this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
     }
 
     const figmentThoughts: ThoughtMapping[] = [
-      { name: FigmentThoughtName.TRANSFER, thought: TransferThought },
-      { name: FigmentThoughtName.WORKER, thought: WorkerThought },
-      { name: FigmentThoughtName.UPGRADE, thought: UpgradeThought },
-      { name: FigmentThoughtName.ATTACK, thought: AttackThought },
-      { name: FigmentThoughtName.DEFENSE, thought: DefenseThought }
+      { name: FigmentType.TRANSFER, thought: TransferThought },
+      { name: FigmentType.PICKUP, thought: PickupThought },
+      { name: FigmentType.WORKER, thought: WorkerThought },
+      { name: FigmentType.UPGRADE, thought: UpgradeThought },
+      { name: FigmentType.ATTACK, thought: AttackThought },
+      { name: FigmentType.DEFENSE, thought: DefenseThought }
     ];
     for (const figmentThought of figmentThoughts) {
-      this.figmentThoughts[figmentThought.name] = {};
-      this.figmentThoughts[figmentThought.name]["0"] = new figmentThought.thought(this, figmentThought.name, "0");
-    }
-
-    const buildThoughts: ThoughtMapping[] = [
-      { name: BuildThoughtName.EXTENSION, thought: ExtensionThought },
-      { name: BuildThoughtName.ROAD, thought: RoadThought },
-      { name: BuildThoughtName.CONTAINER, thought: ContainerThought },
-      { name: BuildThoughtName.TOWER, thought: TowerThought },
-      { name: BuildThoughtName.STORAGE, thought: StorageThought },
-      { name: BuildThoughtName.RAMPART, thought: RampartThought },
-      { name: BuildThoughtName.LINK, thought: LinkThought }
-    ];
-    for (const buildThought of buildThoughts) {
-      this.buildThoughts[buildThought.name] = {};
-      this.buildThoughts[buildThought.name]["0"] = new buildThought.thought(this, buildThought.name, "0");
+      this.thoughts[figmentThought.name] = {};
+      this.thoughts[figmentThought.name]["0"] = new figmentThought.thought(this, figmentThought.name, "0");
     }
   }
 
@@ -88,34 +63,16 @@ export class TabulaRasaIdea extends Idea {
       if (room) {
         const sources = _.sortBy(room.find(FIND_SOURCES));
         for (const source of sources) {
-          if (!this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST][source.id]) {
-            this.figmentThoughts[FigmentThoughtName.REMOTE_HARVEST][source.id] = new HarvestThought(
-              this,
-              FigmentThoughtName.REMOTE_HARVEST,
-              source
-            );
-            this.figmentThoughts[FigmentThoughtName.REMOTE_PICKUP][source.id] = new PickupThought(
-              this,
-              FigmentThoughtName.REMOTE_PICKUP,
-              source
-            );
+          if (!this.thoughts[FigmentType.HARVEST][source.id]) {
+            this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
           }
         }
-        if (!this.figmentThoughts[FigmentThoughtName.RESERVE][room.name]) {
-          this.figmentThoughts[FigmentThoughtName.RESERVE][room.name] = new ReserveThought(
-            this,
-            FigmentThoughtName.RESERVE,
-            room.name
-          );
+        if (!this.thoughts[FigmentType.RESERVE][room.name]) {
+          this.thoughts[FigmentType.RESERVE][room.name] = new ReserveThought(this, FigmentType.RESERVE, room.name);
         }
-      } else {
-        if (!this.figmentThoughts[FigmentThoughtName.SCOUT][roomName]) {
-          this.figmentThoughts[FigmentThoughtName.SCOUT][roomName] = new ScoutThought(
-            this,
-            FigmentThoughtName.SCOUT,
-            roomName
-          );
-        }
+      }
+      if (!this.thoughts[FigmentType.SCOUT][roomName]) {
+        this.thoughts[FigmentType.SCOUT][roomName] = new ScoutThought(this, FigmentType.SCOUT, roomName);
       }
     }
     super.ponder();

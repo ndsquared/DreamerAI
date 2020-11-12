@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { GetRoomPosition } from "utils/misc";
+import { GetRoomPosition, ValidConstructionSite } from "utils/misc";
+import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";
 import profiler from "screeps-profiler";
@@ -20,16 +21,9 @@ export abstract class BuildThought extends Thought {
     super(idea, name, instance);
   }
 
-  public abstract buildPlan(): void;
+  public abstract buildPlan(creationIdea: CreationIdea): void;
 
-  public ponder(): void {
-    if (Game.cpu.bucket < 1000) {
-      return;
-    }
-    if (Game.time % global.BUILD_PLAN_INTERVAL === 0) {
-      this.buildPlan();
-    }
-  }
+  public ponder(): void {}
   public think(): void {}
   public reflect(): void {}
 
@@ -72,26 +66,9 @@ export abstract class BuildThought extends Thought {
     const positions: RoomPosition[] = [];
     for (const delta of deltas) {
       const pos = GetRoomPosition(pivotPos.x + delta.x, pivotPos.y + delta.y, pivotPos.roomName);
-      if (!pos) {
-        continue;
+      if (pos && ValidConstructionSite(pos)) {
+        positions.push(pos);
       }
-      const rv = new RoomVisual(pos.roomName);
-      const lookConstructionSite = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-      if (lookConstructionSite.length) {
-        rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#00ff00" });
-        continue;
-      }
-      const lookStructure = pos.lookFor(LOOK_STRUCTURES);
-      if (lookStructure.length) {
-        rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#0000ff" });
-        continue;
-      }
-      if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
-        rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#ff0000" });
-        continue;
-      }
-      // rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#ff00ff" });
-      positions.push(pos);
     }
     return positions;
   }

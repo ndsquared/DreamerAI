@@ -22,7 +22,7 @@ interface RoomStats {
 interface CreepMemory {
   _trav: any;
   ideaName: string;
-  thoughtName: string;
+  thoughtType: string;
   thoughtInstance: string;
   interneurons: Interneuron[];
   underAttack: boolean;

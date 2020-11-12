@@ -1,5 +1,5 @@
-import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
+import { FigmentThought, FigmentType } from "./figmentThought";
+import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { PathFindWithRoad } from "utils/misc";
@@ -7,14 +7,7 @@ import { PathFindWithRoad } from "utils/misc";
 export class ScoutThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentBodySpec = {
-      bodyParts: [],
-      ratio: [],
-      minParts: 1,
-      maxParts: 1,
-      ignoreCarry: false,
-      roadTravel: false
-    };
+    this.figments[FigmentType.SCOUT] = [];
   }
 
   public handleFigment(figment: Figment): void {
@@ -38,16 +31,13 @@ export class ScoutThought extends FigmentThought {
     }
   }
 
-  public adjustPriority(): void {
-    this.figmentPriority = 1;
-  }
-  public setFigmentsNeeded(): void {
+  public figmentNeeded(figmentType: FigmentType): boolean {
     const targetPos = new RoomPosition(25, 25, this.instance);
     const pf = PathFindWithRoad(this.idea.spawn.pos, targetPos);
     if (pf.incomplete && pf.path.length > 0 && !pf.path[pf.path.length - 1].isEdge) {
-      this.figmentsNeeded = 0;
+      return false;
     } else {
-      this.figmentsNeeded = 1;
+      return this.figments[figmentType].length < 1;
     }
   }
 }

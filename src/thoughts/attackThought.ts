@@ -1,21 +1,13 @@
+import { FigmentThought, FigmentType } from "./figmentThought";
 import { PathFindWithRoad, RandomRoomPatrolPos } from "utils/misc";
-import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
+import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class AttackThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentCombatReady = true;
-    this.figmentBodySpec = {
-      bodyParts: [TOUGH, ATTACK],
-      ratio: [1, 1],
-      minParts: 4,
-      maxParts: 50,
-      ignoreCarry: false,
-      roadTravel: false
-    };
+    this.figments[FigmentType.ATTACK] = [];
   }
 
   public handleFigment(figment: Figment): void {
@@ -50,27 +42,8 @@ export class AttackThought extends FigmentThought {
     }
   }
 
-  public adjustPriority(): void {
-    if (this.idea.rcl < 3) {
-      this.figmentPriority = 0;
-      return;
-    }
-    this.figmentPriority = 1;
-    for (const room of this.idea.spawn.room.neighborhood) {
-      const enemies = room.find(FIND_HOSTILE_CREEPS);
-      const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
-      if (enemies.length || enemyStructures.length) {
-        this.figmentPriority = 14;
-        return;
-      }
-    }
-  }
-  public setFigmentsNeeded(): void {
-    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(ATTACK));
-    if (totalParts >= 4) {
-      this.figmentsNeeded = 0;
-    } else {
-      this.figmentsNeeded = this.figments.length + 1;
-    }
+  public figmentNeeded(figmentType: FigmentType): boolean {
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(ATTACK));
+    return totalParts < 2;
   }
 }

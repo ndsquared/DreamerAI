@@ -1,4 +1,4 @@
-import { Figment } from "../figment";
+import { Figment } from "../figments/figment";
 import { Neuron } from "./neuron";
 import { NeuronAttack } from "./neuronAttack";
 import { NeuronBuild } from "./neuronBuild";

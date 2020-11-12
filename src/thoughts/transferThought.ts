@@ -1,5 +1,5 @@
-import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
+import { FigmentThought, FigmentType } from "./figmentThought";
+import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { isStoreStructure } from "utils/misc";
@@ -7,14 +7,7 @@ import { isStoreStructure } from "utils/misc";
 export class TransferThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentBodySpec = {
-      bodyParts: [CARRY],
-      ratio: [1],
-      minParts: 6,
-      maxParts: 50,
-      ignoreCarry: false,
-      roadTravel: false
-    };
+    this.figments[FigmentType.TRANSFER] = [];
   }
 
   public handleFigment(figment: Figment): void {
@@ -56,17 +49,8 @@ export class TransferThought extends FigmentThought {
     }
   }
 
-  public adjustPriority(): void {
-    if (this.figments.length >= 1) {
-      this.figmentPriority = 4;
-    }
-  }
-  public setFigmentsNeeded(): void {
-    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CARRY));
-    if (totalParts >= 4) {
-      this.figmentsNeeded = 0;
-    } else {
-      this.figmentsNeeded = this.figments.length + 1;
-    }
+  public figmentNeeded(figmentType: FigmentType): boolean {
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
+    return totalParts < 4;
   }
 }

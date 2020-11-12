@@ -1,4 +1,4 @@
-import { Figment } from "figment";
+import { Figment } from "figments/figment";
 
 /*
 Heavily inspired by https://github.com/bencbartlett/creep-tasks
@@ -54,15 +54,10 @@ export abstract class Neuron {
     }
     const impulseResult = this.impulse();
     if (impulseResult === ERR_NOT_IN_RANGE || this.interneuron.target.options.movingTarget) {
-      let result: number = OK;
       if (this.interneuron.target.options.movingTarget) {
-        result = this.figment.travelTo(this.targetPos, { showVisuals: true });
+        this.figment.travelTo(this.targetPos, { showVisuals: true });
       } else {
-        result = this.figment.travelTo(this.targetPos);
-      }
-      // console.log(result);
-      if (result === global.ERR_INVALID_NEURON) {
-        this.figment.memory.interneurons = [];
+        this.figment.travelTo(this.targetPos);
       }
     } else if (impulseResult !== OK) {
       this.figment.moveRandom();

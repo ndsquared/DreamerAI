@@ -1,4 +1,4 @@
-import { Figment } from "figment";
+import { Figment } from "figments/figment";
 import { Neuron } from "./neuron";
 
 export class NeuronRangedHeal extends Neuron {
@@ -20,7 +20,6 @@ export class NeuronRangedHeal extends Neuron {
     if (this.figment.pos.isNearTo(this.target)) {
       return this.figment.heal(this.target);
     }
-    // this.figment.rangedMassAttack();
     return this.figment.rangedHeal(this.target);
   }
 }

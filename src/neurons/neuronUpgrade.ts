@@ -1,4 +1,4 @@
-import { Figment } from "figment";
+import { Figment } from "figments/figment";
 import { Neuron } from "./neuron";
 
 export class NeuronUpgrade extends Neuron {

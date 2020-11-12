@@ -1,4 +1,5 @@
 import { BuildThought } from "./buildThought";
+import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 
 export class LinkThought extends BuildThought {
@@ -7,32 +8,25 @@ export class LinkThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  public buildPlan(): void {
+  public buildPlan(creationIdea: CreationIdea): void {
     const spawn = this.idea.spawn;
     if (this.links.length < 1) {
       // Build link at controller
       const controller = spawn.room.controller;
       if (controller && controller.my) {
         const linkPos = controller.pos.availableNeighbors(true);
-        this.idea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, true);
+        creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, true);
       }
-    } else if (this.links.length < 2) {
-      // Build link at furthest source
-      const sources = _.sortBy(
-        Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
-        s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
-      ).reverse();
+    } else if (this.links.length < 3) {
+      // Build links at sources
+      const sources = Game.rooms[spawn.pos.roomName].find(FIND_SOURCES);
       for (const source of sources) {
         const linkPos = source.pos.availableNeighbors(true);
         if (linkPos.length > 1) {
-          this.idea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, true);
-          break;
+          creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, true);
+          continue;
         }
       }
-    } else if (this.links.length < 3) {
-      // Build link next to spawn
-      // const linkPositions = this.getPositionsStandard(this.idea.spawn.pos);
-      // this.idea.addBuilds(linkPositions, STRUCTURE_LINK, 2);
     }
   }
 

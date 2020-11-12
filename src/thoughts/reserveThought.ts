@@ -1,19 +1,12 @@
-import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
+import { FigmentThought, FigmentType } from "./figmentThought";
+import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class ReserveThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentBodySpec = {
-      bodyParts: [CLAIM],
-      ratio: [1],
-      minParts: 2,
-      maxParts: 6,
-      ignoreCarry: false,
-      roadTravel: false
-    };
+    this.figments[FigmentType.RESERVE] = [];
   }
 
   public handleFigment(figment: Figment): void {
@@ -29,16 +22,9 @@ export class ReserveThought extends FigmentThought {
     }
   }
 
-  public adjustPriority(): void {
-    this.figmentPriority = 1;
-  }
-  public setFigmentsNeeded(): void {
+  public figmentNeeded(figmentType: FigmentType): boolean {
     // TODO: Set parts lower when controller is above reserve threshold
-    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(CLAIM));
-    if (totalParts >= 2) {
-      this.figmentsNeeded = 0;
-    } else {
-      this.figmentsNeeded = this.figments.length + 1;
-    }
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CLAIM));
+    return totalParts < 2;
   }
 }

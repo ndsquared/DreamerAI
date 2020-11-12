@@ -9,11 +9,6 @@ interface Coord {
   y: number;
 }
 
-interface Creep {
-  travelTo(destination: HasPos | RoomPosition, ops?: TravelToOptions): number;
-  moveRandom(target?: RoomPosition | null, dst?: number | null): number;
-}
-
 interface EnergyStructure extends Structure {
   energy: number;
   energyCapacity: number;
@@ -21,6 +16,11 @@ interface EnergyStructure extends Structure {
 
 interface Figment {
   neurons: Interneuron[];
+}
+
+interface FigmentSpec {
+  combatReady: boolean;
+  bodySpec: FigmentBodySpec;
 }
 
 interface FigmentBodySpec {
@@ -68,11 +68,10 @@ interface RoomPosition {
 
 interface SpawnQueuePayload {
   name: string;
-  bodySpec: FigmentBodySpec;
+  figmentSpec: FigmentSpec;
   priority: number;
   thoughtName: string;
   thoughtInstance: string;
-  combatReady: boolean;
 }
 
 interface StoreStructure extends Structure {

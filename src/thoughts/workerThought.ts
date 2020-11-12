@@ -1,20 +1,13 @@
+import { FigmentThought, FigmentType } from "./figmentThought";
 import { PathFindWithRoad, isStoreStructure } from "utils/misc";
-import { Figment } from "figment";
-import { FigmentThought } from "./figmentThought";
+import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class WorkerThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
-    this.figmentBodySpec = {
-      bodyParts: [WORK, CARRY],
-      ratio: [1, 1],
-      minParts: 4,
-      maxParts: 50,
-      ignoreCarry: false,
-      roadTravel: false
-    };
+    this.figments[FigmentType.WORKER] = [];
   }
 
   public handleFigment(figment: Figment): void {
@@ -63,23 +56,8 @@ export class WorkerThought extends FigmentThought {
     }
   }
 
-  public adjustPriority(): void {
-    this.figmentPriority = 2;
-    for (const room of this.idea.spawn.room.neighborhood) {
-      const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-      if (constructionSites.length) {
-        this.figmentPriority = 3;
-        return;
-      }
-    }
-  }
-
-  public setFigmentsNeeded(): void {
-    const totalParts = _.sum(this.figments, f => f.getActiveBodyparts(WORK));
-    if (totalParts >= 4) {
-      this.figmentsNeeded = 0;
-    } else {
-      this.figmentsNeeded = this.figments.length + 1;
-    }
+  public figmentNeeded(figmentType: FigmentType): boolean {
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
+    return totalParts < 4;
   }
 }

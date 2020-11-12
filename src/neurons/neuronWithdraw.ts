@@ -1,5 +1,5 @@
 import { isEnergyStructure, isStoreStructure } from "utils/misc";
-import { Figment } from "figment";
+import { Figment } from "figments/figment";
 import { Neuron } from "./neuron";
 
 type withdrawTargetType = StoreStructure | EnergyStructure;

@@ -86,3 +86,23 @@ export function GetRoomPosition(x: number, y: number, roomName: string): RoomPos
   }
   return new RoomPosition(x, y, roomName);
 }
+
+export function ValidConstructionSite(pos: RoomPosition): boolean {
+  // const rv = new RoomVisual(pos.roomName);
+  const lookConstructionSite = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+  if (lookConstructionSite.length) {
+    // rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#00ff00" });
+    return false;
+  }
+  const lookStructure = pos.lookFor(LOOK_STRUCTURES);
+  if (lookStructure.length) {
+    // rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#0000ff" });
+    return false;
+  }
+  if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+    // rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#ff0000" });
+    return false;
+  }
+  // rv.circle(pos.x, pos.y, { radius: 0.4, fill: "#ff00ff" });
+  return true;
+}

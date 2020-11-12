@@ -1,4 +1,4 @@
-import { Figment } from "figment";
+import { Figment } from "figments/figment";
 import { Neuron } from "./neuron";
 
 export class NeuronAttack extends Neuron {
@@ -18,7 +18,6 @@ export class NeuronAttack extends Neuron {
   }
   public impulse(): number {
     const result = this.figment.attack(this.target);
-    // console.log(result);
     return result;
   }
 }
