@@ -97,6 +97,7 @@ export abstract class Idea implements IBrain {
     let statusSpawn: SpawnQueuePayload | null = null;
     while (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.dequeue();
+      console.log(nextSpawn.thoughtName);
       let energyAvailable = this.spawn.room.energyCapacityAvailable;
       if (this.emergencyMode || nextSpawn.thoughtName === FigmentThoughtName.TRANSFER) {
         energyAvailable = this.spawn.room.energyAvailable;
@@ -107,9 +108,6 @@ export abstract class Idea implements IBrain {
       // console.log(
       //   `nextSpawn: ${nextSpawn.thoughtName}, cost: ${bodyCost}/${roomEnergyCapacity}, body: ${body.toString()}`
       // );
-      if (body.length === 0 || bodyCost > roomEnergyCapacity) {
-        continue;
-      }
       if (!statusSpawn) {
         statusSpawn = nextSpawn;
       }
@@ -117,6 +115,9 @@ export abstract class Idea implements IBrain {
         currentPriority = nextSpawn.priority;
       } else if (nextSpawn.priority < currentPriority) {
         break;
+      }
+      if (body.length === 0 || bodyCost > roomEnergyCapacity) {
+        continue;
       }
       const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
       if (status === OK && body.length >= nextSpawn.bodySpec.minParts) {
