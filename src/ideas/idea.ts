@@ -10,7 +10,8 @@ export enum IdeaType {
   TABULA_RASA = "Tabula Rasa",
   GENESIS = "Genesis",
   CREATION = "Creation",
-  COMBAT = "Combat"
+  COMBAT = "Combat",
+  METABOLIC = "Metabolic"
 }
 
 export abstract class Idea implements IBrain {

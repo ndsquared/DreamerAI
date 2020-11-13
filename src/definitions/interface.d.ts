@@ -42,6 +42,16 @@ interface HasPos {
   pos: RoomPosition;
 }
 
+interface MetabolicQueuePayload {
+  id: string;
+  pos: {
+    x: number;
+    y: number;
+    roomName: string;
+  };
+  priority: number;
+}
+
 interface PathfinderReturn {
   path: RoomPosition[];
   ops: number;

@@ -8,15 +8,7 @@ export class StorageThought extends BuildThought {
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
-    const storage = this.idea.spawn.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.structureType === STRUCTURE_STORAGE) {
-          return true;
-        }
-        return false;
-      }
-    });
-    if (storage.length) {
+    if (this.idea.spawn.room.storage) {
       return;
     }
     const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);

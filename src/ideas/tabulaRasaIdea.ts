@@ -9,6 +9,7 @@ import { FigmentType } from "thoughts/figmentThought";
 import { GenesisIdea } from "./genesisIdea";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Imagination } from "imagination";
+import { MetabolicIdea } from "./metabolicIdea";
 import { PickupThought } from "thoughts/pickupThought";
 import { ReserveThought } from "thoughts/reserveThought";
 import { ScoutThought } from "thoughts/scoutThought";
@@ -33,6 +34,7 @@ export class TabulaRasaIdea extends Idea {
     this.ideas[IdeaType.GENESIS] = new GenesisIdea(spawn, imagination, IdeaType.GENESIS, this);
     this.ideas[IdeaType.CREATION] = new CreationIdea(spawn, imagination, IdeaType.CREATION, this);
     this.ideas[IdeaType.COMBAT] = new CombatIdea(spawn, imagination, IdeaType.COMBAT, this);
+    this.ideas[IdeaType.METABOLIC] = new MetabolicIdea(spawn, imagination, IdeaType.METABOLIC, this);
 
     // Initialize thoughts
     this.thoughts[FigmentType.HARVEST] = {};
