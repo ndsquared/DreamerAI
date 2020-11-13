@@ -9,11 +9,14 @@ bots:
   quorum: "./bots/quorum/dist"
   tooangel: "./bots/tooangel/dist"
   hivemind: "./bots/hivemind/dist"
-  overmind: "./bots/overmind/dist"
+  bonzai: "./bots/bonzai/dist"
   zeswarm: "./bots/zeswarm/dist"
 serverConfig: # This section requires screepsmod-admin-utils to work
   welcomeText: |
     <h1 style="text-align: center;">NDScreeps Server</h1>
-  constants: # Used to override screeps constants
-    TEST_CONSTANT: 123
-  tickRate: 1500 # In milliseconds. This is a lower bound. Users reported problems when set too low.
+  tickRate: 1000 # In milliseconds. This is a lower bound. Users reported problems when set too low.
+  shardName: "ndsq1"
+  gclToCPU: true
+  maxCPU: 100
+  baseCPU: 20
+  stepCPU: 10
