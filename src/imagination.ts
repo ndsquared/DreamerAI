@@ -60,7 +60,8 @@ export class Imagination implements IBrain {
     if (this.shouldForget()) {
       console.log("forgetting...");
       Memory.imagination = {
-        ideas: {}
+        genesisIdeas: {},
+        metabolicIdeas: {}
       };
       Memory.creeps = {};
       delete Memory.flags;

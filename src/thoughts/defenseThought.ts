@@ -53,7 +53,7 @@ export class DefenseThought extends FigmentThought {
     }
   }
 
-  public figmentNeeded(figmentType: FigmentType): boolean {
+  public figmentNeeded(figmentType: string): boolean {
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(RANGED_ATTACK));
     return totalParts < 4;
   }

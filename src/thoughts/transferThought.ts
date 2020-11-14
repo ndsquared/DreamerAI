@@ -13,14 +13,14 @@ export class TransferThought extends FigmentThought {
     this.figments[FigmentType.TRANSFER] = [];
   }
 
-  private getNextWithdrawTarget(): StoreStructure {
+  private getNextWithdrawTarget(): StoreStructure | null {
     if (this.storage) {
       return this.storage;
     } else if (this.container) {
       return this.container;
     }
 
-    return this.idea.spawn;
+    return null;
   }
 
   private getNextTransferTarget(figment: Figment): StoreStructure {
@@ -70,7 +70,9 @@ export class TransferThought extends FigmentThought {
     }
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.getNextWithdrawTarget();
-      figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
+      if (target) {
+        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
+      }
     } else {
       const target = this.getNextTransferTarget(figment);
       if (target) {
@@ -79,8 +81,8 @@ export class TransferThought extends FigmentThought {
     }
   }
 
-  public figmentNeeded(figmentType: FigmentType): boolean {
+  public figmentNeeded(figmentType: string): boolean {
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
-    return totalParts < 4;
+    return totalParts < 1;
   }
 }

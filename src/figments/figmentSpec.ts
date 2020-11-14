@@ -126,7 +126,7 @@ const workerFigmentSpec = {
   bodySpec: workerBodySpec
 };
 
-export function GetFigmentSpec(figmentType: FigmentType): FigmentSpec {
+export function GetFigmentSpec(figmentType: string): FigmentSpec {
   let spec: FigmentSpec;
   switch (figmentType) {
     case FigmentType.HARVEST:
@@ -157,6 +157,7 @@ export function GetFigmentSpec(figmentType: FigmentType): FigmentSpec {
       spec = scoutFigmentSpec;
       break;
     default:
+      console.log("getting default worker spec");
       spec = workerFigmentSpec;
       break;
   }

@@ -96,7 +96,10 @@ export class CreationIdea extends Idea {
     return true;
   }
 
-  public getNextConstructionSite(): ConstructionSite {
+  public getNextConstructionSite(): ConstructionSite | null {
+    if (this.constructionSiteQueue.length === 0) {
+      return null;
+    }
     let target = this.constructionSiteQueue.peek();
     while (target === undefined) {
       this.constructionSiteQueue.dequeue();
@@ -105,7 +108,10 @@ export class CreationIdea extends Idea {
     return target;
   }
 
-  public getNextRepairTarget(): Structure {
+  public getNextRepairTarget(): Structure | null {
+    if (this.repairQueue.length === 0) {
+      return null;
+    }
     const target = this.repairQueue.peek();
     if (target.hits === target.hitsMax || target.hits >= this.repairThreshold) {
       this.repairQueue.dequeue();

@@ -65,7 +65,7 @@ export class HarvestThought extends FigmentThought {
     }
   }
 
-  public figmentNeeded(figmentType: FigmentType): boolean {
+  public figmentNeeded(figmentType: string): boolean {
     this.source = Game.getObjectById(this.sourceId);
     const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
     return totalWorkParts < 5;

@@ -13,22 +13,22 @@ export class PickupThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeInput(figment);
+      const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeOutput(figment);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     } else {
-      const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeOutput(figment);
+      const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeInput(figment);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }
     }
   }
 
-  public figmentNeeded(figmentType: FigmentType): boolean {
+  public figmentNeeded(figmentType: string): boolean {
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
-    return totalParts < 6;
+    return totalParts < 3;
   }
 }

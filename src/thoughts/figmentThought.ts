@@ -59,7 +59,7 @@ export abstract class FigmentThought extends Thought {
   }
 
   public abstract handleFigment(figment: Figment): void;
-  public abstract figmentNeeded(figmentType: FigmentType): boolean;
+  public abstract figmentNeeded(figmentType: string): boolean;
 }
 
 profiler.registerClass(FigmentThought, "FigmentThought");

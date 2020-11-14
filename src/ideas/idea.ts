@@ -23,24 +23,15 @@ export abstract class Idea implements IBrain {
   public imagination: Imagination;
   public type: IdeaType;
   public rcl = 0;
-  public memory: IdeaMemory;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea | null) {
     this.spawn = spawn;
     this.name = spawn.room.name;
     this.imagination = imagination;
     this.type = type;
     this.idea = idea;
-    this.memory = {
-      figmentCount: {},
-      metabolism: {
-        inputs: {},
-        outputs: {}
-      }
-    };
   }
 
   public ponder(): void {
-    this.memory = Memory.imagination.ideas[this.name];
     this.spawn = Game.spawns[this.spawn.name];
     for (const ideaName in this.ideas) {
       const idea = this.ideas[ideaName];
@@ -79,6 +70,5 @@ export abstract class Idea implements IBrain {
         thought.reflect();
       }
     }
-    Memory.imagination.ideas[this.name] = this.memory;
   }
 }

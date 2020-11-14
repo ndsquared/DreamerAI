@@ -32,10 +32,12 @@ interface CreepMemory {
   spawnRoomName: string;
 }
 
-interface IdeaMemory {
+interface GenesisMemory {
   figmentCount: {
     [name: string]: number;
   };
+}
+interface MetabolicMemory {
   metabolism: MetabolismMemory;
 }
 
@@ -55,8 +57,11 @@ interface MetabolismIO {
 }
 
 interface ImaginationMemory {
-  ideas: {
-    [name: string]: IdeaMemory;
+  genesisIdeas: {
+    [name: string]: GenesisMemory;
+  };
+  metabolicIdeas: {
+    [name: string]: MetabolicMemory;
   };
 }
 

@@ -13,18 +13,28 @@ export class GenesisIdea extends Idea {
     }
   });
   private queuePriorities: { [type: string]: number } = {};
+  private memory: GenesisMemory;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
+    this.memory = {
+      figmentCount: {}
+    };
+    // Initialize the memory
+    if (!Memory.imagination.genesisIdeas[this.name]) {
+      Memory.imagination.genesisIdeas[this.name] = this.memory;
+    }
   }
 
   public ponder(): void {
+    this.memory = Memory.imagination.genesisIdeas[this.name];
+    this.spawn = Game.spawns[this.spawn.name];
     this.imagination.addStatus(`Spawn Queue: ${this.spawnQueue.length}`);
     if (this.spawnQueue.length === 0) {
       this.setQueuePriorities();
       if (this.idea) {
         for (const thoughtName in this.idea.thoughts) {
-          for (const thoughtInstance in this.thoughts[thoughtName]) {
-            const thought = this.thoughts[thoughtName][thoughtInstance];
+          for (const thoughtInstance in this.idea.thoughts[thoughtName]) {
+            const thought = this.idea.thoughts[thoughtName][thoughtInstance];
             if (thought instanceof FigmentThought) {
               this.processThought(thought);
             }
@@ -38,6 +48,10 @@ export class GenesisIdea extends Idea {
     this.processSpawnQueue();
   }
 
+  public reflect(): void {
+    Memory.imagination.genesisIdeas[this.name] = this.memory;
+  }
+
   private inEmergency(): boolean {
     const figments = this.spawn.room.find(FIND_MY_CREEPS);
     if (figments.length < 3) {
@@ -47,25 +61,28 @@ export class GenesisIdea extends Idea {
   }
 
   private setQueuePriorities(): void {
-    for (const figmentType in FigmentType) {
+    for (const figmentType of Object.values(FigmentType)) {
+      const count = this.getFigmentCount(figmentType);
       switch (figmentType) {
         case FigmentType.HARVEST:
           this.queuePriorities[figmentType] = 12;
-          if (this.getFigmentCount(FigmentType.HARVEST) > 1) {
-            this.queuePriorities[FigmentType.HARVEST] = 5;
+          if (count > 1) {
+            this.queuePriorities[figmentType] = 5;
+          } else if (count > 0) {
+            this.queuePriorities[figmentType] = 10;
           }
           break;
-        case FigmentType.TRANSFER:
-          this.queuePriorities[figmentType] = 11;
-          break;
         case FigmentType.PICKUP:
-          this.queuePriorities[figmentType] = 10;
+          this.queuePriorities[figmentType] = 11;
           break;
         case FigmentType.UPGRADE:
           this.queuePriorities[figmentType] = 8;
           break;
         case FigmentType.WORKER:
           this.queuePriorities[figmentType] = 7;
+          break;
+        case FigmentType.TRANSFER:
+          this.queuePriorities[figmentType] = 5;
           break;
         case FigmentType.DEFENSE:
           this.queuePriorities[figmentType] = 1;
@@ -79,16 +96,19 @@ export class GenesisIdea extends Idea {
         case FigmentType.SCOUT:
           this.queuePriorities[figmentType] = 1;
           break;
+        default:
+          console.log(`hitting default for set queue priorities`);
+          break;
       }
     }
   }
 
   private processThought(thought: FigmentThought): void {
     for (const figmentType in thought.figments) {
-      if (thought.figmentNeeded(figmentType as FigmentType)) {
+      if (thought.figmentNeeded(figmentType)) {
         const payload = {
           name: Figment.GetUniqueName(),
-          figmentSpec: GetFigmentSpec(figmentType as FigmentType),
+          figmentSpec: GetFigmentSpec(figmentType),
           priority: this.queuePriorities[figmentType],
           thoughtName: thought.name,
           thoughtInstance: thought.instance
@@ -119,20 +139,20 @@ export class GenesisIdea extends Idea {
         const memory = {
           _trav: {},
           interneurons: [],
-          ideaName: this.spawn.room.name,
+          ideaName: this.name,
           thoughtType: nextSpawn.thoughtName,
           thoughtInstance: nextSpawn.thoughtInstance,
           underAttack: false,
           underAttackCooldown: 5,
           combatReady: nextSpawn.figmentSpec.combatReady,
           inCombat: false,
-          spawnRoomName: this.spawn.room.name
+          spawnRoomName: this.name
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
         statusSpawn = null;
         this.spawnQueue.dequeue();
         this.imagination.addStatus(
-          `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} priority ${nextSpawn.priority}`
+          `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} with priority ${nextSpawn.priority}`
         );
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
       }
@@ -146,20 +166,20 @@ export class GenesisIdea extends Idea {
     this.spawnQueue.queue(payload);
   }
 
-  public getFigmentCount(figmentType: FigmentType): number {
-    const count = Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentType];
+  public getFigmentCount(figmentType: string): number {
+    const count = this.memory.figmentCount[figmentType];
     if (count) {
       return count;
     }
     return 0;
   }
 
-  public adjustFigmentCount(figmentType: FigmentType | string, delta: number): void {
-    const count = Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentType];
+  public adjustFigmentCount(figmentType: string | string, delta: number): void {
+    const count = this.memory.figmentCount[figmentType];
     if (count) {
-      Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentType] += delta;
+      this.memory.figmentCount[figmentType] += delta;
     } else {
-      Memory.imagination.ideas[this.spawn.room.name].figmentCount[figmentType] = delta;
+      this.memory.figmentCount[figmentType] = delta;
     }
   }
 }

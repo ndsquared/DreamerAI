@@ -16,11 +16,23 @@ export class MetabolicIdea extends Idea {
       return b.priority - a.priority;
     }
   });
+  private memory: MetabolicMemory;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
+    this.memory = {
+      metabolism: {
+        inputs: {},
+        outputs: {}
+      }
+    };
+    // Initialize the memory
+    if (!Memory.imagination.metabolicIdeas[this.name]) {
+      Memory.imagination.metabolicIdeas[this.name] = this.memory;
+    }
   }
 
   public ponder(): void {
+    this.memory = Memory.imagination.metabolicIdeas[this.name];
     if (this.inputQueue.length === 0 || this.outputQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         this.fillQueues(room);
@@ -28,24 +40,44 @@ export class MetabolicIdea extends Idea {
     }
   }
 
+  public reflect(): void {
+    Memory.imagination.metabolicIdeas[this.name] = this.memory;
+  }
+
   public metabolizeInput(figment: Figment): StoreStructure | Resource | null {
+    if (this.inputQueue.length === 0) {
+      return null;
+    }
     const input = this.inputQueue.dequeue();
-    if (this.memory.metabolism.inputs[input.id]) {
-      this.memory.metabolism.inputs[input.id][figment.name].delta += figment.store.getFreeCapacity();
+    if (!this.memory.metabolism.inputs[input.id]) {
+      this.memory.metabolism.inputs[input.id] = {};
+    }
+    if (this.memory.metabolism.inputs[input.id][figment.name]) {
+      this.memory.metabolism.inputs[input.id][figment.name].delta += figment.store.getUsedCapacity();
     } else {
-      this.memory.metabolism.inputs[input.id][figment.name].delta = figment.store.getFreeCapacity();
+      this.memory.metabolism.inputs[input.id][figment.name] = {
+        delta: figment.store.getUsedCapacity()
+      };
     }
     return Game.getObjectById(input.id);
   }
 
   public metabolizeOutput(figment: Figment): StoreStructure | null {
-    const input = this.outputQueue.dequeue();
-    if (this.memory.metabolism.outputs[input.id]) {
-      this.memory.metabolism.outputs[input.id][figment.name].delta -= figment.store.getUsedCapacity();
-    } else {
-      this.memory.metabolism.outputs[input.id][figment.name].delta = figment.store.getUsedCapacity();
+    if (this.outputQueue.length === 0) {
+      return null;
     }
-    return Game.getObjectById(input.id);
+    const output = this.outputQueue.dequeue();
+    if (!this.memory.metabolism.outputs[output.id]) {
+      this.memory.metabolism.outputs[output.id] = {};
+    }
+    if (this.memory.metabolism.outputs[output.id][figment.name]) {
+      this.memory.metabolism.outputs[output.id][figment.name].delta += figment.store.getFreeCapacity();
+    } else {
+      this.memory.metabolism.outputs[output.id][figment.name] = {
+        delta: figment.store.getFreeCapacity()
+      };
+    }
+    return Game.getObjectById(output.id);
   }
 
   private addInput(roomObject: StoreStructure, priority: number): void {
@@ -55,19 +87,23 @@ export class MetabolicIdea extends Idea {
         adjustedPriority += this.memory.metabolism.inputs[roomObject.id][name].delta;
       }
     }
-    if (adjustedPriority < roomObject.store.getCapacity()) {
-      this.inputQueue.queue(this.getPayload(roomObject, adjustedPriority));
+    const capacity = roomObject.store.getCapacity() || roomObject.store.getCapacity(RESOURCE_ENERGY);
+    console.log(`${adjustedPriority} < ${capacity} ???`);
+    if (adjustedPriority < capacity) {
+      console.log(`adding input: ${roomObject.id} with priority ${adjustedPriority}`);
     }
+    this.inputQueue.queue(this.getPayload(roomObject, adjustedPriority));
   }
 
   private addOutput(roomObject: StoreStructure | Resource, priority: number): void {
     let adjustedPriority = priority;
     if (this.memory.metabolism.outputs[roomObject.id]) {
       for (const name in this.memory.metabolism.outputs[roomObject.id]) {
-        adjustedPriority += this.memory.metabolism.outputs[roomObject.id][name].delta;
+        adjustedPriority -= this.memory.metabolism.outputs[roomObject.id][name].delta;
       }
     }
     if (adjustedPriority > 0) {
+      console.log(`adding output: ${roomObject.id} with priority ${priority}`);
       this.outputQueue.queue(this.getPayload(roomObject, priority));
     }
   }
@@ -97,7 +133,7 @@ export class MetabolicIdea extends Idea {
         const controller = s.room.controller;
         if (controller) {
           if (controller.pos.inRangeTo(s.pos, 1)) {
-            this.addInput(s, s.store.getFreeCapacity());
+            this.addInput(s, s.store.getUsedCapacity());
           }
         }
         const sources = s.pos.findInRange(FIND_SOURCES, 1);
@@ -113,13 +149,13 @@ export class MetabolicIdea extends Idea {
           }
         });
         if (spawns.length) {
-          this.addInput(s, s.store.getFreeCapacity());
+          this.addInput(s, s.store.getUsedCapacity());
         }
-      } else if (s.structureType === STRUCTURE_STORAGE && s.store.getFreeCapacity() > 0) {
-        this.addInput(s, s.store.getFreeCapacity());
-      } else if (s.structureType === STRUCTURE_SPAWN && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-        this.addInput(s, s.store.getFreeCapacity(RESOURCE_ENERGY));
-      } else if (s.structureType === STRUCTURE_LINK && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+      } else if (s.structureType === STRUCTURE_STORAGE) {
+        this.addInput(s, s.store.getUsedCapacity());
+      } else if (s.structureType === STRUCTURE_SPAWN) {
+        this.addInput(s, s.store.getUsedCapacity(RESOURCE_ENERGY));
+      } else if (s.structureType === STRUCTURE_LINK) {
         this.addOutput(s, s.store.getUsedCapacity(RESOURCE_ENERGY));
       }
     }

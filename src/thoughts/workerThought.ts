@@ -39,8 +39,8 @@ export class WorkerThought extends FigmentThought {
     }
   }
 
-  public figmentNeeded(figmentType: FigmentType): boolean {
+  public figmentNeeded(figmentType: string): boolean {
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
-    return totalParts < 4;
+    return totalParts < 1;
   }
 }
