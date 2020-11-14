@@ -27,8 +27,8 @@ export class PickupThought extends FigmentThought {
     }
   }
 
-  public figmentNeeded(figmentType: string): boolean {
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
-    return totalParts < 3;
+  public figmentNeeded(): boolean {
+    // This should calculated in the Genesis Idea
+    return false;
   }
 }

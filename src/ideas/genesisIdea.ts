@@ -3,6 +3,7 @@ import { Idea, IdeaType } from "./idea";
 import { Figment } from "figments/figment";
 import { GetFigmentSpec } from "figments/figmentSpec";
 import { Imagination } from "imagination";
+import { MetabolicIdea } from "./metabolicIdea";
 import PriorityQueue from "ts-priority-queue";
 
 export class GenesisIdea extends Idea {
@@ -28,7 +29,9 @@ export class GenesisIdea extends Idea {
   public ponder(): void {
     this.memory = Memory.imagination.genesisIdeas[this.name];
     this.spawn = Game.spawns[this.spawn.name];
-    this.imagination.addStatus(`Spawn Queue: ${this.spawnQueue.length}`);
+  }
+
+  public think(): void {
     if (this.spawnQueue.length === 0) {
       this.setQueuePriorities();
       if (this.idea) {
@@ -42,9 +45,7 @@ export class GenesisIdea extends Idea {
         }
       }
     }
-  }
-
-  public think(): void {
+    this.imagination.addStatus(`Spawn Q: ${this.spawnQueue.length}`);
     this.processSpawnQueue();
   }
 
@@ -66,7 +67,9 @@ export class GenesisIdea extends Idea {
       switch (figmentType) {
         case FigmentType.HARVEST:
           this.queuePriorities[figmentType] = 12;
-          if (count > 1) {
+          if (count > 5) {
+            this.queuePriorities[figmentType] = 4;
+          } else if (count > 1) {
             this.queuePriorities[figmentType] = 5;
           } else if (count > 0) {
             this.queuePriorities[figmentType] = 10;
@@ -104,8 +107,26 @@ export class GenesisIdea extends Idea {
   }
 
   private processThought(thought: FigmentThought): void {
+    let outputs = 0;
+    if (this.idea) {
+      outputs = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).getOutputs();
+    }
     for (const figmentType in thought.figments) {
-      if (thought.figmentNeeded(figmentType)) {
+      let figmentNeeded = false;
+      const count = this.getFigmentCount(figmentType);
+      switch (figmentType) {
+        case FigmentType.PICKUP:
+          console.log(`count ${count}, outputs ${outputs}`);
+          if (count < 5 && outputs > 5) {
+            console.log("need more pickups");
+            figmentNeeded = true;
+          }
+          break;
+        default:
+          figmentNeeded = thought.figmentNeeded(figmentType);
+          break;
+      }
+      if (figmentNeeded) {
         const payload = {
           name: Figment.GetUniqueName(),
           figmentSpec: GetFigmentSpec(figmentType),
@@ -145,8 +166,7 @@ export class GenesisIdea extends Idea {
           underAttack: false,
           underAttackCooldown: 5,
           combatReady: nextSpawn.figmentSpec.combatReady,
-          inCombat: false,
-          spawnRoomName: this.name
+          inCombat: false
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
         statusSpawn = null;

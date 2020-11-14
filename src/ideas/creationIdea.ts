@@ -52,7 +52,6 @@ export class CreationIdea extends Idea {
   }
 
   public ponder(): void {
-    this.imagination.addStatus(`Build Queue: ${this.buildQueue.length}`);
     if (this.constructionSiteQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
@@ -73,7 +72,7 @@ export class CreationIdea extends Idea {
     }
     if (this.buildQueue.length === 0) {
       if (this.idea) {
-        for (const thoughtName in this.idea.thoughts) {
+        for (const thoughtName in this.thoughts) {
           for (const thoughtInstance in this.thoughts[thoughtName]) {
             const thought = this.thoughts[thoughtName][thoughtInstance];
             if (thought instanceof BuildThought) {
@@ -83,6 +82,9 @@ export class CreationIdea extends Idea {
         }
       }
     }
+    this.imagination.addStatus(`Build Q: ${this.buildQueue.length}`);
+    this.imagination.addStatus(`Const Q: ${this.constructionSiteQueue.length}`);
+    this.imagination.addStatus(`Repair Q: ${this.repairQueue.length}`);
   }
 
   public think(): void {
@@ -131,6 +133,10 @@ export class CreationIdea extends Idea {
           nextBuild = this.buildQueue.dequeue();
           this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
           statusBuild = null;
+        } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
+          this.buildQueue.dequeue();
+        } else {
+          console.log(`Build result for ${nextBuild.structure} at ${nextBuild.pos.toString()} is ${buildResult}`);
         }
       }
     }

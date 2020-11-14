@@ -57,7 +57,7 @@ export class Imagination implements IBrain {
   }
 
   private forget() {
-    if (this.shouldForget()) {
+    if (this.shouldForget() || !Memory.imagination) {
       console.log("forgetting...");
       Memory.imagination = {
         genesisIdeas: {},

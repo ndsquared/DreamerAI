@@ -68,6 +68,10 @@ export class HarvestThought extends FigmentThought {
   public figmentNeeded(figmentType: string): boolean {
     this.source = Game.getObjectById(this.sourceId);
     const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
-    return totalWorkParts < 5;
+    const availablePos = this.source?.pos.availableNeighbors(true);
+    if (totalWorkParts < 5 && availablePos && this.figments[figmentType].length < availablePos.length) {
+      return true;
+    }
+    return false;
   }
 }

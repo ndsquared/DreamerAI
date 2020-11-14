@@ -148,11 +148,11 @@ export class Figment extends Creep implements Figment {
   }
 
   private preRunChecks(): void {
-    if (this.memory.combatReady && this.memory.spawnRoomName) {
+    if (this.memory.combatReady && this.memory.ideaName) {
       if (this.memory.inCombat) {
         return;
       }
-      const spawnRoom = Game.rooms[this.memory.spawnRoomName];
+      const spawnRoom = Game.rooms[this.memory.ideaName];
       for (const room of spawnRoom.neighborhood) {
         const enemies = room.find(FIND_HOSTILE_CREEPS);
         if (enemies.length) {
@@ -213,7 +213,7 @@ export class Figment extends Creep implements Figment {
         neuron.run();
         return true;
       }
-      this.neurons.shift();
+      this.removeNeuron();
     }
     return false;
   }
@@ -251,6 +251,25 @@ export class Figment extends Creep implements Figment {
     };
     this.memory.interneurons.push(interneuron);
     this.say(type);
+  }
+
+  public removeNeuron(): void {
+    const neuron = this.neurons.shift();
+    if (!neuron) {
+      return;
+    }
+    if (
+      neuron.type === NeuronType.PICKUP ||
+      neuron.type === NeuronType.WITHDRAW ||
+      neuron.type === NeuronType.TRANSFER
+    ) {
+      if (Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.inputs[neuron.target.ref]) {
+        delete Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.inputs[neuron.target.ref][this.name];
+      }
+      if (Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.outputs[neuron.target.ref]) {
+        delete Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.outputs[neuron.target.ref][this.name];
+      }
+    }
   }
 
   // TODO: How can we do this smarter?

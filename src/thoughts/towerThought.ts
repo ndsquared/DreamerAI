@@ -36,7 +36,9 @@ export class TowerThought extends BuildThought {
         tower.attack(closestHostile);
       } else {
         const repairTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextRepairTarget();
-        tower.repair(repairTarget);
+        if (repairTarget) {
+          tower.repair(repairTarget);
+        }
       }
     }
   }

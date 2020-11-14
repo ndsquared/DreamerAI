@@ -29,7 +29,6 @@ interface CreepMemory {
   underAttackCooldown: number;
   combatReady: boolean;
   inCombat: boolean;
-  spawnRoomName: string;
 }
 
 interface GenesisMemory {

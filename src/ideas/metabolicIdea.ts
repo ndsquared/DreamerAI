@@ -31,13 +31,20 @@ export class MetabolicIdea extends Idea {
     }
   }
 
+  public getOutputs(): number {
+    return this.outputQueue.length;
+  }
+
   public ponder(): void {
     this.memory = Memory.imagination.metabolicIdeas[this.name];
     if (this.inputQueue.length === 0 || this.outputQueue.length === 0) {
+      this.inputQueue.clear();
+      this.outputQueue.clear();
       for (const room of this.spawn.room.neighborhood) {
         this.fillQueues(room);
       }
     }
+    this.imagination.addStatus(`I/O: ${this.inputQueue.length}/${this.outputQueue.length}`);
   }
 
   public reflect(): void {
@@ -88,11 +95,11 @@ export class MetabolicIdea extends Idea {
       }
     }
     const capacity = roomObject.store.getCapacity() || roomObject.store.getCapacity(RESOURCE_ENERGY);
-    console.log(`${adjustedPriority} < ${capacity} ???`);
+    // console.log(`input: ${roomObject.id} ${adjustedPriority} < ${capacity} ???`);
     if (adjustedPriority < capacity) {
-      console.log(`adding input: ${roomObject.id} with priority ${adjustedPriority}`);
+      // console.log(`adding input: ${roomObject.id} with priority ${adjustedPriority}`);
+      this.inputQueue.queue(this.getPayload(roomObject, adjustedPriority));
     }
-    this.inputQueue.queue(this.getPayload(roomObject, adjustedPriority));
   }
 
   private addOutput(roomObject: StoreStructure | Resource, priority: number): void {
@@ -102,9 +109,10 @@ export class MetabolicIdea extends Idea {
         adjustedPriority -= this.memory.metabolism.outputs[roomObject.id][name].delta;
       }
     }
+    // console.log(`output: ${roomObject.id} ${adjustedPriority} > 0 ???`);
     if (adjustedPriority > 0) {
-      console.log(`adding output: ${roomObject.id} with priority ${priority}`);
-      this.outputQueue.queue(this.getPayload(roomObject, priority));
+      // console.log(`adding output: ${roomObject.id} with priority ${adjustedPriority}`);
+      this.outputQueue.queue(this.getPayload(roomObject, adjustedPriority));
     }
   }
 
