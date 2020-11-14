@@ -32,6 +32,11 @@ interface FigmentBodySpec {
   roadTravel: boolean;
 }
 
+interface FigmentCountAdjustment {
+  type: string;
+  delta: number;
+}
+
 interface IBrain {
   ponder(): void;
   think(): void;

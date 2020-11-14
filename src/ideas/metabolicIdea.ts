@@ -96,7 +96,7 @@ export class MetabolicIdea extends Idea {
     }
     const capacity = roomObject.store.getCapacity() || roomObject.store.getCapacity(RESOURCE_ENERGY);
     // console.log(`input: ${roomObject.id} ${adjustedPriority} < ${capacity} ???`);
-    if (adjustedPriority < capacity) {
+    if (adjustedPriority < capacity * 2) {
       // console.log(`adding input: ${roomObject.id} with priority ${adjustedPriority}`);
       this.inputQueue.queue(this.getPayload(roomObject, adjustedPriority));
     }

@@ -23,6 +23,9 @@ export class ReserveThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    if (this.idea.rcl < 3) {
+      return false;
+    }
     // TODO: Set parts lower when controller is above reserve threshold
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CLAIM));
     return totalParts < 2;

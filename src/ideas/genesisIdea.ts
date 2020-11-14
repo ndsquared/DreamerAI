@@ -15,6 +15,7 @@ export class GenesisIdea extends Idea {
   });
   private queuePriorities: { [type: string]: number } = {};
   private memory: GenesisMemory;
+  private figmentCountAdjustments: FigmentCountAdjustment[] = [];
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
     this.memory = {
@@ -50,6 +51,7 @@ export class GenesisIdea extends Idea {
   }
 
   public reflect(): void {
+    this.processFigmentCountAdjustments();
     Memory.imagination.genesisIdeas[this.name] = this.memory;
   }
 
@@ -63,9 +65,9 @@ export class GenesisIdea extends Idea {
 
   private setQueuePriorities(): void {
     for (const figmentType of Object.values(FigmentType)) {
-      const count = this.getFigmentCount(figmentType);
       switch (figmentType) {
-        case FigmentType.HARVEST:
+        case FigmentType.HARVEST: {
+          const count = this.getFigmentCount(figmentType);
           this.queuePriorities[figmentType] = 12;
           if (count > 5) {
             this.queuePriorities[figmentType] = 4;
@@ -75,6 +77,7 @@ export class GenesisIdea extends Idea {
             this.queuePriorities[figmentType] = 10;
           }
           break;
+        }
         case FigmentType.PICKUP:
           this.queuePriorities[figmentType] = 11;
           break;
@@ -115,13 +118,17 @@ export class GenesisIdea extends Idea {
       let figmentNeeded = false;
       const count = this.getFigmentCount(figmentType);
       switch (figmentType) {
-        case FigmentType.PICKUP:
-          console.log(`count ${count}, outputs ${outputs}`);
-          if (count < 5 && outputs > 5) {
-            console.log("need more pickups");
-            figmentNeeded = true;
+        case FigmentType.PICKUP: {
+          // Dividing by zero is bad
+          if (outputs) {
+            const ratio = count / outputs;
+            console.log(`pickup ratio: ${ratio}`);
+            if (ratio < 0.7) {
+              figmentNeeded = true;
+            }
           }
           break;
+        }
         default:
           figmentNeeded = thought.figmentNeeded(figmentType);
           break;
@@ -172,13 +179,14 @@ export class GenesisIdea extends Idea {
         statusSpawn = null;
         this.spawnQueue.dequeue();
         this.imagination.addStatus(
-          `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} with priority ${nextSpawn.priority}`
+          `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} w/ priority ${nextSpawn.priority}`
         );
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
       }
-    }
-    if (statusSpawn) {
-      this.imagination.addStatus(`Next Spawn: ${statusSpawn.thoughtName} with priority ${statusSpawn.priority}`);
+      if (statusSpawn) {
+        // const cost = _.sum(body, b => BODYPART_COST[b]);
+        this.imagination.addStatus(`Next Spawn: ${statusSpawn.thoughtName} w/ priority ${statusSpawn.priority}`);
+      }
     }
   }
 
@@ -194,12 +202,24 @@ export class GenesisIdea extends Idea {
     return 0;
   }
 
-  public adjustFigmentCount(figmentType: string | string, delta: number): void {
-    const count = this.memory.figmentCount[figmentType];
-    if (count) {
-      this.memory.figmentCount[figmentType] += delta;
-    } else {
-      this.memory.figmentCount[figmentType] = delta;
+  private processFigmentCountAdjustments(): void {
+    while (this.figmentCountAdjustments.length > 0) {
+      const adjustment = this.figmentCountAdjustments.pop();
+      if (adjustment) {
+        const count = this.memory.figmentCount[adjustment.type];
+        if (count) {
+          this.memory.figmentCount[adjustment.type] += adjustment.delta;
+        } else {
+          this.memory.figmentCount[adjustment.type] = adjustment.delta;
+        }
+      }
     }
+  }
+
+  public adjustFigmentCount(type: string, delta: number): void {
+    this.figmentCountAdjustments.push({
+      type,
+      delta
+    });
   }
 }

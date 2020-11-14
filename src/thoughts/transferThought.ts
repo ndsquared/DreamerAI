@@ -28,10 +28,14 @@ export class TransferThought extends FigmentThought {
     const structures = this.idea.spawn.room.find(FIND_STRUCTURES);
     for (const structureConstant of this.transferPriority) {
       for (const structure of structures) {
-        if (isEnergyStructure(structure)) {
-          continue;
-        }
         if (
+          isEnergyStructure(structure) &&
+          structure.structureType === structureConstant &&
+          structure.hasEnergyCapacity
+        ) {
+          targets.push(structure);
+        } else if (
+          !isEnergyStructure(structure) &&
           isStoreStructure(structure) &&
           structure.structureType === structureConstant &&
           structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0

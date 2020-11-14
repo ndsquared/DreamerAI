@@ -126,9 +126,10 @@ export class CreationIdea extends Idea {
     if (this.buildQueue.length > 0) {
       let nextBuild = this.buildQueue.peek();
       statusBuild = nextBuild;
+      let buildResult: number;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
-        const buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
+        buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.buildQueue.dequeue();
           this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
@@ -138,10 +139,12 @@ export class CreationIdea extends Idea {
         } else {
           console.log(`Build result for ${nextBuild.structure} at ${nextBuild.pos.toString()} is ${buildResult}`);
         }
+      } else {
+        buildResult = ERR_RCL_NOT_ENOUGH;
       }
-    }
-    if (statusBuild) {
-      this.imagination.addStatus(`Next Build: ${statusBuild.structure} with priority ${statusBuild.priority}`);
+      if (statusBuild && buildResult !== ERR_RCL_NOT_ENOUGH) {
+        this.imagination.addStatus(`Next Build: ${statusBuild.structure} with priority ${statusBuild.priority}`);
+      }
     }
   }
 
