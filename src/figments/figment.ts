@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { NeuronType, Neurons } from "neurons/neurons";
-import { PathFindWithRoad, ShuffleArray } from "utils/misc";
+import { PathFindWithRoad, ShuffleArray, isEnergyStructure, isStoreStructure } from "utils/misc";
 import { Traveler } from "utils/traveler";
 import profiler from "screeps-profiler";
 
@@ -253,242 +253,37 @@ export class Figment extends Creep implements Figment {
     this.say(type);
   }
 
-  public getNextPickupTarget({ originRoom, minCapacity = 0 }: NextTarget): Resource | null {
-    const roomResources = originRoom.find(FIND_DROPPED_RESOURCES, {
+  // TODO: How can we do this smarter?
+  public getClosestPickupTarget({
+    minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3
+  }: ClosestTarget): Resource | null {
+    const roomResources = this.room.find(FIND_DROPPED_RESOURCES, {
       filter: s => s.amount >= minCapacity
     });
     return _.first(_.sortBy(roomResources, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
-  public getNextPickupTargetNeighborhood({ originRoom }: NextTarget): Resource | null {
-    let resources: Resource[] = [];
-    for (const room of originRoom.neighborhood) {
-      const roomResources = room.find(FIND_DROPPED_RESOURCES, { filter: s => s.amount >= this.store.getCapacity() });
-      resources = resources.concat(roomResources);
+  public getClosestPickupOrWithdrawTarget({
+    resourceType = RESOURCE_ENERGY,
+    minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3
+  }: ClosestTarget): RoomObject | null {
+    let targets: RoomObject[] = [];
+    const resource = this.getClosestPickupTarget({ minCapacity });
+    if (resource) {
+      targets.push(resource);
     }
-    return _.first(_.sortBy(resources, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextTransferTarget({
-    useStorage = true,
-    useLink = false,
-    avoidSpawnContainer = false,
-    originRoom,
-    emptyTarget = false
-  }: NextTarget): Structure | null {
-    const roomTargets = originRoom.find(FIND_STRUCTURES, {
+    const roomTargets = this.room.find(FIND_STRUCTURES, {
       filter: s => {
-        if (s.structureType === STRUCTURE_CONTAINER) {
-          const sources = s.pos.findInRange(FIND_SOURCES, 1);
-          if (sources.length) {
-            return false;
-          }
-          if (avoidSpawnContainer) {
-            const spawns = s.pos.findInRange(FIND_STRUCTURES, 2, {
-              filter: spawn => {
-                if (spawn.structureType === STRUCTURE_SPAWN) {
-                  return true;
-                }
-                return false;
-              }
-            });
-            if (spawns.length) {
-              return false;
-            }
-          }
-        } else if (s.structureType === STRUCTURE_STORAGE && !useStorage) {
-          return false;
-        } else if (s.structureType === STRUCTURE_LINK && !useLink) {
-          return false;
-        }
-        if (emptyTarget && s.hasEnergyCapacity) {
-          return !s.hasEnergy;
-        }
-        return s.hasEnergyCapacity;
-      }
-    });
-    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextTransferTargetNeighborhood({
-    useStorage = true,
-    useLink = false,
-    avoidSpawnContainer = false,
-    originRoom,
-    emptyTarget = false
-  }: NextTarget): Structure | null {
-    let targets: Structure[] = [];
-    for (const room of originRoom.neighborhood) {
-      const target = this.getNextTransferTarget({
-        useStorage,
-        useLink,
-        avoidSpawnContainer,
-        originRoom: room,
-        emptyTarget
-      });
-      if (target) {
-        targets = targets.concat(target);
-      }
-    }
-    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextBuildTarget({ originRoom }: NextTarget): ConstructionSite | undefined {
-    const roomTargets = originRoom.find(FIND_MY_CONSTRUCTION_SITES);
-    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextBuildTargetNeighborhood({ originRoom }: NextTarget): ConstructionSite | undefined {
-    let targets: ConstructionSite[] = [];
-    for (const room of originRoom.neighborhood) {
-      const target = this.getNextBuildTarget({ originRoom: room });
-      if (target) {
-        targets = targets.concat(target);
-      }
-    }
-    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextRepairTarget({ repairThreshold = 10000, originRoom }: NextTarget): Structure | null {
-    const roomTargets = originRoom.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.structureType === STRUCTURE_ROAD) {
-          return false;
-        } else if (s.structureType === STRUCTURE_CONTAINER) {
-          return false;
-        }
-        if (s.hits < repairThreshold && s.hits < s.hitsMax) {
-          return true;
+        if (isEnergyStructure(s)) {
+          return s.energy > minCapacity;
+        } else if (isStoreStructure(s)) {
+          return s.store.getUsedCapacity(resourceType) > minCapacity;
         }
         return false;
       }
     });
 
-    return _.first(_.sortBy(roomTargets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextRepairTargetNeighborhood({ repairThreshold = 20000, originRoom }: NextTarget): Structure | null {
-    let targets: Structure[] = [];
-    for (const room of originRoom.neighborhood) {
-      const target = this.getNextRepairTarget({ repairThreshold, originRoom: room });
-      if (target) {
-        targets = targets.concat(target);
-      }
-    }
-    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextPickupOrWithdrawTargetInRange(
-    range: number,
-    { useStorage = false, minCapacity = 0 }: NextTarget
-  ): RoomObject | null {
-    let targets: RoomObject[] = [];
-    const roomResources = this.pos.findInRange(FIND_DROPPED_RESOURCES, range, {
-      filter: s => s.amount > minCapacity
-    });
-    // console.log(`found ${roomResources.length} resource(s)`);
-    targets = targets.concat(roomResources);
-    const roomTargets = this.pos.findInRange(FIND_STRUCTURES, range, {
-      filter: s => this.filterPickupOrWithdrawTarget(s, { useStorage, minCapacity, originRoom: this.room })
-    });
-    // console.log(`found ${roomTargets.length} structure(s)`);
     targets = targets.concat(roomTargets);
-    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public filterPickupOrWithdrawTarget(
-    s: Structure,
-    {
-      useStorage = false,
-      useSpawn = false,
-      avoidControllerContainer = true,
-      avoidSpawnContainer = true,
-      minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3
-    }: NextTarget
-  ): boolean {
-    if (s instanceof StructureContainer) {
-      if (avoidControllerContainer) {
-        const controller = s.room.controller;
-        if (controller) {
-          if (controller.pos.inRangeTo(s.pos, 1)) {
-            return false;
-          }
-        }
-      }
-      if (avoidSpawnContainer) {
-        const spawns = s.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: spawn => {
-            if (spawn.structureType === STRUCTURE_SPAWN) {
-              return true;
-            }
-            return false;
-          }
-        });
-        if (spawns.length) {
-          return false;
-        }
-      }
-      return s.store.getUsedCapacity() > minCapacity;
-    } else if (s instanceof StructureStorage && useStorage) {
-      return s.store.getUsedCapacity() > minCapacity;
-    } else if (s instanceof StructureSpawn && useSpawn) {
-      return s.store.getUsedCapacity(RESOURCE_ENERGY) > minCapacity;
-    } else if (s instanceof StructureLink) {
-      const findSources = s.pos.findInRange(FIND_SOURCES, 2);
-      if (findSources.length === 0) {
-        return s.store.getUsedCapacity(RESOURCE_ENERGY) > minCapacity;
-      }
-    }
-    return false;
-  }
-
-  public getNextPickupOrWithdrawTarget({
-    useStorage = false,
-    useSpawn = false,
-    avoidControllerContainer = true,
-    avoidSpawnContainer = true,
-    originRoom
-  }: NextTarget): RoomObject | null {
-    let targets: RoomObject[] = [];
-    const resource = this.getNextPickupTarget({ originRoom });
-    if (resource) {
-      targets.push(resource);
-    }
-    const roomTargets = originRoom.find(FIND_STRUCTURES, {
-      filter: s =>
-        this.filterPickupOrWithdrawTarget(s, {
-          useStorage,
-          useSpawn,
-          avoidControllerContainer,
-          avoidSpawnContainer,
-          originRoom
-        })
-    });
-
-    targets = targets.concat(roomTargets);
-    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  public getNextPickupOrWithdrawTargetNeighborhood({
-    useStorage = false,
-    useSpawn = false,
-    avoidControllerContainer = true,
-    avoidSpawnContainer = true,
-    originRoom
-  }: NextTarget): RoomObject | null {
-    const targets: RoomObject[] = [];
-    for (const room of originRoom.neighborhood) {
-      const target = this.getNextPickupOrWithdrawTarget({
-        useStorage,
-        useSpawn,
-        avoidControllerContainer,
-        avoidSpawnContainer,
-        originRoom: room
-      });
-      if (target) {
-        targets.push(target);
-      }
-    }
     return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 }

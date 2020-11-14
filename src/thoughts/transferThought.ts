@@ -1,48 +1,78 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
+import { PathFindWithRoad, isEnergyStructure, isStoreStructure } from "utils/misc";
 import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
-import { isStoreStructure } from "utils/misc";
 
 export class TransferThought extends FigmentThought {
+  private container: StructureContainer | undefined = undefined;
+  private storage: StructureStorage | undefined = undefined;
+  private transferPriority: StructureConstant[] = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER];
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figments[FigmentType.TRANSFER] = [];
   }
 
+  private getNextWithdrawTarget(): StoreStructure {
+    if (this.storage) {
+      return this.storage;
+    } else if (this.container) {
+      return this.container;
+    }
+
+    return this.idea.spawn;
+  }
+
+  private getNextTransferTarget(figment: Figment): StoreStructure {
+    const targets: StoreStructure[] = [];
+    const structures = this.idea.spawn.room.find(FIND_STRUCTURES);
+    for (const structureConstant of this.transferPriority) {
+      for (const structure of structures) {
+        if (isEnergyStructure(structure)) {
+          continue;
+        }
+        if (
+          isStoreStructure(structure) &&
+          structure.structureType === structureConstant &&
+          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        ) {
+          targets.push(structure);
+        }
+      }
+      if (targets.length) {
+        break;
+      }
+    }
+
+    return _.first(_.sortBy(targets, t => PathFindWithRoad(figment.pos, t.pos).cost));
+  }
+
   public handleFigment(figment: Figment): void {
+    if (!this.container) {
+      if (this.idea.spawn) {
+        const containers = this.idea.spawn.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: s => {
+            if (s.structureType === STRUCTURE_CONTAINER) {
+              return true;
+            }
+            return false;
+          }
+        });
+        if (containers.length) {
+          this.container = containers[0] as StructureContainer;
+        }
+      }
+    }
+    if (!this.storage) {
+      if (this.idea.spawn.room.storage) {
+        this.storage = this.idea.spawn.room.storage;
+      }
+    }
     if (figment.store.getUsedCapacity() === 0) {
-      let target = figment.getNextPickupOrWithdrawTargetInRange(10, {
-        useStorage: true,
-        minCapacity: figment.store.getCapacity(RESOURCE_ENERGY),
-        originRoom: figment.room
-      });
-      if (!target) {
-        target = figment.getNextPickupOrWithdrawTarget({
-          useStorage: true,
-          avoidSpawnContainer: false,
-          originRoom: this.idea.spawn.room
-        });
-      }
-      if (target instanceof Resource) {
-        figment.addNeuron(NeuronType.PICKUP, target.id, target.pos, { minCapacity: true });
-      } else if (target && isStoreStructure(target)) {
-        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
-      }
+      const target = this.getNextWithdrawTarget();
+      figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
     } else {
-      let target = figment.getNextTransferTarget({
-        useStorage: false,
-        avoidSpawnContainer: true,
-        originRoom: this.idea.spawn.room,
-        emptyTarget: true
-      });
-      if (!target) {
-        target = figment.getNextTransferTarget({
-          useStorage: false,
-          avoidSpawnContainer: true,
-          originRoom: this.idea.spawn.room
-        });
-      }
+      const target = this.getNextTransferTarget(figment);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

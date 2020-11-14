@@ -36,6 +36,22 @@ interface IdeaMemory {
   figmentCount: {
     [name: string]: number;
   };
+  metabolism: MetabolismMemory;
+}
+
+interface MetabolismMemory {
+  inputs: {
+    [id: string]: MetabolismIO;
+  };
+  outputs: {
+    [id: string]: MetabolismIO;
+  };
+}
+
+interface MetabolismIO {
+  [name: string]: {
+    delta: number;
+  };
 }
 
 interface ImaginationMemory {

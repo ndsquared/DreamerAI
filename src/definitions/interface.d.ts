@@ -95,15 +95,8 @@ interface Structure {
   containerWithEnergy: boolean;
 }
 
-interface NextTarget {
-  useStorage?: boolean;
-  useSpawn?: boolean;
-  useLink?: boolean;
-  avoidControllerContainer?: boolean;
-  avoidSpawnContainer?: boolean;
-  originRoom: Room;
-  repairThreshold?: number;
-  emptyTarget?: boolean;
+interface ClosestTarget {
+  resourceType?: ResourceConstant;
   minCapacity?: number;
 }
 

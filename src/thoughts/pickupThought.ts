@@ -1,6 +1,7 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
+import { Idea, IdeaType } from "ideas/idea";
 import { Figment } from "figments/figment";
-import { Idea } from "ideas/idea";
+import { MetabolicIdea } from "ideas/metabolicIdea";
 import { NeuronType } from "neurons/neurons";
 import { isStoreStructure } from "utils/misc";
 
@@ -12,14 +13,14 @@ export class PickupThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
-      const target = figment.getNextPickupOrWithdrawTargetNeighborhood({ originRoom: this.idea.spawn.room });
+      const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeInput(figment);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     } else {
-      const target = figment.getNextTransferTargetNeighborhood({ originRoom: this.idea.spawn.room });
+      const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeOutput(figment);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       }

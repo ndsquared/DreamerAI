@@ -1,7 +1,8 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
+import { Idea, IdeaType } from "ideas/idea";
 import { PathFindWithRoad, isStoreStructure } from "utils/misc";
+import { CreationIdea } from "ideas/creationIdea";
 import { Figment } from "figments/figment";
-import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class WorkerThought extends FigmentThought {
@@ -12,8 +13,8 @@ export class WorkerThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
-      const repairTarget = figment.getNextRepairTargetNeighborhood({ originRoom: this.idea.spawn.room });
-      const buildTarget = figment.getNextBuildTargetNeighborhood({ originRoom: this.idea.spawn.room });
+      const repairTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextRepairTarget();
+      const buildTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextConstructionSite();
       const controller = this.idea.spawn.room.controller;
       if (
         repairTarget &&
@@ -29,25 +30,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
       }
     } else {
-      const containers = this.idea.spawn.room.find(FIND_STRUCTURES, {
-        filter: s => {
-          if (s.structureType === STRUCTURE_CONTAINER) {
-            return true;
-          }
-          return false;
-        }
-      });
-      let useSpawn = true;
-      if (containers.length) {
-        useSpawn = false;
-      }
-      const target = figment.getNextPickupOrWithdrawTargetNeighborhood({
-        useStorage: true,
-        useSpawn,
-        originRoom: this.idea.spawn.room,
-        avoidControllerContainer: false,
-        avoidSpawnContainer: false
-      });
+      const target = figment.getClosestPickupOrWithdrawTarget({});
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {

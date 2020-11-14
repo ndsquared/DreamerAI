@@ -1,7 +1,6 @@
+import { Idea, IdeaType } from "ideas/idea";
 import { BuildThought } from "./buildThought";
 import { CreationIdea } from "ideas/creationIdea";
-import { Idea } from "ideas/idea";
-import { PathFindWithRoad } from "utils/misc";
 
 export class TowerThought extends BuildThought {
   private towers: StructureTower[];
@@ -36,20 +35,8 @@ export class TowerThought extends BuildThought {
       if (closestHostile) {
         tower.attack(closestHostile);
       } else {
-        const structuresToRepair = tower.room.find(FIND_STRUCTURES, {
-          filter: s => {
-            if (s.structureType === STRUCTURE_ROAD && s.hits < s.hitsMax) {
-              return true;
-            } else if (s.structureType === STRUCTURE_CONTAINER && s.hits < s.hitsMax) {
-              return true;
-            }
-            return false;
-          }
-        });
-        const structure = _.first(_.sortBy(structuresToRepair, s => PathFindWithRoad(tower.pos, s.pos).cost));
-        if (structure) {
-          tower.repair(structure);
-        }
+        const repairTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextRepairTarget();
+        tower.repair(repairTarget);
       }
     }
   }

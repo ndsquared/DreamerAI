@@ -17,6 +17,7 @@ export class HarvestThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (!this.source) {
+      this.source = Game.getObjectById(this.sourceId);
       figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
       return;
     } else if (this.source.energy === 0) {
@@ -56,11 +57,11 @@ export class HarvestThought extends FigmentThought {
     }
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
+    } else if (links.length) {
+      const target = links[0];
+      figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
     } else {
-      const target = figment.getNextTransferTargetNeighborhood({ useLink, originRoom: this.idea.spawn.room });
-      if (target) {
-        figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
-      }
+      figment.addNeuron(NeuronType.DROP);
     }
   }
 

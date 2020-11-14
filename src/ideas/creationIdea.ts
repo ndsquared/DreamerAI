@@ -21,10 +21,21 @@ export class CreationIdea extends Idea {
       return a.priority - b.priority;
     }
   });
-  public hasConstructionSite: { [roomName: string]: boolean };
+  private constructionSiteQueue: PriorityQueue<ConstructionSite> = new PriorityQueue({
+    comparator(a, b) {
+      // Higher priority is dequeued first
+      return b.progress - a.progress;
+    }
+  });
+  private repairQueue: PriorityQueue<Structure> = new PriorityQueue({
+    comparator(a, b) {
+      // Lower priority is dequeued first
+      return a.hits - b.hits;
+    }
+  });
+  private repairThreshold = 20000;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
-    this.hasConstructionSite = {};
     const buildThoughts: ThoughtMapping[] = [
       { name: BuildThoughtName.EXTENSION, thought: ExtensionThought },
       { name: BuildThoughtName.ROAD, thought: RoadThought },
@@ -42,12 +53,22 @@ export class CreationIdea extends Idea {
 
   public ponder(): void {
     this.imagination.addStatus(`Build Queue: ${this.buildQueue.length}`);
-
-    for (const room of this.spawn.room.neighborhood) {
-      this.hasConstructionSite[room.name] = false;
-      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-      if (constructionSites.length > 0) {
-        this.hasConstructionSite[room.name] = true;
+    if (this.constructionSiteQueue.length === 0) {
+      for (const room of this.spawn.room.neighborhood) {
+        const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+        for (const constructionSite of constructionSites) {
+          this.constructionSiteQueue.queue(constructionSite);
+        }
+      }
+    }
+    if (this.repairQueue.length === 0) {
+      for (const room of this.spawn.room.neighborhood) {
+        const structures = room.find(FIND_STRUCTURES);
+        for (const s of structures) {
+          if (s.hits < this.repairThreshold && s.hits < s.hitsMax) {
+            this.repairQueue.queue(s);
+          }
+        }
       }
     }
     if (this.buildQueue.length === 0) {
@@ -68,11 +89,28 @@ export class CreationIdea extends Idea {
     this.processBuildQueue();
   }
 
-  public canBuild(roomName: string): boolean {
-    if (this.hasConstructionSite[roomName]) {
+  public canBuild(): boolean {
+    if (this.constructionSiteQueue.length) {
       return false;
     }
     return true;
+  }
+
+  public getNextConstructionSite(): ConstructionSite {
+    let target = this.constructionSiteQueue.peek();
+    while (target === undefined) {
+      this.constructionSiteQueue.dequeue();
+      target = this.constructionSiteQueue.peek();
+    }
+    return target;
+  }
+
+  public getNextRepairTarget(): Structure {
+    const target = this.repairQueue.peek();
+    if (target.hits === target.hitsMax || target.hits >= this.repairThreshold) {
+      this.repairQueue.dequeue();
+    }
+    return target;
   }
 
   private processBuildQueue(): void {
@@ -81,7 +119,7 @@ export class CreationIdea extends Idea {
       let nextBuild = this.buildQueue.peek();
       statusBuild = nextBuild;
       const room = Game.rooms[nextBuild.pos.roomName];
-      if (room && this.canBuild(room.name)) {
+      if (room && this.canBuild()) {
         const buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.buildQueue.dequeue();
