@@ -5,8 +5,8 @@ import { NeuronType } from "neurons/neurons";
 
 export class UpgradeThought extends FigmentThought {
   private controller: StructureController | undefined = undefined;
-  private container: StructureContainer | undefined = undefined;
-  private storage: StructureStorage | undefined = undefined;
+  private container: StructureContainer | null = null;
+  private storage: StructureStorage | null = null;
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figments[FigmentType.UPGRADE] = [];
@@ -22,10 +22,8 @@ export class UpgradeThought extends FigmentThought {
     return this.idea.spawn;
   }
 
-  public handleFigment(figment: Figment): void {
-    if (!this.controller) {
-      this.controller = this.idea.spawn.room.controller;
-    }
+  public ponder(): void {
+    this.controller = this.idea.spawn.room.controller;
     if (!this.container) {
       if (this.controller) {
         const containers = this.controller.pos.findInRange(FIND_STRUCTURES, 1, {
@@ -40,12 +38,20 @@ export class UpgradeThought extends FigmentThought {
           this.container = containers[0] as StructureContainer;
         }
       }
+    } else {
+      this.container = Game.getObjectById(this.container.id);
     }
     if (!this.storage) {
       if (this.idea.spawn.room.storage) {
         this.storage = this.idea.spawn.room.storage;
       }
+    } else {
+      this.storage = Game.getObjectById(this.storage.id);
     }
+    super.ponder();
+  }
+
+  public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
       if (this.controller && this.controller.my) {
         figment.addNeuron(NeuronType.UPGRADE, this.controller.id, this.controller.pos);
@@ -68,9 +74,9 @@ export class UpgradeThought extends FigmentThought {
     }
     let partsRequired = 1;
     if (energyInStorage > 300000) {
-      partsRequired = 30;
+      return true;
     } else if (energyInContainer > 1700) {
-      partsRequired = 5;
+      return true;
     }
     if (this.idea.rcl === 8) {
       partsRequired = 15;

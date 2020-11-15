@@ -121,11 +121,10 @@ export class CreationIdea extends Idea {
     if (this.constructionSiteQueue.length === 0) {
       return null;
     }
-    let target = this.constructionSiteQueue.peek();
-    while (Game.getObjectById(target.id) === undefined) {
+    const target = this.constructionSiteQueue.peek();
+    if (!Game.getObjectById(target.id)) {
       this.constructionSiteQueue.dequeue();
       console.log("got rid of invalid site");
-      target = this.constructionSiteQueue.peek();
     }
     return target;
   }
