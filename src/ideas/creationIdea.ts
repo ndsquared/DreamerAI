@@ -133,13 +133,17 @@ export class CreationIdea extends Idea {
     if (this.repairQueue.length === 0) {
       return null;
     }
-    const target = this.repairQueue.peek();
-    if (target.hits === target.hitsMax || target.hits >= this.repairThreshold) {
+    let target: Structure | null = this.repairQueue.peek();
+    target = Game.getObjectById(target.id);
+    if (!target) {
+      this.repairQueue.dequeue();
+    } else if (target.hits === target.hitsMax || target.hits >= this.repairThreshold) {
       this.repairQueue.dequeue();
     }
     return target;
   }
 
+  // TODO: need some better handling of build results
   private processBuildQueue(): void {
     // let statusBuild: BuildQueuePayload | null = null;
     if (this.buildQueue.length > 0) {
@@ -157,6 +161,9 @@ export class CreationIdea extends Idea {
           this.buildQueue.dequeue();
         } else {
           console.log(`Build result for ${nextBuild.structure} at ${nextBuild.pos.toString()} is ${buildResult}`);
+          if (buildResult === ERR_INVALID_TARGET) {
+            this.buildQueue.dequeue();
+          }
         }
       } else {
         buildResult = ERR_RCL_NOT_ENOUGH;

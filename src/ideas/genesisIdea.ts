@@ -19,7 +19,7 @@ export class GenesisIdea extends Idea {
   private figmentNeeded: { [type: string]: boolean } = {};
   private memory: GenesisMemory;
   private figmentCountAdjustments: FigmentCountAdjustment[] = [];
-  // private reset = true;
+  private reset = true;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
     this.memory = {
@@ -37,7 +37,7 @@ export class GenesisIdea extends Idea {
   }
 
   public think(): void {
-    if (this.spawnQueue.length === 0) {
+    if (this.spawnQueue.length === 0 && !this.reset) {
       this.ensureMinimumPickups();
       this.setQueuePriorities();
       if (this.idea) {
@@ -76,7 +76,11 @@ export class GenesisIdea extends Idea {
   public reflect(): void {
     this.processFigmentCountAdjustments();
     Memory.imagination.genesisIdeas[this.name] = this.memory;
-    this.contemplate();
+    if (this.reset) {
+      this.reset = false;
+    } else {
+      this.contemplate();
+    }
   }
 
   private contemplate(): void {
