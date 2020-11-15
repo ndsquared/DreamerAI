@@ -87,6 +87,9 @@ export class TabulaRasaIdea extends Idea {
   }
 
   private contemplate(): void {
+    if (!this.showVisuals) {
+      return;
+    }
     const data: BarGraphData[] = [];
     const controller = this.spawn.room.controller;
     if (controller) {

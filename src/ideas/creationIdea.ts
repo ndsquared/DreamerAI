@@ -92,6 +92,24 @@ export class CreationIdea extends Idea {
     this.processBuildQueue();
   }
 
+  public reflect(): void {
+    if (!this.idea || !this.idea.showVisuals) {
+      return;
+    }
+    if (this.buildQueue.length > 0) {
+      const nextBuild = this.buildQueue.peek();
+      const rv = new RoomVisual(nextBuild.pos.roomName);
+      rv.circle(nextBuild.pos, { fill: getColor("light-blue"), radius: 0.5 });
+      rv.text(nextBuild.structure, nextBuild.pos);
+    }
+    if (this.repairQueue.length > 0) {
+      const nextRepair = this.repairQueue.peek();
+      const rv = new RoomVisual(nextRepair.pos.roomName);
+      rv.circle(nextRepair.pos, { fill: getColor("indigo"), radius: 0.5 });
+      rv.text(nextRepair.hits.toString(), nextRepair.pos);
+    }
+  }
+
   public canBuild(): boolean {
     if (this.constructionSiteQueue.length) {
       return false;

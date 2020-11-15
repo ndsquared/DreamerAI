@@ -4,10 +4,10 @@ import { Imagination } from "imagination";
 import profiler from "screeps-profiler";
 
 // profiler.enable();
-const imagination = new Imagination();
+global.i = new Imagination();
 
 function mainLoop() {
-  imagination.imagine();
+  global.i.imagine();
 }
 
 export const loop = ErrorMapper.wrapLoop(() => {

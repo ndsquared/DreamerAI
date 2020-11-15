@@ -160,6 +160,15 @@ export class Imagination implements IBrain {
     const status = this.consoleStatus.join(" | ");
     console.log(status);
   }
+
+  public rv(roomName: string): string {
+    console.log("Entered room visual function");
+    if (!this.ideas[roomName]) {
+      return `Could not toggle room visuals for ${roomName}`;
+    }
+    this.ideas[roomName].showVisuals = !this.ideas[roomName].showVisuals;
+    return `Successfully toggled room visuals for ${roomName}`;
+  }
 }
 
 profiler.registerClass(Imagination, "Imagination");

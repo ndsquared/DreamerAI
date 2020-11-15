@@ -2,6 +2,7 @@ import { Idea, IdeaType } from "./idea";
 import { Figment } from "figments/figment";
 import { Imagination } from "imagination";
 import PriorityQueue from "ts-priority-queue";
+import { getColor } from "utils/colors";
 
 export class MetabolicIdea extends Idea {
   private inputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
@@ -49,6 +50,27 @@ export class MetabolicIdea extends Idea {
 
   public reflect(): void {
     Memory.imagination.metabolicIdeas[this.name] = this.memory;
+    this.contemplate();
+  }
+
+  private contemplate(): void {
+    if (!this.idea || !this.idea.showVisuals) {
+      return;
+    }
+    if (this.inputQueue.length > 0) {
+      const input = this.inputQueue.peek();
+      const rv = new RoomVisual(input.pos.roomName);
+      const pos = new RoomPosition(input.pos.x, input.pos.y, input.pos.roomName);
+      rv.circle(pos, { fill: getColor("green"), radius: 0.5 });
+      rv.text(input.priority.toString(), pos);
+    }
+    if (this.outputQueue.length > 0) {
+      const output = this.outputQueue.peek();
+      const rv = new RoomVisual(output.pos.roomName);
+      const pos = new RoomPosition(output.pos.x, output.pos.y, output.pos.roomName);
+      rv.circle(pos, { fill: getColor("red"), radius: 0.5 });
+      rv.text(output.priority.toString(), pos);
+    }
   }
 
   public metabolizeInput(figment: Figment): StoreStructure | Resource | null {
