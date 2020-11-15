@@ -4,6 +4,12 @@ interface BuildQueuePayload {
   priority: number;
 }
 
+interface BarGraphData {
+  label: string;
+  current: number;
+  max: number;
+}
+
 interface Coord {
   x: number;
   y: number;
@@ -45,6 +51,12 @@ interface IBrain {
 
 interface HasPos {
   pos: RoomPosition;
+}
+
+interface MaterialColor {
+  [color: string]: {
+    [variant: string]: string;
+  };
 }
 
 interface MetabolicQueuePayload {

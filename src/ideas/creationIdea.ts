@@ -12,6 +12,7 @@ import { RoadThought } from "thoughts/roadThought";
 import { StorageThought } from "thoughts/storageThought";
 import { TowerThought } from "thoughts/towerThought";
 import { ValidConstructionSite } from "utils/misc";
+import { getColor } from "utils/colors";
 
 export class CreationIdea extends Idea {
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
@@ -181,7 +182,7 @@ export class CreationIdea extends Idea {
     }
     if (showVisual) {
       const rv = new RoomVisual(pos.roomName);
-      rv.circle(pos, { radius: 0.4, opacity: 0.2, fill: "#555555" });
+      rv.circle(pos, { radius: 0.4, opacity: 0.2, fill: getColor("grey") });
       let text = `${priority}`;
       if (structure.length > 2) {
         text = `${structure.substring(0, 1)}:${priority}`;

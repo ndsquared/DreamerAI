@@ -122,7 +122,6 @@ export class GenesisIdea extends Idea {
           // Dividing by zero is bad
           if (outputs) {
             const ratio = count / outputs;
-            console.log(`pickup ratio: ${ratio}`);
             if (ratio < 0.7) {
               figmentNeeded = true;
             }

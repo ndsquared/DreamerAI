@@ -18,8 +18,8 @@ export class ExtensionThought extends BuildThought {
       const extensionPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
       const roadPositions: RoomPosition[] = this.getPositionsFromDelta(pivotPos, roadDeltas);
 
-      creationIdea.addBuilds(extensionPositions, STRUCTURE_EXTENSION, 2, false, true);
-      creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, true);
+      creationIdea.addBuilds(extensionPositions, STRUCTURE_EXTENSION, 2, false, false);
+      creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false);
     }
   }
 }

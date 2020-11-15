@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Idea, IdeaType } from "./idea";
 import { AttackThought } from "thoughts/attackThought";
+import { BarGraph } from "utils/visuals";
 import { CombatIdea } from "./combatIdea";
 import { CreationIdea } from "./creationIdea";
 import { DefenseThought } from "thoughts/defenseThought";
@@ -78,5 +79,35 @@ export class TabulaRasaIdea extends Idea {
       }
     }
     super.ponder();
+  }
+
+  public reflect(): void {
+    super.reflect();
+    this.contemplate();
+  }
+
+  private contemplate(): void {
+    const data: BarGraphData[] = [];
+    const controller = this.spawn.room.controller;
+    if (controller) {
+      data.push({
+        label: `RCL ${this.rcl}`,
+        current: controller.progress,
+        max: controller.progressTotal
+      });
+    }
+    data.push({
+      label: `GCL ${Game.gcl.level}`,
+      current: Game.gcl.progress,
+      max: Game.gcl.progressTotal
+    });
+    data.push({
+      label: `Bucket`,
+      current: Game.cpu.bucket,
+      max: 10000
+    });
+    const anchor = new RoomPosition(5, 5, this.spawn.room.name);
+    const barGraph = new BarGraph("General Stats", anchor, data);
+    barGraph.renderGraph();
   }
 }
