@@ -161,13 +161,28 @@ export class Imagination implements IBrain {
     console.log(status);
   }
 
-  public rv(roomName: string): string {
-    console.log("Entered room visual function");
+  public rstats(roomName: string): string {
     if (!this.ideas[roomName]) {
-      return `Could not toggle room visuals for ${roomName}`;
+      return `Could not toggle room stats for ${roomName}`;
     }
-    this.ideas[roomName].showVisuals = !this.ideas[roomName].showVisuals;
-    return `Successfully toggled room visuals for ${roomName}`;
+    this.ideas[roomName].showStats = !this.ideas[roomName].showStats;
+    return `Successfully toggled room stats for ${roomName}`;
+  }
+
+  public rbuild(roomName: string): string {
+    if (!this.ideas[roomName]) {
+      return `Could not toggle room build visuals for ${roomName}`;
+    }
+    this.ideas[roomName].showBuildVisuals = !this.ideas[roomName].showBuildVisuals;
+    return `Successfully toggled room build visuals for ${roomName}`;
+  }
+
+  public rmeta(roomName: string): string {
+    if (!this.ideas[roomName]) {
+      return `Could not toggle room metabolic visuals for ${roomName}`;
+    }
+    this.ideas[roomName].showMetaVisuals = !this.ideas[roomName].showMetaVisuals;
+    return `Successfully toggled room metabolic visuals for ${roomName}`;
   }
 }
 

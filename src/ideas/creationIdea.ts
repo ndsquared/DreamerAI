@@ -93,7 +93,7 @@ export class CreationIdea extends Idea {
   }
 
   public reflect(): void {
-    if (!this.idea || !this.idea.showVisuals) {
+    if (!this.idea || !this.idea.showBuildVisuals) {
       return;
     }
     if (this.buildQueue.length > 0) {

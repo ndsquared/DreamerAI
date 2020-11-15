@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { getColor } from "./colors";
 
 export class BarGraph {
@@ -59,5 +60,67 @@ export class BarGraph {
       fill: color,
       opacity: 0.3
     });
+  }
+}
+
+export class Table {
+  private title: string;
+  private anchor: RoomPosition;
+  private rv: RoomVisual;
+  private data: string[][];
+  private columns: number;
+  private columnPadding = 6;
+  private tableColor: string;
+  private tablePadding = 1;
+  private titlePadding = 3;
+  public constructor(title: string, anchor: RoomPosition, data: string[][]) {
+    this.title = title;
+    this.anchor = anchor;
+    this.data = data;
+    this.tableColor = getColor("grey", "900");
+    this.rv = new RoomVisual(this.anchor.roomName);
+    this.columns = 0;
+    if (this.data.length) {
+      this.columns = data[0].length;
+    }
+  }
+
+  public renderTable(): void {
+    if (this.data.length < 2) {
+      console.log(`Could not render table ${this.title}, not enough data!`);
+      return;
+    }
+    this.rv.rect(
+      this.anchor,
+      this.columns * this.columnPadding,
+      this.data.length + this.titlePadding + this.tablePadding,
+      {
+        fill: this.tableColor,
+        opacity: 0.8
+      }
+    );
+    const titlePos = new RoomPosition(
+      this.anchor.x + (this.columns * this.columnPadding) / 2,
+      this.anchor.y + 1,
+      this.anchor.roomName
+    );
+    this.rv.text(this.title, titlePos);
+    const header = this.data[0];
+    const headerAnchor = new RoomPosition(
+      this.anchor.x + this.tablePadding,
+      this.anchor.y + this.titlePadding,
+      this.anchor.roomName
+    );
+    this.renderRow(headerAnchor, header, "left");
+    for (let i = 1; i < this.data.length; i++) {
+      const rowAnchor = new RoomPosition(headerAnchor.x + 1, headerAnchor.y + i + 1, headerAnchor.roomName);
+      this.renderRow(rowAnchor, this.data[i], "left");
+    }
+  }
+
+  public renderRow(anchor: RoomPosition, data: string[], align: TextStyle["align"]): void {
+    for (let i = 0; i < data.length; i++) {
+      this.rv.text(data[i], anchor.x + i * this.columnPadding, anchor.y, { align });
+    }
   }
 }

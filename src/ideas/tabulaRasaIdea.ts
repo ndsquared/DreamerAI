@@ -87,7 +87,7 @@ export class TabulaRasaIdea extends Idea {
   }
 
   private contemplate(): void {
-    if (!this.showVisuals) {
+    if (!this.showStats) {
       return;
     }
     const data: BarGraphData[] = [];

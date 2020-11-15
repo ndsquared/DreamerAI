@@ -5,6 +5,8 @@ import { GetFigmentSpec } from "figments/figmentSpec";
 import { Imagination } from "imagination";
 import { MetabolicIdea } from "./metabolicIdea";
 import PriorityQueue from "ts-priority-queue";
+import { Table } from "utils/visuals";
+import { getColor } from "utils/colors";
 
 export class GenesisIdea extends Idea {
   private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
@@ -14,6 +16,7 @@ export class GenesisIdea extends Idea {
     }
   });
   private queuePriorities: { [type: string]: number } = {};
+  private figmentNeeded: { [type: string]: boolean } = {};
   private memory: GenesisMemory;
   private figmentCountAdjustments: FigmentCountAdjustment[] = [];
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
@@ -53,6 +56,34 @@ export class GenesisIdea extends Idea {
   public reflect(): void {
     this.processFigmentCountAdjustments();
     Memory.imagination.genesisIdeas[this.name] = this.memory;
+    this.contemplate();
+  }
+
+  private contemplate(): void {
+    if (!this.idea || !this.idea.showStats) {
+      return;
+    }
+    let nextSpawn: SpawnQueuePayload | null = null;
+    if (this.spawnQueue.length > 0) {
+      nextSpawn = this.spawnQueue.peek();
+    }
+    const tableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
+    for (const figmentType in this.memory.figmentCount) {
+      const count = this.memory.figmentCount[figmentType];
+      const priority = this.queuePriorities[figmentType];
+      const needed = this.figmentNeeded[figmentType];
+      tableData.push([figmentType, count.toString(), priority.toString(), String(needed)]);
+    }
+    const tableAnchor = new RoomPosition(25, 5, this.spawn.room.name);
+    const table = new Table("Figment Stats", tableAnchor, tableData);
+    table.renderTable();
+    if (nextSpawn) {
+      const rv = new RoomVisual(this.spawn.room.name);
+      let nextSpawnAnchor = new RoomPosition(25, 3, this.spawn.room.name);
+      rv.rect(nextSpawnAnchor, 10, 2, { fill: getColor("grey", "900"), opacity: 0.8 });
+      nextSpawnAnchor = new RoomPosition(nextSpawnAnchor.x + 2, nextSpawnAnchor.y + 1, this.spawn.room.name);
+      rv.text(`NextSpawn: ${nextSpawn.thoughtName}`, nextSpawnAnchor, { align: "left" });
+    }
   }
 
   private inEmergency(): boolean {
@@ -132,6 +163,7 @@ export class GenesisIdea extends Idea {
           figmentNeeded = thought.figmentNeeded(figmentType);
           break;
       }
+      this.figmentNeeded[figmentType] = figmentNeeded;
       if (figmentNeeded) {
         const payload = {
           name: Figment.GetUniqueName(),

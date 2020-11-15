@@ -49,12 +49,26 @@ export class MetabolicIdea extends Idea {
   }
 
   public reflect(): void {
+    this.pruneIO();
     Memory.imagination.metabolicIdeas[this.name] = this.memory;
     this.contemplate();
   }
 
+  private pruneIO(): void {
+    for (const input in this.memory.metabolism.inputs) {
+      if (!Game.getObjectById(input)) {
+        delete this.memory.metabolism.inputs[input];
+      }
+    }
+    for (const output in this.memory.metabolism.outputs) {
+      if (!Game.getObjectById(output)) {
+        delete this.memory.metabolism.outputs[output];
+      }
+    }
+  }
+
   private contemplate(): void {
-    if (!this.idea || !this.idea.showVisuals) {
+    if (!this.idea || !this.idea.showMetaVisuals) {
       return;
     }
     if (this.inputQueue.length > 0) {
