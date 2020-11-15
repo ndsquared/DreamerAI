@@ -5,13 +5,13 @@ import PriorityQueue from "ts-priority-queue";
 import { getColor } from "utils/colors";
 
 export class MetabolicIdea extends Idea {
-  private inputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
+  public inputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Lower priority is dequeued first
       return a.priority - b.priority;
     }
   });
-  private outputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
+  public outputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Higher priority is dequeued first
       return b.priority - a.priority;
@@ -45,7 +45,7 @@ export class MetabolicIdea extends Idea {
         this.fillQueues(room);
       }
     }
-    this.imagination.addStatus(`I/O: ${this.inputQueue.length}/${this.outputQueue.length}`);
+    // this.imagination.addStatus(`I/O: ${this.inputQueue.length}/${this.outputQueue.length}`);
   }
 
   public reflect(): void {

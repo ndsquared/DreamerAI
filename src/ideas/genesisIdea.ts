@@ -6,10 +6,9 @@ import { Imagination } from "imagination";
 import { MetabolicIdea } from "./metabolicIdea";
 import PriorityQueue from "ts-priority-queue";
 import { Table } from "utils/visuals";
-import { getColor } from "utils/colors";
 
 export class GenesisIdea extends Idea {
-  private spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
+  public spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Higher priority is dequeued first
       return b.priority - a.priority;
@@ -49,7 +48,7 @@ export class GenesisIdea extends Idea {
         }
       }
     }
-    this.imagination.addStatus(`Spawn Q: ${this.spawnQueue.length}`);
+    // this.imagination.addStatus(`Spawn Q: ${this.spawnQueue.length}`);
     this.processSpawnQueue();
   }
 
@@ -63,27 +62,36 @@ export class GenesisIdea extends Idea {
     if (!this.idea || !this.idea.showStats) {
       return;
     }
-    let nextSpawn: SpawnQueuePayload | null = null;
-    if (this.spawnQueue.length > 0) {
-      nextSpawn = this.spawnQueue.peek();
-    }
     const tableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
+    let total = 0;
     for (const figmentType in this.memory.figmentCount) {
       const count = this.memory.figmentCount[figmentType];
+      total += count;
       const priority = this.queuePriorities[figmentType];
       const needed = this.figmentNeeded[figmentType];
       tableData.push([figmentType, count.toString(), priority.toString(), String(needed)]);
     }
-    const tableAnchor = new RoomPosition(25, 5, this.spawn.room.name);
-    const table = new Table("Figment Stats", tableAnchor, tableData);
-    table.renderTable();
-    if (nextSpawn) {
-      const rv = new RoomVisual(this.spawn.room.name);
-      let nextSpawnAnchor = new RoomPosition(25, 3, this.spawn.room.name);
-      rv.rect(nextSpawnAnchor, 10, 2, { fill: getColor("grey", "900"), opacity: 0.8 });
-      nextSpawnAnchor = new RoomPosition(nextSpawnAnchor.x + 2, nextSpawnAnchor.y + 1, this.spawn.room.name);
-      rv.text(`NextSpawn: ${nextSpawn.thoughtName}`, nextSpawnAnchor, { align: "left" });
+    tableData.push(["TOTAL", total.toString(), "", ""]);
+
+    const tableAnchor = new RoomPosition(25, 1, this.spawn.room.name);
+    let title = "Figment Stats";
+
+    if (this.spawn.spawning) {
+      const figment = new Figment(Game.creeps[this.spawn.spawning.name].id);
+      const remainingTicks = this.spawn.spawning.remainingTime;
+      title += ` (Spawning: ${figment.memory.thoughtType} in ${remainingTicks})`;
+    } else {
+      let nextSpawn: SpawnQueuePayload | null = null;
+      if (this.spawnQueue.length > 0) {
+        nextSpawn = this.spawnQueue.peek();
+      }
+      if (nextSpawn) {
+        title += ` (Next Spawn: ${nextSpawn.thoughtName})`;
+      }
     }
+
+    const table = new Table(title, tableAnchor, tableData);
+    table.renderTable();
   }
 
   private inEmergency(): boolean {
@@ -181,10 +189,10 @@ export class GenesisIdea extends Idea {
     if (this.spawn.spawning) {
       return;
     }
-    let statusSpawn: SpawnQueuePayload | null = null;
+    // let statusSpawn: SpawnQueuePayload | null = null;
     if (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.peek();
-      statusSpawn = nextSpawn;
+      // statusSpawn = nextSpawn;
       // Set minimum energy to use for the next figment spawn
       let energyAvailable = this.spawn.room.energyCapacityAvailable;
       if (this.inEmergency() || nextSpawn.thoughtName === FigmentType.TRANSFER) {
@@ -207,17 +215,17 @@ export class GenesisIdea extends Idea {
           inCombat: false
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
-        statusSpawn = null;
+        // statusSpawn = null;
         this.spawnQueue.dequeue();
-        this.imagination.addStatus(
-          `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} w/ priority ${nextSpawn.priority}`
-        );
+        // this.imagination.addStatus(
+        //   `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} w/ priority ${nextSpawn.priority}`
+        // );
         this.adjustFigmentCount(nextSpawn.thoughtName, 1);
       }
-      if (statusSpawn) {
-        // const cost = _.sum(body, b => BODYPART_COST[b]);
-        this.imagination.addStatus(`Next Spawn: ${statusSpawn.thoughtName} w/ priority ${statusSpawn.priority}`);
-      }
+      // if (statusSpawn) {
+      // const cost = _.sum(body, b => BODYPART_COST[b]);
+      // this.imagination.addStatus(`Next Spawn: ${statusSpawn.thoughtName} w/ priority ${statusSpawn.priority}`);
+      // }
     }
   }
 

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { BarGraph, Table } from "utils/visuals";
 import { Idea, IdeaType } from "./idea";
 import { AttackThought } from "thoughts/attackThought";
-import { BarGraph } from "utils/visuals";
 import { CombatIdea } from "./combatIdea";
 import { CreationIdea } from "./creationIdea";
 import { DefenseThought } from "thoughts/defenseThought";
@@ -90,6 +90,7 @@ export class TabulaRasaIdea extends Idea {
     if (!this.showStats) {
       return;
     }
+    // General Stats
     const data: BarGraphData[] = [];
     const controller = this.spawn.room.controller;
     if (controller) {
@@ -109,8 +110,38 @@ export class TabulaRasaIdea extends Idea {
       current: Game.cpu.bucket,
       max: 10000
     });
-    const anchor = new RoomPosition(5, 5, this.spawn.room.name);
+    const anchor = new RoomPosition(1, 1, this.spawn.room.name);
     const barGraph = new BarGraph("General Stats", anchor, data);
     barGraph.renderGraph();
+
+    // Queues
+    const tableAnchor = new RoomPosition(12, 1, this.spawn.room.name);
+    const tableData: string[][] = [["Queue", "Count"]];
+    if (this.ideas[IdeaType.GENESIS]) {
+      const count = (this.ideas[IdeaType.GENESIS] as GenesisIdea).spawnQueue.length;
+      tableData.push(["Spawn", count.toString()]);
+    }
+    if (this.ideas[IdeaType.CREATION]) {
+      const count = (this.ideas[IdeaType.CREATION] as CreationIdea).buildQueue.length;
+      tableData.push(["Build", count.toString()]);
+    }
+    if (this.ideas[IdeaType.CREATION]) {
+      const count = (this.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length;
+      tableData.push(["Construct", count.toString()]);
+    }
+    if (this.ideas[IdeaType.CREATION]) {
+      const count = (this.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length;
+      tableData.push(["Repair", count.toString()]);
+    }
+    if (this.ideas[IdeaType.METABOLIC]) {
+      const count = (this.ideas[IdeaType.METABOLIC] as MetabolicIdea).inputQueue.length;
+      tableData.push(["Input", count.toString()]);
+    }
+    if (this.ideas[IdeaType.METABOLIC]) {
+      const count = (this.ideas[IdeaType.METABOLIC] as MetabolicIdea).outputQueue.length;
+      tableData.push(["Output", count.toString()]);
+    }
+    const tableQueue = new Table("Queue Counts", tableAnchor, tableData);
+    tableQueue.renderTable();
   }
 }

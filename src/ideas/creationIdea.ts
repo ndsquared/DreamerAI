@@ -16,19 +16,19 @@ import { getColor } from "utils/colors";
 
 export class CreationIdea extends Idea {
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
-  private buildQueue: PriorityQueue<BuildQueuePayload> = new PriorityQueue({
+  public buildQueue: PriorityQueue<BuildQueuePayload> = new PriorityQueue({
     comparator(a, b) {
       // Lower priority is dequeued first
       return a.priority - b.priority;
     }
   });
-  private constructionSiteQueue: PriorityQueue<ConstructionSite> = new PriorityQueue({
+  public constructionSiteQueue: PriorityQueue<ConstructionSite> = new PriorityQueue({
     comparator(a, b) {
       // Higher priority is dequeued first
       return b.progress - a.progress;
     }
   });
-  private repairQueue: PriorityQueue<Structure> = new PriorityQueue({
+  public repairQueue: PriorityQueue<Structure> = new PriorityQueue({
     comparator(a, b) {
       // Lower priority is dequeued first
       return a.hits - b.hits;
@@ -83,9 +83,9 @@ export class CreationIdea extends Idea {
         }
       }
     }
-    this.imagination.addStatus(`Build Q: ${this.buildQueue.length}`);
-    this.imagination.addStatus(`Const Q: ${this.constructionSiteQueue.length}`);
-    this.imagination.addStatus(`Repair Q: ${this.repairQueue.length}`);
+    // this.imagination.addStatus(`Build Q: ${this.buildQueue.length}`);
+    // this.imagination.addStatus(`Const Q: ${this.constructionSiteQueue.length}`);
+    // this.imagination.addStatus(`Repair Q: ${this.repairQueue.length}`);
   }
 
   public think(): void {
@@ -141,18 +141,18 @@ export class CreationIdea extends Idea {
   }
 
   private processBuildQueue(): void {
-    let statusBuild: BuildQueuePayload | null = null;
+    // let statusBuild: BuildQueuePayload | null = null;
     if (this.buildQueue.length > 0) {
       let nextBuild = this.buildQueue.peek();
-      statusBuild = nextBuild;
+      // statusBuild = nextBuild;
       let buildResult: number;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.buildQueue.dequeue();
-          this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
-          statusBuild = null;
+          // this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
+          // statusBuild = null;
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
           this.buildQueue.dequeue();
         } else {
@@ -161,9 +161,9 @@ export class CreationIdea extends Idea {
       } else {
         buildResult = ERR_RCL_NOT_ENOUGH;
       }
-      if (statusBuild && buildResult !== ERR_RCL_NOT_ENOUGH) {
-        this.imagination.addStatus(`Next Build: ${statusBuild.structure} with priority ${statusBuild.priority}`);
-      }
+      // if (statusBuild && buildResult !== ERR_RCL_NOT_ENOUGH) {
+      //   this.imagination.addStatus(`Next Build: ${statusBuild.structure} with priority ${statusBuild.priority}`);
+      // }
     }
   }
 

@@ -66,11 +66,19 @@ export class HarvestThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    // console.log(this.figments[figmentType].length);
     this.source = Game.getObjectById(this.sourceId);
-    const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
-    const availablePos = this.source?.pos.availableNeighbors(true);
-    if (totalWorkParts < 5 && availablePos && this.figments[figmentType].length < availablePos.length) {
-      return true;
+    if (this.source) {
+      const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
+      const availablePos = this.source.pos.availableNeighbors(true);
+      if (totalWorkParts < 5 && this.figments[figmentType].length < availablePos.length) {
+        console.log(
+          `harvest needed with total work parts ${totalWorkParts}, available spots ${
+            availablePos.length
+          } at ${this.source.pos.toString()}`
+        );
+        return true;
+      }
     }
     return false;
   }

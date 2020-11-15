@@ -113,12 +113,12 @@ export class Table {
     );
     this.renderRow(headerAnchor, header, "left");
     for (let i = 1; i < this.data.length; i++) {
-      const rowAnchor = new RoomPosition(headerAnchor.x + 1, headerAnchor.y + i + 1, headerAnchor.roomName);
+      const rowAnchor = new RoomPosition(headerAnchor.x, headerAnchor.y + i + 1, headerAnchor.roomName);
       this.renderRow(rowAnchor, this.data[i], "left");
     }
   }
 
-  public renderRow(anchor: RoomPosition, data: string[], align: TextStyle["align"]): void {
+  private renderRow(anchor: RoomPosition, data: string[], align: TextStyle["align"]): void {
     for (let i = 0; i < data.length; i++) {
       this.rv.text(data[i], anchor.x + i * this.columnPadding, anchor.y, { align });
     }
