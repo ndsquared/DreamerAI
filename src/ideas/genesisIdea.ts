@@ -1,5 +1,6 @@
 import { FigmentThought, FigmentType } from "thoughts/figmentThought";
 import { Idea, IdeaType } from "./idea";
+import { CreationIdea } from "./creationIdea";
 import { Figment } from "figments/figment";
 import { GetFigmentSpec } from "figments/figmentSpec";
 import { Imagination } from "imagination";
@@ -36,6 +37,7 @@ export class GenesisIdea extends Idea {
 
   public think(): void {
     if (this.spawnQueue.length === 0) {
+      this.ensureMinimumPickups();
       this.setQueuePriorities();
       if (this.idea) {
         for (const thoughtName in this.idea.thoughts) {
@@ -50,6 +52,23 @@ export class GenesisIdea extends Idea {
     }
     // this.imagination.addStatus(`Spawn Q: ${this.spawnQueue.length}`);
     this.processSpawnQueue();
+  }
+
+  private ensureMinimumPickups() {
+    if (this.memory.figmentCount[FigmentType.PICKUP] && this.memory.figmentCount[FigmentType.PICKUP] > 1) {
+      return;
+    }
+    const priorities = [11, 9];
+    for (const priority of priorities) {
+      const payload = {
+        name: Figment.GetUniqueName(),
+        figmentSpec: GetFigmentSpec(FigmentType.PICKUP),
+        priority,
+        thoughtName: FigmentType.PICKUP,
+        thoughtInstance: "0"
+      };
+      this.addSpawn(payload);
+    }
   }
 
   public reflect(): void {
@@ -150,8 +169,12 @@ export class GenesisIdea extends Idea {
 
   private processThought(thought: FigmentThought): void {
     let outputs = 0;
+    let constructionSites = 0;
+    let repairTargets = 0;
     if (this.idea) {
       outputs = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).getOutputs();
+      constructionSites = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length;
+      repairTargets = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length;
     }
     for (const figmentType in thought.figments) {
       let figmentNeeded = false;
@@ -167,6 +190,11 @@ export class GenesisIdea extends Idea {
           }
           break;
         }
+        case FigmentType.WORKER:
+          if (count < constructionSites + repairTargets + 1) {
+            figmentNeeded = true;
+          }
+          break;
         default:
           figmentNeeded = thought.figmentNeeded(figmentType);
           break;

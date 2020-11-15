@@ -86,6 +86,9 @@ export class TransferThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    if (!this.storage && !this.container) {
+      return false;
+    }
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
     return totalParts < 1;
   }
