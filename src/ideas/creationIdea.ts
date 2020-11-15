@@ -124,7 +124,7 @@ export class CreationIdea extends Idea {
     const target = this.constructionSiteQueue.peek();
     if (!Game.getObjectById(target.id)) {
       this.constructionSiteQueue.dequeue();
-      console.log("got rid of invalid site");
+      // console.log("got rid of invalid site");
     }
     return target;
   }

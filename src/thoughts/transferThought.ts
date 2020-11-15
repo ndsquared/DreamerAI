@@ -5,8 +5,8 @@ import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class TransferThought extends FigmentThought {
-  private container: StructureContainer | undefined = undefined;
-  private storage: StructureStorage | undefined = undefined;
+  private container: StructureContainer | null = null;
+  private storage: StructureStorage | null = null;
   private transferPriority: StructureConstant[] = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER];
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
@@ -66,11 +66,15 @@ export class TransferThought extends FigmentThought {
           this.container = containers[0] as StructureContainer;
         }
       }
+    } else {
+      this.container = Game.getObjectById(this.container.id);
     }
     if (!this.storage) {
       if (this.idea.spawn.room.storage) {
         this.storage = this.idea.spawn.room.storage;
       }
+    } else {
+      this.storage = Game.getObjectById(this.storage.id);
     }
     super.ponder();
   }

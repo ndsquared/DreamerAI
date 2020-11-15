@@ -15,6 +15,7 @@ export class HarvestThought extends FigmentThought {
     this.figments[FigmentType.HARVEST] = [];
   }
 
+  // TODO: save container and link as variables
   public handleFigment(figment: Figment): void {
     if (!this.source) {
       this.source = Game.getObjectById(this.sourceId);
@@ -72,11 +73,11 @@ export class HarvestThought extends FigmentThought {
       const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
       const availablePos = this.source.pos.availableNeighbors(true);
       if (totalWorkParts < 5 && this.figments[figmentType].length < availablePos.length) {
-        console.log(
-          `harvest needed with total work parts ${totalWorkParts}, available spots ${
-            availablePos.length
-          } at ${this.source.pos.toString()}`
-        );
+        // console.log(
+        //   `harvest needed with total work parts ${totalWorkParts}, available spots ${
+        //     availablePos.length
+        //   } at ${this.source.pos.toString()}`
+        // );
         return true;
       }
     }
