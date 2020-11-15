@@ -51,7 +51,7 @@ export class TransferThought extends FigmentThought {
     return _.first(_.sortBy(targets, t => PathFindWithRoad(figment.pos, t.pos).cost));
   }
 
-  public handleFigment(figment: Figment): void {
+  public ponder(): void {
     if (!this.container) {
       if (this.idea.spawn) {
         const containers = this.idea.spawn.pos.findInRange(FIND_STRUCTURES, 1, {
@@ -72,6 +72,10 @@ export class TransferThought extends FigmentThought {
         this.storage = this.idea.spawn.room.storage;
       }
     }
+    super.ponder();
+  }
+
+  public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.getNextWithdrawTarget();
       if (target) {

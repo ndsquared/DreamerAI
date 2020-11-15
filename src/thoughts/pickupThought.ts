@@ -23,6 +23,8 @@ export class PickupThought extends FigmentThought {
       const target = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).metabolizeInput(figment);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
+      } else if (!figment.pos.inRangeTo(this.idea.spawn.pos, 3)) {
+        figment.addNeuron(NeuronType.MOVE, "", this.idea.spawn.pos, { moveRange: 3 });
       }
     }
   }

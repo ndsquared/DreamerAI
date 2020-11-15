@@ -64,6 +64,7 @@ export class Figment extends Creep implements Figment {
     return name;
   }
 
+  // TODO: Need to allow building a body With one MOVE part
   public static GetBodyFromBodySpec(bodySpec: FigmentBodySpec, energyAvailable: number): BodyPartConstant[] {
     let bodyParts: BodyPartConstant[] = [];
     let bodyPartCount = 0;

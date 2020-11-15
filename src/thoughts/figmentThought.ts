@@ -55,7 +55,9 @@ export abstract class FigmentThought extends Thought {
   }
 
   public reflect(): void {
-    this.figments = {};
+    for (const figmentType in this.figments) {
+      this.figments[figmentType] = [];
+    }
   }
 
   public abstract handleFigment(figment: Figment): void;

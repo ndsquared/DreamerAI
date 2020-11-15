@@ -19,6 +19,7 @@ export class GenesisIdea extends Idea {
   private figmentNeeded: { [type: string]: boolean } = {};
   private memory: GenesisMemory;
   private figmentCountAdjustments: FigmentCountAdjustment[] = [];
+  private reset = true;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
     this.memory = {
@@ -36,7 +37,7 @@ export class GenesisIdea extends Idea {
   }
 
   public think(): void {
-    if (this.spawnQueue.length === 0) {
+    if (this.spawnQueue.length === 0 && !this.reset) {
       this.ensureMinimumPickups();
       this.setQueuePriorities();
       if (this.idea) {
@@ -44,6 +45,7 @@ export class GenesisIdea extends Idea {
           for (const thoughtInstance in this.idea.thoughts[thoughtName]) {
             const thought = this.idea.thoughts[thoughtName][thoughtInstance];
             if (thought instanceof FigmentThought) {
+              // console.log(thought.name);
               this.processThought(thought);
             }
           }
@@ -74,7 +76,11 @@ export class GenesisIdea extends Idea {
   public reflect(): void {
     this.processFigmentCountAdjustments();
     Memory.imagination.genesisIdeas[this.name] = this.memory;
-    this.contemplate();
+    if (this.reset) {
+      this.reset = false;
+    } else {
+      this.contemplate();
+    }
   }
 
   private contemplate(): void {
@@ -176,7 +182,9 @@ export class GenesisIdea extends Idea {
       constructionSites = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length;
       repairTargets = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length;
     }
+    // console.log(thought.name);
     for (const figmentType in thought.figments) {
+      // console.log(figmentType);
       let figmentNeeded = false;
       const count = this.getFigmentCount(figmentType);
       switch (figmentType) {
@@ -191,7 +199,7 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentType.WORKER:
-          if (count < constructionSites + repairTargets + 1) {
+          if (count < constructionSites * 2 + repairTargets * 2 + 1) {
             figmentNeeded = true;
           }
           break;
@@ -223,12 +231,15 @@ export class GenesisIdea extends Idea {
       // statusSpawn = nextSpawn;
       // Set minimum energy to use for the next figment spawn
       let energyAvailable = this.spawn.room.energyCapacityAvailable;
-      if (this.inEmergency() || nextSpawn.thoughtName === FigmentType.TRANSFER) {
+      if (this.memory.figmentCount[FigmentType.TRANSFER] === 0) {
         energyAvailable = this.spawn.room.energyAvailable;
       }
       // Calculate the body and check if we can spawn
       const body = Figment.GetBodyFromBodySpec(nextSpawn.figmentSpec.bodySpec, energyAvailable);
       const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
+      // console.log(nextSpawn.thoughtName);
+      // console.log(status);
+      // console.log(body.toString());
 
       if (status === OK && body.length >= nextSpawn.figmentSpec.bodySpec.minParts) {
         const memory = {

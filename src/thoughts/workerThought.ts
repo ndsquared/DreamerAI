@@ -39,8 +39,8 @@ export class WorkerThought extends FigmentThought {
     }
   }
 
-  public figmentNeeded(figmentType: string): boolean {
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
-    return totalParts < 1;
+  public figmentNeeded(): boolean {
+    // This should be calculated in the genesis idea
+    return false;
   }
 }

@@ -71,12 +71,12 @@ const reserveFigmentSpec = {
 };
 
 const scoutBodySpec = {
-  bodyParts: [],
-  ratio: [],
+  bodyParts: [MOVE],
+  ratio: [1],
   minParts: 1,
-  maxParts: 1,
+  maxParts: 2,
   ignoreCarry: false,
-  roadTravel: false
+  roadTravel: true
 };
 
 const scoutFigmentSpec = {
