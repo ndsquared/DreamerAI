@@ -137,7 +137,7 @@ export class GenesisIdea extends Idea {
           if (count > 5) {
             this.queuePriorities[figmentType] = 4;
           } else if (count > 1) {
-            this.queuePriorities[figmentType] = 5;
+            this.queuePriorities[figmentType] = 7;
           } else if (count > 0) {
             this.queuePriorities[figmentType] = 10;
           }
@@ -150,10 +150,10 @@ export class GenesisIdea extends Idea {
           this.queuePriorities[figmentType] = 8;
           break;
         case FigmentType.UPGRADE:
-          this.queuePriorities[figmentType] = 7;
+          this.queuePriorities[figmentType] = 6;
           break;
         case FigmentType.WORKER:
-          this.queuePriorities[figmentType] = 6;
+          this.queuePriorities[figmentType] = 5;
           break;
         case FigmentType.DEFENSE:
           this.queuePriorities[figmentType] = 1;
