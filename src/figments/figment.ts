@@ -148,6 +148,7 @@ export class Figment extends Creep implements Figment {
     return this.neurons.length === 0;
   }
 
+  // TODO: Move this logic to the combat idea and interrupt figments when necessary
   private preRunChecks(): void {
     if (this.memory.combatReady && this.memory.ideaName) {
       if (this.memory.inCombat) {
