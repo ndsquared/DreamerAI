@@ -11,7 +11,6 @@ import { RampartThought } from "thoughts/rampartThought";
 import { RoadThought } from "thoughts/roadThought";
 import { StorageThought } from "thoughts/storageThought";
 import { TowerThought } from "thoughts/towerThought";
-import { ValidConstructionSite } from "utils/misc";
 import { getColor } from "utils/colors";
 
 export class CreationIdea extends Idea {
@@ -202,7 +201,7 @@ export class CreationIdea extends Idea {
       structure,
       priority
     };
-    if (validityCheck && !ValidConstructionSite(pos)) {
+    if (validityCheck && !pos.isBuildable()) {
       return;
     }
     if (showVisual) {
