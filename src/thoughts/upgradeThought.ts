@@ -73,9 +73,9 @@ export class UpgradeThought extends FigmentThought {
       energyInStorage = this.storage.store.getUsedCapacity(RESOURCE_ENERGY);
     }
     let partsRequired = 1;
-    if (energyInStorage > 300000) {
+    if (energyInStorage > 300000 && this.figments[figmentType].length < 5) {
       return true;
-    } else if (energyInContainer > 1700) {
+    } else if (energyInContainer > 1700 && this.figments[figmentType].length < 4) {
       return true;
     }
     if (this.idea.rcl === 8) {

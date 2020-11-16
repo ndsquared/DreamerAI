@@ -107,6 +107,27 @@ RoomPosition.prototype.availableNeighbors = function (ignoreCreeps = false): Roo
   return _.filter(this.neighbors, pos => pos.isWalkable(ignoreCreeps));
 };
 
+RoomPosition.prototype.availableBuilds = function (): RoomPosition[] {
+  return _.filter(this.neighbors, pos => pos.isBuildable());
+};
+
+RoomPosition.prototype.isBuildable = function (): boolean {
+  if (Game.map.getRoomTerrain(this.roomName).get(this.x, this.y) === TERRAIN_MASK_WALL) {
+    return false;
+  }
+  if (this.isVisible) {
+    const lookConstructionSite = this.lookFor(LOOK_CONSTRUCTION_SITES);
+    if (lookConstructionSite.length) {
+      return false;
+    }
+    const lookStructure = this.lookFor(LOOK_STRUCTURES);
+    if (lookStructure.length) {
+      return false;
+    }
+  }
+  return true;
+};
+
 RoomPosition.prototype.isWalkable = function (ignoreCreeps = false): boolean {
   if (Game.map.getRoomTerrain(this.roomName).get(this.x, this.y) === TERRAIN_MASK_WALL) {
     return false;

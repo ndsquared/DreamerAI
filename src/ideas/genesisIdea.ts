@@ -37,7 +37,8 @@ export class GenesisIdea extends Idea {
   }
 
   public think(): void {
-    if (this.spawnQueue.length === 0 && !this.reset) {
+    if (!this.reset) {
+      this.spawnQueue.clear();
       this.ensureMinimumPickups();
       this.setQueuePriorities();
       if (this.idea) {
@@ -145,14 +146,14 @@ export class GenesisIdea extends Idea {
         case FigmentType.PICKUP:
           this.queuePriorities[figmentType] = 11;
           break;
-        case FigmentType.UPGRADE:
+        case FigmentType.TRANSFER:
           this.queuePriorities[figmentType] = 8;
           break;
-        case FigmentType.WORKER:
+        case FigmentType.UPGRADE:
           this.queuePriorities[figmentType] = 7;
           break;
-        case FigmentType.TRANSFER:
-          this.queuePriorities[figmentType] = 5;
+        case FigmentType.WORKER:
+          this.queuePriorities[figmentType] = 6;
           break;
         case FigmentType.DEFENSE:
           this.queuePriorities[figmentType] = 1;
@@ -192,7 +193,7 @@ export class GenesisIdea extends Idea {
           // Dividing by zero is bad
           if (outputs) {
             const ratio = count / outputs;
-            if (ratio < 0.7) {
+            if (ratio < 0.85) {
               figmentNeeded = true;
             }
           }

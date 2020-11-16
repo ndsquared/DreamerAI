@@ -86,18 +86,3 @@ export function GetRoomPosition(x: number, y: number, roomName: string): RoomPos
   }
   return new RoomPosition(x, y, roomName);
 }
-
-export function ValidConstructionSite(pos: RoomPosition): boolean {
-  const lookConstructionSite = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-  if (lookConstructionSite.length) {
-    return false;
-  }
-  const lookStructure = pos.lookFor(LOOK_STRUCTURES);
-  if (lookStructure.length) {
-    return false;
-  }
-  if (Game.map.getRoomTerrain(pos.roomName).get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
-    return false;
-  }
-  return true;
-}

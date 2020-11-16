@@ -207,7 +207,6 @@ export class Figment extends Creep implements Figment {
   }
 
   public run(): boolean {
-    this.preRunChecks();
     while (this.neurons.length > 0) {
       const neuron = Neurons.generateNeuron(this, this.neurons[0]);
       if (neuron.isValid()) {

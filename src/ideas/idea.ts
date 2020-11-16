@@ -26,6 +26,7 @@ export abstract class Idea implements IBrain {
   public showStats = true;
   public showBuildVisuals = true;
   public showMetaVisuals = true;
+  public showEnemyVisuals = true;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea | null) {
     this.spawn = spawn;
     this.name = spawn.room.name;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { GetRoomPosition, ValidConstructionSite } from "utils/misc";
 import { CreationIdea } from "ideas/creationIdea";
+import { GetRoomPosition } from "utils/misc";
 import { Idea } from "ideas/idea";
 import { Thought } from "./thought";
 import profiler from "screeps-profiler";
@@ -66,7 +66,7 @@ export abstract class BuildThought extends Thought {
     const positions: RoomPosition[] = [];
     for (const delta of deltas) {
       const pos = GetRoomPosition(pivotPos.x + delta.x, pivotPos.y + delta.y, pivotPos.roomName);
-      if (pos && ValidConstructionSite(pos)) {
+      if (pos && pos.isBuildable()) {
         positions.push(pos);
       }
     }

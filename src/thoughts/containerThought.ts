@@ -28,7 +28,7 @@ export class ContainerThought extends BuildThought {
         filter: s => s.structureType === STRUCTURE_CONTAINER
       });
       if (containers.length === 0) {
-        const buildPositions = controller.pos.availableNeighbors(true);
+        const buildPositions = controller.pos.availableBuilds();
         const priority = PathFindWithRoad(spawn.pos, controller.pos).cost;
         creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
       }
@@ -42,7 +42,7 @@ export class ContainerThought extends BuildThought {
           filter: s => s.structureType === STRUCTURE_CONTAINER
         });
         if (containers.length === 0) {
-          const buildPositions = source.pos.availableNeighbors(true);
+          const buildPositions = source.pos.availableBuilds();
           const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
           creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
         }

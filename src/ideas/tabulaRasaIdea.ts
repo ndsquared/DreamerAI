@@ -141,6 +141,14 @@ export class TabulaRasaIdea extends Idea {
       const count = (this.ideas[IdeaType.METABOLIC] as MetabolicIdea).outputQueue.length;
       tableData.push(["Output", count.toString()]);
     }
+    if (this.ideas[IdeaType.COMBAT]) {
+      const count = (this.ideas[IdeaType.COMBAT] as CombatIdea).enemyQueue.length;
+      tableData.push(["Enemy", count.toString()]);
+    }
+    if (this.ideas[IdeaType.COMBAT]) {
+      const count = (this.ideas[IdeaType.COMBAT] as CombatIdea).healQueue.length;
+      tableData.push(["Heal", count.toString()]);
+    }
     const tableQueue = new Table("Queue Counts", tableAnchor, tableData);
     tableQueue.renderTable();
   }

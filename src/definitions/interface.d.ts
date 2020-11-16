@@ -20,6 +20,11 @@ interface EnergyStructure extends Structure {
   energyCapacity: number;
 }
 
+interface EnemyQueuePayload {
+  enemyObject: Creep | Structure;
+  priority: number;
+}
+
 interface Figment {
   neurons: Interneuron[];
 }
@@ -41,6 +46,11 @@ interface FigmentBodySpec {
 interface FigmentCountAdjustment {
   type: string;
   delta: number;
+}
+
+interface HealQueuePayload {
+  figment: Creep;
+  priority: number;
 }
 
 interface IBrain {
@@ -84,10 +94,12 @@ interface Room {
 
 interface RoomPosition {
   availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
+  availableBuilds(): RoomPosition[];
   availableToMove: boolean;
   neighbors: RoomPosition[];
   hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
+  isBuildable(): boolean;
   isVisible: boolean;
   isEdge: boolean;
   toString(): string;
