@@ -232,7 +232,7 @@ export class GenesisIdea extends Idea {
       // statusSpawn = nextSpawn;
       // Set minimum energy to use for the next figment spawn
       let energyAvailable = this.spawn.room.energyCapacityAvailable;
-      if (this.memory.figmentCount[FigmentType.TRANSFER] === 0) {
+      if (this.inEmergency() || this.memory.figmentCount[FigmentType.TRANSFER] === 0) {
         energyAvailable = this.spawn.room.energyAvailable;
       }
       // Calculate the body and check if we can spawn

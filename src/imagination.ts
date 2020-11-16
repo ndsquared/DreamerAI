@@ -103,6 +103,16 @@ export class Imagination implements IBrain {
         if (idea) {
           (idea.ideas[IdeaType.GENESIS] as GenesisIdea).adjustFigmentCount(Memory.creeps[name].thoughtType, -1);
         }
+        if (Memory.imagination.metabolicIdeas[idea.name].metabolism.inputs) {
+          for (const ref in Memory.imagination.metabolicIdeas[idea.name].metabolism.inputs) {
+            delete Memory.imagination.metabolicIdeas[idea.name].metabolism.inputs[ref][name];
+          }
+        }
+        if (Memory.imagination.metabolicIdeas[idea.name].metabolism.outputs) {
+          for (const ref in Memory.imagination.metabolicIdeas[idea.name].metabolism.outputs) {
+            delete Memory.imagination.metabolicIdeas[idea.name].metabolism.outputs[ref][name];
+          }
+        }
         delete Memory.creeps[name];
       }
     }

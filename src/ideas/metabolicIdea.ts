@@ -38,12 +38,10 @@ export class MetabolicIdea extends Idea {
 
   public ponder(): void {
     this.memory = Memory.imagination.metabolicIdeas[this.name];
-    if (this.inputQueue.length === 0 || this.outputQueue.length === 0) {
-      this.inputQueue.clear();
-      this.outputQueue.clear();
-      for (const room of this.spawn.room.neighborhood) {
-        this.fillQueues(room);
-      }
+    this.inputQueue.clear();
+    this.outputQueue.clear();
+    for (const room of this.spawn.room.neighborhood) {
+      this.fillQueues(room);
     }
     // this.imagination.addStatus(`I/O: ${this.inputQueue.length}/${this.outputQueue.length}`);
   }
@@ -91,7 +89,7 @@ export class MetabolicIdea extends Idea {
     if (this.inputQueue.length === 0) {
       return null;
     }
-    const input = this.inputQueue.dequeue();
+    const input = this.inputQueue.peek();
     if (!this.memory.metabolism.inputs[input.id]) {
       this.memory.metabolism.inputs[input.id] = {};
     }
@@ -109,7 +107,7 @@ export class MetabolicIdea extends Idea {
     if (this.outputQueue.length === 0) {
       return null;
     }
-    const output = this.outputQueue.dequeue();
+    const output = this.outputQueue.peek();
     if (!this.memory.metabolism.outputs[output.id]) {
       this.memory.metabolism.outputs[output.id] = {};
     }
