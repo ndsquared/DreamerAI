@@ -14,13 +14,13 @@ export class RampartThought extends BuildThought {
     }
     const spawn = this.idea.spawn;
     // Protect spawn
-    creationIdea.addBuild(spawn.pos, STRUCTURE_RAMPART, 3, true, false);
+    creationIdea.addBuild(spawn.pos, STRUCTURE_RAMPART, 3, false, false);
 
     // Protect controller
     const controller = this.idea.spawn.room.controller;
     if (controller) {
       const controllerNeighbors = controller.pos.availableNeighbors(true);
-      creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, false, true, false);
+      creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, false, false, false);
     }
 
     // Protect towers
@@ -33,7 +33,7 @@ export class RampartThought extends BuildThought {
       }
     });
     const towerPos = _.map(towers, t => t.pos);
-    creationIdea.addBuilds(towerPos, STRUCTURE_RAMPART, 5, false, true, false);
+    creationIdea.addBuilds(towerPos, STRUCTURE_RAMPART, 5, false, false, false);
 
     // Protect base
     const rect: Rectangle[] = [];
@@ -57,7 +57,7 @@ export class RampartThought extends BuildThought {
 
     const positions = getCutTiles(this.idea.spawn.room.name, rect, true, Infinity, false);
     for (const pos of positions) {
-      creationIdea.addBuild(pos, STRUCTURE_RAMPART, 6, true, false);
+      creationIdea.addBuild(pos, STRUCTURE_RAMPART, 6, false, false);
     }
   }
 }
