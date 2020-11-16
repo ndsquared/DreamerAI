@@ -1,6 +1,6 @@
-import { Idea, IdeaType } from "ideas/idea";
 import { BuildThought } from "./buildThought";
 import { CreationIdea } from "ideas/creationIdea";
+import { Idea } from "ideas/idea";
 
 export class TowerThought extends BuildThought {
   private towers: StructureTower[];
@@ -35,7 +35,7 @@ export class TowerThought extends BuildThought {
       if (closestHostile) {
         tower.attack(closestHostile);
       } else {
-        const repairTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextRepairTarget();
+        const repairTarget = (this.idea as CreationIdea).getNextRepairTarget();
         if (repairTarget) {
           tower.repair(repairTarget);
         }
