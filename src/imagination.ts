@@ -97,25 +97,38 @@ export class Imagination implements IBrain {
   }
 
   private meditate() {
+    // Clean up figment memory
     for (const name in Memory.creeps) {
       if (!(name in Game.creeps)) {
         const idea = this.ideas[Memory.creeps[name].ideaName];
         if (idea) {
           (idea.ideas[IdeaType.GENESIS] as GenesisIdea).adjustFigmentCount(Memory.creeps[name].thoughtType, -1);
         }
-        if (Memory.imagination.metabolicIdeas[idea.name].metabolism.inputs) {
-          for (const ref in Memory.imagination.metabolicIdeas[idea.name].metabolism.inputs) {
-            delete Memory.imagination.metabolicIdeas[idea.name].metabolism.inputs[ref][name];
-          }
-        }
-        if (Memory.imagination.metabolicIdeas[idea.name].metabolism.outputs) {
-          for (const ref in Memory.imagination.metabolicIdeas[idea.name].metabolism.outputs) {
-            delete Memory.imagination.metabolicIdeas[idea.name].metabolism.outputs[ref][name];
-          }
-        }
         delete Memory.creeps[name];
       }
     }
+    // Clean up metabolism memory
+    for (const ideaName in this.ideas) {
+      if (Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
+        for (const ref in Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
+          for (const name in Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref]) {
+            if (!(name in Game.creeps)) {
+              delete Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref][name];
+            }
+          }
+        }
+      }
+      if (Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
+        for (const ref in Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
+          for (const name in Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref]) {
+            if (!(name in Game.creeps)) {
+              delete Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref][name];
+            }
+          }
+        }
+      }
+    }
+    // Assign figments to thoughts
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       const figment = new Figment(creep.id);
