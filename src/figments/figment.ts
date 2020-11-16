@@ -291,9 +291,14 @@ export class Figment extends Creep implements Figment {
     if (resource) {
       targets.push(resource);
     }
+    // Don't withdraw from extensions or towers
     const roomTargets = this.room.find(FIND_STRUCTURES, {
       filter: s => {
-        if (isEnergyStructure(s)) {
+        if (s.structureType === STRUCTURE_EXTENSION) {
+          return false;
+        } else if (s.structureType === STRUCTURE_TOWER) {
+          return false;
+        } else if (isEnergyStructure(s)) {
           return s.energy > minCapacity;
         } else if (isStoreStructure(s)) {
           return s.store.getUsedCapacity(resourceType) > minCapacity;
