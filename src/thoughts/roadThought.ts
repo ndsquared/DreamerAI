@@ -16,7 +16,7 @@ export class RoadThought extends BuildThought {
     // Build roads around spawn
     const roadDeltas: Coord[] = this.cardinalDirections();
     const roadPositions: RoomPosition[] = this.getPositionsFromDelta(spawn.pos, roadDeltas);
-    creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false, true);
+    creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false, false);
 
     // Build roads to sources in the neighborhood
     for (const room of spawn.room.neighborhood) {

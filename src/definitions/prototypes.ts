@@ -103,6 +103,16 @@ Object.defineProperty(RoomPosition.prototype, "availableToMove", {
   }
 });
 
+RoomPosition.prototype.hasStructure = function (structureType: StructureConstant): boolean {
+  const lookStructures = this.lookFor(LOOK_STRUCTURES);
+  for (const lookStructure of lookStructures) {
+    if (lookStructure.structureType === structureType) {
+      return true;
+    }
+  }
+  return false;
+};
+
 RoomPosition.prototype.availableNeighbors = function (ignoreCreeps = false): RoomPosition[] {
   return _.filter(this.neighbors, pos => pos.isWalkable(ignoreCreeps));
 };

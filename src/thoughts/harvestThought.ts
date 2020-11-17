@@ -67,6 +67,20 @@ export class HarvestThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    const room = Game.rooms[this.sourcePos.roomName];
+    let controller: StructureController | undefined;
+    if (room) {
+      controller = room.controller;
+    }
+    if (!controller) {
+      return false;
+    }
+    if (controller.reservation && controller.reservation.username !== this.idea.spawn.owner.username) {
+      return false;
+    }
+    if (controller.owner && controller.owner.username !== this.idea.spawn.owner.username) {
+      return false;
+    }
     // console.log(this.figments[figmentType].length);
     this.source = Game.getObjectById(this.sourceId);
     if (this.source) {

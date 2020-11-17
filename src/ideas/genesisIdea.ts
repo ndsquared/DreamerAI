@@ -181,7 +181,7 @@ export class GenesisIdea extends Idea {
     if (this.idea) {
       outputs = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).getOutputs();
       constructionSites = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length;
-      repairTargets = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length;
+      repairTargets = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length ? 1 : 0;
     }
     // console.log(thought.name);
     for (const figmentType in thought.figments) {

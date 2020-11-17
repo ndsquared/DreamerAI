@@ -97,6 +97,7 @@ interface RoomPosition {
   availableBuilds(): RoomPosition[];
   availableToMove: boolean;
   neighbors: RoomPosition[];
+  hasStructure(structure: StructureConstant): boolean;
   hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
   isBuildable(): boolean;

@@ -208,6 +208,9 @@ export class CreationIdea extends Idea {
     if (validityCheck && !pos.isBuildable()) {
       return;
     }
+    if (pos.hasStructure(structure)) {
+      return;
+    }
     if (showVisual) {
       const rv = new RoomVisual(pos.roomName);
       rv.circle(pos, { radius: 0.4, opacity: 0.2, fill: getColor("grey") });
