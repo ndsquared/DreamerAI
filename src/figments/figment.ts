@@ -208,13 +208,20 @@ export class Figment extends Creep implements Figment {
   }
 
   public run(): boolean {
-    while (this.neurons.length > 0) {
-      const neuron = Neurons.generateNeuron(this, this.neurons[0]);
-      if (neuron.isValid()) {
-        neuron.run();
-        return true;
+    try {
+      while (this.neurons.length > 0) {
+        const neuron = Neurons.generateNeuron(this, this.neurons[0]);
+        if (neuron.isValid()) {
+          neuron.run();
+          return true;
+        }
+        this.removeNeuron();
       }
-      this.removeNeuron();
+    } catch (error) {
+      this.say("ERROR");
+      console.log(`${this.name} is having issues!`);
+      console.log(error);
+      return true;
     }
     return false;
   }

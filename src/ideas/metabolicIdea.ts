@@ -193,11 +193,11 @@ export class MetabolicIdea extends Idea {
         if (spawns.length) {
           this.addInput(s, s.store.getUsedCapacity());
         }
-      } else if (s.structureType === STRUCTURE_STORAGE) {
+      } else if (s.structureType === STRUCTURE_STORAGE && s.my) {
         this.addInput(s, s.store.getUsedCapacity());
-      } else if (s.structureType === STRUCTURE_SPAWN) {
+      } else if (s.structureType === STRUCTURE_SPAWN && s.my) {
         this.addInput(s, s.store.getUsedCapacity(RESOURCE_ENERGY));
-      } else if (s.structureType === STRUCTURE_LINK) {
+      } else if (s.structureType === STRUCTURE_LINK && s.my) {
         this.addOutput(s, s.store.getUsedCapacity(RESOURCE_ENERGY));
       }
     }

@@ -60,6 +60,7 @@ export class CreationIdea extends Idea {
         }
       }
     }
+    // Filter out roads and containers?
     if (this.repairQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         const structures = room.find(FIND_STRUCTURES);
