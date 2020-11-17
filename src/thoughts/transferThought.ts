@@ -98,6 +98,6 @@ export class TransferThought extends FigmentThought {
       return false;
     }
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
-    return totalParts < 1;
+    return totalParts < 4;
   }
 }

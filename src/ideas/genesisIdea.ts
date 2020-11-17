@@ -1,5 +1,6 @@
 import { FigmentThought, FigmentType } from "thoughts/figmentThought";
 import { Idea, IdeaType } from "./idea";
+import { CombatIdea } from "./combatIdea";
 import { CreationIdea } from "./creationIdea";
 import { Figment } from "figments/figment";
 import { GetFigmentSpec } from "figments/figmentSpec";
@@ -129,6 +130,10 @@ export class GenesisIdea extends Idea {
   }
 
   private setQueuePriorities(): void {
+    let enemies = 0;
+    if (this.idea) {
+      enemies = (this.idea.ideas[IdeaType.COMBAT] as CombatIdea).enemyQueue.length;
+    }
     for (const figmentType of Object.values(FigmentType)) {
       switch (figmentType) {
         case FigmentType.HARVEST: {
@@ -157,9 +162,15 @@ export class GenesisIdea extends Idea {
           break;
         case FigmentType.DEFENSE:
           this.queuePriorities[figmentType] = 1;
+          if (enemies > 0) {
+            this.queuePriorities[figmentType] = 15;
+          }
           break;
         case FigmentType.ATTACK:
           this.queuePriorities[figmentType] = 1;
+          if (enemies > 0) {
+            this.queuePriorities[figmentType] = 14;
+          }
           break;
         case FigmentType.RESERVE:
           this.queuePriorities[figmentType] = 1;
