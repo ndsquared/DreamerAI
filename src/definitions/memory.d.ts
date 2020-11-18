@@ -1,4 +1,7 @@
 interface Memory {
+  version: number;
+  imagination: ImaginationMemory;
+  [name: string]: any;
   stats: Stats;
 }
 
@@ -57,6 +60,7 @@ interface MetabolismIO {
 }
 
 interface ImaginationMemory {
+  version: number;
   genesisIdeas: {
     [name: string]: GenesisMemory;
   };
@@ -85,11 +89,6 @@ interface InterneuronTargetOptions {
   moveRange: number;
   moveRandom: boolean;
   movingTarget: boolean;
-}
-
-interface Memory {
-  imagination: ImaginationMemory;
-  [name: string]: any;
 }
 
 interface RoomMemory {

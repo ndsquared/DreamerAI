@@ -24,6 +24,7 @@ export class TransferThought extends FigmentThought {
     return null;
   }
 
+  // TODO: Should prioritize by free space with towers??
   private getNextTransferTarget(figment: Figment): StoreStructure {
     const targets: StoreStructure[] = [];
     const structures = this.idea.spawn.room.find(FIND_STRUCTURES);

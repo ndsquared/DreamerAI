@@ -57,9 +57,13 @@ export class Imagination implements IBrain {
   }
 
   private forget() {
-    if (this.shouldForget() || !Memory.imagination) {
+    if (!Memory.version) {
+      Memory.version = 0;
+    }
+    if (this.shouldForget() || !Memory.imagination || Memory.version !== Memory.imagination.version) {
       console.log("forgetting...");
       Memory.imagination = {
+        version: Memory.version,
         genesisIdeas: {},
         metabolicIdeas: {}
       };
@@ -79,6 +83,10 @@ export class Imagination implements IBrain {
   }
 
   public imagine(): void {
+    if (Game.cpu.bucket < 200) {
+      console.log(`Not enough CPU in bucket to run! | Bucket: ${Game.cpu.bucket}`);
+      return;
+    }
     const figments = Object.keys(Game.creeps).length;
     this.consoleStatus = [];
     this.addStatus(`Tick: ${Game.time}`);
