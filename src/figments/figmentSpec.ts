@@ -135,6 +135,9 @@ export function GetFigmentSpec(figmentType: string): FigmentSpec {
     case FigmentType.TRANSFER:
       spec = transferFigmentSpec;
       break;
+    case FigmentType.TOWER_FILLER:
+      spec = transferFigmentSpec;
+      break;
     case FigmentType.PICKUP:
       spec = pickupFigmentSpec;
       break;

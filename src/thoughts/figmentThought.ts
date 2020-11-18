@@ -8,6 +8,7 @@ export enum FigmentType {
   PICKUP = "Pickup",
   WORKER = "Worker",
   TRANSFER = "Transfer",
+  TOWER_FILLER = "Tower Filler",
   SCOUT = "Scout",
   RESERVE = "Reserve",
   UPGRADE = "Upgrade",
@@ -23,7 +24,7 @@ export abstract class FigmentThought extends Thought {
   }
 
   public addFigment(figment: Figment): void {
-    const type = figment.memory.thoughtType;
+    const type = figment.memory.figmentType;
     if (this.figments[type]) {
       this.figments[type].push(figment);
     } else {

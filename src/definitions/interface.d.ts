@@ -109,6 +109,7 @@ interface RoomPosition {
 interface SpawnQueuePayload {
   name: string;
   figmentSpec: FigmentSpec;
+  figmentType: string;
   priority: number;
   thoughtName: string;
   thoughtInstance: string;

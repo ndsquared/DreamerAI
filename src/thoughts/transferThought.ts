@@ -11,6 +11,7 @@ export class TransferThought extends FigmentThought {
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figments[FigmentType.TRANSFER] = [];
+    this.figments[FigmentType.TOWER_FILLER] = [];
   }
 
   private getNextWithdrawTarget(): StoreStructure | null {
@@ -80,6 +81,9 @@ export class TransferThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
+    if (figment.memory.figmentType === FigmentType.TOWER_FILLER) {
+      this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];
+    }
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.getNextWithdrawTarget();
       if (target) {
@@ -94,10 +98,15 @@ export class TransferThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    if (!this.storage && !this.container) {
-      return false;
+    if (figmentType === FigmentType.TRANSFER) {
+      if (!this.storage && !this.container) {
+        return false;
+      }
+      const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
+      return totalParts < 4;
+    } else if (figmentType === FigmentType.TOWER_FILLER) {
+      return this.figments[figmentType].length < 1;
     }
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
-    return totalParts < 4;
+    return false;
   }
 }

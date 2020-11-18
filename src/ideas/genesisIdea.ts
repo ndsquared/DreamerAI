@@ -67,6 +67,7 @@ export class GenesisIdea extends Idea {
       const payload = {
         name: Figment.GetUniqueName(),
         figmentSpec: GetFigmentSpec(FigmentType.PICKUP),
+        figmentType: FigmentType.PICKUP,
         priority,
         thoughtName: FigmentType.PICKUP,
         thoughtInstance: "0"
@@ -178,6 +179,12 @@ export class GenesisIdea extends Idea {
         case FigmentType.SCOUT:
           this.queuePriorities[figmentType] = 1;
           break;
+        case FigmentType.TOWER_FILLER:
+          this.queuePriorities[figmentType] = 1;
+          if (enemies > 0) {
+            this.queuePriorities[figmentType] = 16;
+          }
+          break;
         default:
           console.log(`hitting default for set queue priorities`);
           break;
@@ -224,6 +231,7 @@ export class GenesisIdea extends Idea {
         const payload = {
           name: Figment.GetUniqueName(),
           figmentSpec: GetFigmentSpec(figmentType),
+          figmentType,
           priority: this.queuePriorities[figmentType],
           thoughtName: thought.name,
           thoughtInstance: thought.instance
@@ -262,6 +270,7 @@ export class GenesisIdea extends Idea {
           _trav: {},
           interneurons: [],
           ideaName: this.name,
+          figmentType: nextSpawn.figmentType,
           thoughtType: nextSpawn.thoughtName,
           thoughtInstance: nextSpawn.thoughtInstance,
           underAttack: false,
@@ -275,7 +284,7 @@ export class GenesisIdea extends Idea {
         // this.imagination.addStatus(
         //   `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} w/ priority ${nextSpawn.priority}`
         // );
-        this.adjustFigmentCount(nextSpawn.thoughtName, 1);
+        this.adjustFigmentCount(nextSpawn.figmentType, 1);
       }
       // if (statusSpawn) {
       // const cost = _.sum(body, b => BODYPART_COST[b]);
