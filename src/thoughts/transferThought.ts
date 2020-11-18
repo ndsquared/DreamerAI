@@ -99,12 +99,12 @@ export class TransferThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    if (!this.storage && !this.container) {
+      return false;
+    }
     if (figmentType === FigmentType.TRANSFER) {
-      if (!this.storage && !this.container) {
-        return false;
-      }
-      const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CARRY));
-      return totalParts < 4;
+      // TODO: Build a transfer figment 200 ticks prior to the current figment TTL?
+      return this.figments[figmentType].length < 1;
     } else if (figmentType === FigmentType.TOWER_FILLER) {
       return this.figments[figmentType].length < 1;
     }

@@ -15,6 +15,7 @@ export enum IdeaType {
 }
 
 export abstract class Idea implements IBrain {
+  // Factor out the concept of a parent idea
   public idea: Idea | null = null;
   public ideas: { [type: string]: Idea } = {};
   public name: string;

@@ -8,6 +8,7 @@ import { exportStats } from "utils/stats";
 import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
+  // TODO: Make this more robust to have a multiple ideas per room
   private ideas: { [name: string]: Idea };
   private consoleStatus: string[] = [];
   private generatedPixel = false;
