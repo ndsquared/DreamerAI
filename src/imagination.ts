@@ -177,6 +177,9 @@ export class Imagination implements IBrain {
     for (const name in this.ideas) {
       this.ideas[name].reflect();
     }
+    this.addStatus(`CPU Usage: ${Game.cpu.getUsed().toFixed(0)}`);
+    this.addStatus(`CPU Limit: ${Game.cpu.limit}`);
+    this.addStatus(`CPU Tick Limit: ${Game.cpu.tickLimit}`);
     if (this.generatedPixel) {
       this.addStatus("GENERATED PIXEL");
     }
