@@ -34,8 +34,8 @@ export class CreationIdea extends Idea {
     }
   });
   private repairThreshold = 20000;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
-    super(spawn, imagination, type, idea);
+  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
+    super(spawn, imagination, type);
     const buildThoughts: ThoughtMapping[] = [
       { name: BuildThoughtName.EXTENSION, thought: ExtensionThought },
       { name: BuildThoughtName.ROAD, thought: RoadThought },
@@ -77,13 +77,11 @@ export class CreationIdea extends Idea {
     }
     // TODO: Rate-limit this when all builds are finished
     if (this.buildQueue.length === 0) {
-      if (this.idea) {
-        for (const thoughtName in this.thoughts) {
-          for (const thoughtInstance in this.thoughts[thoughtName]) {
-            const thought = this.thoughts[thoughtName][thoughtInstance];
-            if (thought instanceof BuildThought) {
-              thought.buildPlan(this);
-            }
+      for (const thoughtName in this.thoughts) {
+        for (const thoughtInstance in this.thoughts[thoughtName]) {
+          const thought = this.thoughts[thoughtName][thoughtInstance];
+          if (thought instanceof BuildThought) {
+            thought.buildPlan(this);
           }
         }
       }
@@ -101,7 +99,7 @@ export class CreationIdea extends Idea {
 
   public reflect(): void {
     super.reflect();
-    if (!this.idea || !this.idea.showBuildVisuals) {
+    if (!this.showBuildVisuals) {
       return;
     }
     if (this.buildQueue.length > 0) {

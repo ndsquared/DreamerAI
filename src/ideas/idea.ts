@@ -15,9 +15,6 @@ export enum IdeaType {
 }
 
 export abstract class Idea implements IBrain {
-  // Factor out the concept of a parent idea
-  public idea: Idea | null = null;
-  public ideas: { [type: string]: Idea } = {};
   public name: string;
   public thoughts: { [type: string]: { [instance: string]: Thought } } = {};
   public spawn: StructureSpawn;
@@ -28,20 +25,15 @@ export abstract class Idea implements IBrain {
   public showBuildVisuals = true;
   public showMetaVisuals = true;
   public showEnemyVisuals = true;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea | null) {
+  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
     this.spawn = spawn;
     this.name = spawn.room.name;
     this.imagination = imagination;
     this.type = type;
-    this.idea = idea;
   }
 
   public ponder(): void {
     this.spawn = Game.spawns[this.spawn.name];
-    for (const ideaName in this.ideas) {
-      const idea = this.ideas[ideaName];
-      idea.ponder();
-    }
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];
@@ -56,10 +48,6 @@ export abstract class Idea implements IBrain {
   }
 
   public think(): void {
-    for (const ideaName in this.ideas) {
-      const idea = this.ideas[ideaName];
-      idea.think();
-    }
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];
@@ -73,10 +61,6 @@ export abstract class Idea implements IBrain {
   }
 
   public reflect(): void {
-    for (const ideaName in this.ideas) {
-      const idea = this.ideas[ideaName];
-      idea.reflect();
-    }
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];

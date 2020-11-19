@@ -18,8 +18,8 @@ export class MetabolicIdea extends Idea {
     }
   });
   private memory: MetabolicMemory;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
-    super(spawn, imagination, type, idea);
+  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
+    super(spawn, imagination, type);
     this.memory = {
       metabolism: {
         inputs: {},
@@ -66,7 +66,7 @@ export class MetabolicIdea extends Idea {
   }
 
   private contemplate(): void {
-    if (!this.idea || !this.idea.showMetaVisuals) {
+    if (!this.showMetaVisuals) {
       return;
     }
     if (this.inputQueue.length > 0) {

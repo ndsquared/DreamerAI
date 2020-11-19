@@ -12,8 +12,10 @@ export class DefenseThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
-    const enemyTarget = (this.idea.ideas[IdeaType.COMBAT] as CombatIdea).getNextEnemyTarget();
-    const healTarget = (this.idea.ideas[IdeaType.COMBAT] as CombatIdea).getNextHealTarget();
+    const enemyTarget = (this.idea.imagination.ideas[this.idea.name][
+      IdeaType.COMBAT
+    ] as CombatIdea).getNextEnemyTarget();
+    const healTarget = (this.idea.imagination.ideas[this.idea.name][IdeaType.COMBAT] as CombatIdea).getNextHealTarget();
     if (enemyTarget) {
       console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
       figment.addNeuron(NeuronType.RANGED_ATTACK, enemyTarget.id, enemyTarget.pos);

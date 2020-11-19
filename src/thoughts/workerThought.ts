@@ -13,8 +13,12 @@ export class WorkerThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
-      const repairTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextRepairTarget();
-      const buildTarget = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).getNextConstructionSite();
+      const repairTarget = (this.idea.imagination.ideas[this.idea.name][
+        IdeaType.CREATION
+      ] as CreationIdea).getNextRepairTarget();
+      const buildTarget = (this.idea.imagination.ideas[this.idea.name][
+        IdeaType.CREATION
+      ] as CreationIdea).getNextConstructionSite();
       const controller = this.idea.spawn.room.controller;
       if (
         repairTarget &&

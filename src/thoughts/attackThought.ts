@@ -12,7 +12,9 @@ export class AttackThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
-    const enemyTarget = (this.idea.ideas[IdeaType.COMBAT] as CombatIdea).getNextEnemyTarget();
+    const enemyTarget = (this.idea.imagination.ideas[this.idea.name][
+      IdeaType.COMBAT
+    ] as CombatIdea).getNextEnemyTarget();
     if (enemyTarget) {
       console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
       figment.addNeuron(NeuronType.ATTACK, enemyTarget.id, enemyTarget.pos);

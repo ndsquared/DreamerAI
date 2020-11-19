@@ -1,13 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { FigmentThought, FigmentType } from "thoughts/figmentThought";
 import { Idea, IdeaType } from "./idea";
+import { AttackThought } from "thoughts/attackThought";
 import { CombatIdea } from "./combatIdea";
 import { CreationIdea } from "./creationIdea";
+import { DefenseThought } from "thoughts/defenseThought";
 import { Figment } from "figments/figment";
 import { GetFigmentSpec } from "figments/figmentSpec";
+import { HarvestThought } from "../thoughts/harvestThought";
 import { Imagination } from "imagination";
 import { MetabolicIdea } from "./metabolicIdea";
+import { PickupThought } from "thoughts/pickupThought";
 import PriorityQueue from "ts-priority-queue";
+import { ReserveThought } from "thoughts/reserveThought";
+import { ScoutThought } from "thoughts/scoutThought";
 import { Table } from "utils/visuals";
+import { TransferThought } from "thoughts/transferThought";
+import { UpgradeThought } from "thoughts/upgradeThought";
+import { WorkerThought } from "thoughts/workerThought";
+
+interface ThoughtMapping {
+  name: string;
+  thought: any;
+}
 
 export class GenesisIdea extends Idea {
   public spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
@@ -20,8 +36,8 @@ export class GenesisIdea extends Idea {
   private figmentNeeded: { [type: string]: boolean } = {};
   private memory: GenesisMemory;
   private reset = true;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
-    super(spawn, imagination, type, idea);
+  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
+    super(spawn, imagination, type);
     // Initialize the memory
     if (!Memory.imagination.genesisIdeas[this.name]) {
       Memory.imagination.genesisIdeas[this.name] = {
@@ -30,11 +46,54 @@ export class GenesisIdea extends Idea {
     }
 
     this.memory = Memory.imagination.genesisIdeas[this.name];
+
+    const sources = _.sortBy(
+      Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
+      s => s.pos.findPathTo(spawn.pos, { ignoreCreeps: true }).length
+    );
+
+    this.thoughts[FigmentType.HARVEST] = {};
+    this.thoughts[FigmentType.SCOUT] = {};
+    this.thoughts[FigmentType.RESERVE] = {};
+
+    for (const source of sources) {
+      this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
+    }
+
+    const figmentThoughts: ThoughtMapping[] = [
+      { name: FigmentType.TRANSFER, thought: TransferThought },
+      { name: FigmentType.PICKUP, thought: PickupThought },
+      { name: FigmentType.WORKER, thought: WorkerThought },
+      { name: FigmentType.UPGRADE, thought: UpgradeThought },
+      { name: FigmentType.ATTACK, thought: AttackThought },
+      { name: FigmentType.DEFENSE, thought: DefenseThought }
+    ];
+    for (const figmentThought of figmentThoughts) {
+      this.thoughts[figmentThought.name] = {};
+      this.thoughts[figmentThought.name]["0"] = new figmentThought.thought(this, figmentThought.name, "0");
+    }
   }
 
   public ponder(): void {
     this.memory = Memory.imagination.genesisIdeas[this.name];
-    this.spawn = Game.spawns[this.spawn.name];
+    for (const roomName of this.spawn.room.neighborNames) {
+      const room = Game.rooms[roomName];
+      if (room) {
+        const sources = _.sortBy(room.find(FIND_SOURCES));
+        for (const source of sources) {
+          if (!this.thoughts[FigmentType.HARVEST][source.id]) {
+            this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
+          }
+        }
+        if (!this.thoughts[FigmentType.RESERVE][room.name]) {
+          this.thoughts[FigmentType.RESERVE][room.name] = new ReserveThought(this, FigmentType.RESERVE, room.name);
+        }
+      }
+      if (!this.thoughts[FigmentType.SCOUT][roomName]) {
+        this.thoughts[FigmentType.SCOUT][roomName] = new ScoutThought(this, FigmentType.SCOUT, roomName);
+      }
+    }
+    super.ponder();
   }
 
   public think(): void {
@@ -42,20 +101,19 @@ export class GenesisIdea extends Idea {
       this.spawnQueue.clear();
       this.ensureMinimumPickups();
       this.setQueuePriorities();
-      if (this.idea) {
-        for (const thoughtName in this.idea.thoughts) {
-          for (const thoughtInstance in this.idea.thoughts[thoughtName]) {
-            const thought = this.idea.thoughts[thoughtName][thoughtInstance];
-            if (thought instanceof FigmentThought) {
-              // console.log(thought.name);
-              this.processThought(thought);
-            }
+      for (const thoughtName in this.thoughts) {
+        for (const thoughtInstance in this.thoughts[thoughtName]) {
+          const thought = this.thoughts[thoughtName][thoughtInstance];
+          if (thought instanceof FigmentThought) {
+            // console.log(thought.name);
+            this.processThought(thought);
           }
         }
       }
     }
     // this.imagination.addStatus(`Spawn Q: ${this.spawnQueue.length}`);
     this.processSpawnQueue();
+    super.think();
   }
 
   private ensureMinimumPickups() {
@@ -77,6 +135,7 @@ export class GenesisIdea extends Idea {
   }
 
   public reflect(): void {
+    super.reflect();
     if (this.reset) {
       this.reset = false;
     } else {
@@ -85,7 +144,7 @@ export class GenesisIdea extends Idea {
   }
 
   private contemplate(): void {
-    if (!this.idea || !this.idea.showStats) {
+    if (!this.showStats) {
       return;
     }
     const tableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
@@ -105,7 +164,7 @@ export class GenesisIdea extends Idea {
     if (this.spawn.spawning) {
       const figment = new Figment(Game.creeps[this.spawn.spawning.name].id);
       const remainingTicks = this.spawn.spawning.remainingTime;
-      title += ` (Spawning: ${figment.memory.thoughtType} in ${remainingTicks})`;
+      title += ` (Spawning: ${figment.memory.figmentType} in ${remainingTicks})`;
     } else {
       let nextSpawn: SpawnQueuePayload | null = null;
       if (this.spawnQueue.length > 0) {
@@ -130,9 +189,7 @@ export class GenesisIdea extends Idea {
 
   private setQueuePriorities(): void {
     let enemies = 0;
-    if (this.idea) {
-      enemies = (this.idea.ideas[IdeaType.COMBAT] as CombatIdea).enemyQueue.length;
-    }
+    enemies = (this.imagination.ideas[this.name][IdeaType.COMBAT] as CombatIdea).enemyQueue.length;
     for (const figmentType of Object.values(FigmentType)) {
       switch (figmentType) {
         case FigmentType.HARVEST: {
@@ -194,11 +251,12 @@ export class GenesisIdea extends Idea {
     let outputs = 0;
     let constructionSites = 0;
     let repairTargets = 0;
-    if (this.idea) {
-      outputs = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).getOutputs();
-      constructionSites = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length ? 1 : 0;
-      repairTargets = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length ? 1 : 0;
-    }
+    outputs = (this.imagination.ideas[this.name][IdeaType.METABOLIC] as MetabolicIdea).getOutputs();
+    constructionSites = (this.imagination.ideas[this.name][IdeaType.CREATION] as CreationIdea).constructionSiteQueue
+      .length
+      ? 1
+      : 0;
+    repairTargets = (this.imagination.ideas[this.name][IdeaType.CREATION] as CreationIdea).repairQueue.length ? 1 : 0;
     // console.log(thought.name);
     for (const figmentType in thought.figments) {
       // console.log(figmentType);

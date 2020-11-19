@@ -7,8 +7,7 @@ import { exportStats } from "utils/stats";
 import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
-  // TODO: Make this more robust to have a multiple ideas per room
-  private ideas: { [name: string]: Idea };
+  public ideas: { [name: string]: { [name: string]: Idea } };
   private consoleStatus: string[] = [];
   private generatedPixel = false;
 
@@ -78,7 +77,8 @@ export class Imagination implements IBrain {
   private fantasize() {
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
-      this.ideas[spawn.room.name] = new TabulaRasaIdea(spawn, this, IdeaType.TABULA_RASA, null);
+      this.ideas[spawn.room.name] = {};
+      this.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(spawn, this, IdeaType.TABULA_RASA);
     }
   }
 
@@ -113,18 +113,16 @@ export class Imagination implements IBrain {
     }
     // Clean up figment memory
     for (const name in Memory.creeps) {
-      const idea = this.ideas[Memory.creeps[name].ideaName];
+      const ideaName = Memory.creeps[name].ideaName;
       const figmentType = Memory.creeps[name].figmentType;
       if (!(name in Game.creeps)) {
         delete Memory.creeps[name];
       } else {
         // Set figment count
-        if (idea) {
-          if (Memory.imagination.genesisIdeas[idea.name].figmentCount[figmentType]) {
-            Memory.imagination.genesisIdeas[idea.name].figmentCount[figmentType] += 1;
-          } else {
-            Memory.imagination.genesisIdeas[idea.name].figmentCount[figmentType] = 1;
-          }
+        if (Memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType]) {
+          Memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] += 1;
+        } else {
+          Memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] = 1;
         }
       }
     }
@@ -163,7 +161,7 @@ export class Imagination implements IBrain {
       if (!idea) {
         continue;
       }
-      const thoughtTypeObj = idea.thoughts[thoughtType];
+      const thoughtTypeObj = idea[IdeaType.GENESIS].thoughts[thoughtType];
       if (!thoughtTypeObj) {
         continue;
       }
@@ -176,29 +174,35 @@ export class Imagination implements IBrain {
 
   public ponder(): void {
     this.meditate();
-    for (const name in this.ideas) {
-      try {
-        this.ideas[name].ponder();
-      } catch (error) {
-        console.log(`${name} idea error while pondering`);
+    for (const roomName in this.ideas) {
+      for (const ideaName in this.ideas[roomName]) {
+        try {
+          this.ideas[roomName][ideaName].ponder();
+        } catch (error) {
+          console.log(`${roomName}:${ideaName} idea error while pondering`);
+        }
       }
     }
   }
   public think(): void {
-    for (const name in this.ideas) {
-      try {
-        this.ideas[name].think();
-      } catch (error) {
-        console.log(`${name} idea error while thinking`);
+    for (const roomName in this.ideas) {
+      for (const ideaName in this.ideas[roomName]) {
+        try {
+          this.ideas[roomName][ideaName].think();
+        } catch (error) {
+          console.log(`${roomName}:${ideaName} idea error while thinking`);
+        }
       }
     }
   }
   public reflect(): void {
-    for (const name in this.ideas) {
-      try {
-        this.ideas[name].reflect();
-      } catch (error) {
-        console.log(`${name} idea error while reflecting`);
+    for (const roomName in this.ideas) {
+      for (const ideaName in this.ideas[roomName]) {
+        try {
+          this.ideas[roomName][ideaName].reflect();
+        } catch (error) {
+          console.log(`${roomName}:${ideaName} idea error while reflecting`);
+        }
       }
     }
     this.addStatus(`CPU Usage: ${Game.cpu.getUsed().toFixed(0)}`);
@@ -220,11 +224,23 @@ export class Imagination implements IBrain {
     console.log(status);
   }
 
+  public rall(roomName: string): string {
+    if (!this.ideas[roomName]) {
+      return `Could not toggle all visuals for ${roomName}`;
+    }
+    this.rstats(roomName);
+    this.rbuild(roomName);
+    this.rmeta(roomName);
+    return `Successfully toggled all visuals for ${roomName}`;
+  }
+
   public rstats(roomName: string): string {
     if (!this.ideas[roomName]) {
       return `Could not toggle room stats for ${roomName}`;
     }
-    this.ideas[roomName].showStats = !this.ideas[roomName].showStats;
+    for (const ideaName in this.ideas[roomName]) {
+      this.ideas[roomName][ideaName].showStats = !this.ideas[roomName].showStats;
+    }
     return `Successfully toggled room stats for ${roomName}`;
   }
 
@@ -232,7 +248,9 @@ export class Imagination implements IBrain {
     if (!this.ideas[roomName]) {
       return `Could not toggle room build visuals for ${roomName}`;
     }
-    this.ideas[roomName].showBuildVisuals = !this.ideas[roomName].showBuildVisuals;
+    for (const ideaName in this.ideas[roomName]) {
+      this.ideas[roomName][ideaName].showBuildVisuals = !this.ideas[roomName].showBuildVisuals;
+    }
     return `Successfully toggled room build visuals for ${roomName}`;
   }
 
@@ -240,7 +258,9 @@ export class Imagination implements IBrain {
     if (!this.ideas[roomName]) {
       return `Could not toggle room metabolic visuals for ${roomName}`;
     }
-    this.ideas[roomName].showMetaVisuals = !this.ideas[roomName].showMetaVisuals;
+    for (const ideaName in this.ideas[roomName]) {
+      this.ideas[roomName][ideaName].showMetaVisuals = !this.ideas[roomName].showMetaVisuals;
+    }
     return `Successfully toggled room metabolic visuals for ${roomName}`;
   }
 }

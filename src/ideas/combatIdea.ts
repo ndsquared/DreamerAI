@@ -17,55 +17,57 @@ export class CombatIdea extends Idea {
     }
   });
   public hostileEnemyInRoom: { [name: string]: boolean } = {};
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
-    super(spawn, imagination, type, idea);
+  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
+    super(spawn, imagination, type);
   }
 
   public ponder(): void {
     this.enemyQueue.clear();
     this.healQueue.clear();
-    // for (const room of this.spawn.room.neighborhood) {
-    const room = this.spawn.room;
-    if (!room) {
-      return;
-    }
-    this.hostileEnemyInRoom[room.name] = false;
-    // Get hostile creeps in the room
-    const enemies = room.find(FIND_HOSTILE_CREEPS);
-    for (const enemy of enemies) {
-      this.enemyQueue.queue({
-        enemyObject: enemy,
-        priority: enemy.hits
+    for (const room of this.spawn.room.neighborhood) {
+      this.hostileEnemyInRoom[room.name] = false;
+      // Get hostile creeps in the room
+      const enemies = room.find(FIND_HOSTILE_CREEPS);
+      for (const enemy of enemies) {
+        this.enemyQueue.queue({
+          enemyObject: enemy,
+          priority: enemy.hits
+        });
+        if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
+          this.hostileEnemyInRoom[room.name] = true;
+        }
+      }
+      // Get hostile structures in the room
+      const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
+      for (const enemyStructure of enemyStructures) {
+        // Filter out invulnerable structures
+        if (enemyStructure.structureType === STRUCTURE_SPAWN) {
+          continue;
+        } else if (enemyStructure.structureType === STRUCTURE_KEEPER_LAIR) {
+          continue;
+        }
+        this.enemyQueue.queue({
+          enemyObject: enemyStructure,
+          priority: enemyStructure.hits
+        });
+      }
+      // Find figments that need medical attention
+      const figments = room.find(FIND_MY_CREEPS, {
+        filter: c => {
+          return c.hits < c.hitsMax;
+        }
       });
-      if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
-        this.hostileEnemyInRoom[room.name] = true;
+      for (const figment of figments) {
+        this.healQueue.queue({
+          figment,
+          priority: figment.hits
+        });
       }
     }
-    // Get hostile structures in the room
-    const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
-    for (const enemyStructure of enemyStructures) {
-      this.enemyQueue.queue({
-        enemyObject: enemyStructure,
-        priority: enemyStructure.hits
-      });
-    }
-    // Find figments that need medical attention
-    const figments = room.find(FIND_MY_CREEPS, {
-      filter: c => {
-        return c.hits < c.hitsMax;
-      }
-    });
-    for (const figment of figments) {
-      this.healQueue.queue({
-        figment,
-        priority: figment.hits
-      });
-    }
-    // }
   }
 
   public reflect(): void {
-    if (!this.idea || !this.idea.showEnemyVisuals) {
+    if (!this.showEnemyVisuals) {
       return;
     }
     if (this.enemyQueue.length > 0) {
