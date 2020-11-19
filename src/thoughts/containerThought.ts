@@ -10,7 +10,7 @@ export class ContainerThought extends BuildThought {
 
   public buildPlan(creationIdea: CreationIdea): void {
     const spawn = this.idea.spawn;
-    if (spawn) {
+    if (spawn && !spawn.room.storage) {
       const containers = spawn.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: s => s.structureType === STRUCTURE_CONTAINER
       });
