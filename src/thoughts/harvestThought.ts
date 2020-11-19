@@ -98,6 +98,7 @@ export class HarvestThought extends FigmentThought {
     if (controller.owner && controller.owner.username !== this.idea.spawn.owner.username) {
       return false;
     }
+    // TODO: could also calculate TTL and length of path to optimize replacements
     this.source = Game.getObjectById(this.sourceId);
     if (this.source) {
       const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));

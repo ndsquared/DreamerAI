@@ -450,10 +450,12 @@ export function getCutTiles(
     }
   }
   // Visualise Result
-  if (visualize && positions.length > 0) {
-    const visual = new RoomVisual(roomName);
-    for (let i = positions.length - 1; i >= 0; i--) {
-      visual.circle(positions[i].x, positions[i].y, { radius: 0.5, fill: "#ff7722", opacity: 0.9 });
+  if (positions.length > 0) {
+    if (visualize) {
+      const visual = new RoomVisual(roomName);
+      for (let i = positions.length - 1; i >= 0; i--) {
+        visual.circle(positions[i].x, positions[i].y, { radius: 0.5, fill: "#ff7722", opacity: 0.9 });
+      }
     }
   } else {
     return [];

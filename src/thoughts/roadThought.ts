@@ -53,6 +53,9 @@ export class RoadThought extends BuildThought {
       if (onlySwamp && Game.map.getRoomTerrain(pathStep.roomName).get(pathStep.x, pathStep.y) !== TERRAIN_MASK_SWAMP) {
         continue;
       }
+      if (pathStep.isEdge) {
+        continue;
+      }
       creationIdea.addBuild(pathStep, STRUCTURE_ROAD, priority, false, false);
       priority++;
     }

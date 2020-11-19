@@ -245,7 +245,8 @@ export class Figment extends Creep implements Figment {
       moveOffRoadDuringImpulse: false,
       moveRange: 1,
       moveRandom: false,
-      movingTarget: false
+      movingTarget: false,
+      sleepTick: -1
     };
     let options = defaultTargetOptions;
     if (targetOptions) {
@@ -292,6 +293,7 @@ export class Figment extends Creep implements Figment {
     return _.first(_.sortBy(roomResources, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 
+  // TODO: Might want to make this multi-room?
   public getClosestPickupOrWithdrawTarget({
     resourceType = RESOURCE_ENERGY,
     minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3

@@ -20,8 +20,20 @@ export class RampartThought extends BuildThought {
     const controller = this.idea.spawn.room.controller;
     if (controller) {
       const controllerNeighbors = controller.pos.availableNeighbors(true);
-      creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, false, false, false);
+      creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, true, false, false);
     }
+
+    // Protect containers
+    const containers = spawn.room.find(FIND_STRUCTURES, {
+      filter: s => {
+        if (s.structureType === STRUCTURE_CONTAINER) {
+          return true;
+        }
+        return false;
+      }
+    });
+    const containerPos = _.map(containers, c => c.pos);
+    creationIdea.addBuilds(containerPos, STRUCTURE_RAMPART, 7, false, true, false);
 
     // Protect towers
     const towers = spawn.room.find(FIND_STRUCTURES, {
@@ -57,7 +69,7 @@ export class RampartThought extends BuildThought {
 
     const positions = getCutTiles(this.idea.spawn.room.name, rect, true, Infinity, false);
     for (const pos of positions) {
-      creationIdea.addBuild(pos, STRUCTURE_RAMPART, 6, false, false);
+      creationIdea.addBuild(pos, STRUCTURE_RAMPART, 6, true, false);
     }
   }
 }

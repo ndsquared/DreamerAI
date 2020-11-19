@@ -12,7 +12,6 @@ export class WorkerThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
-    console.log(`handling worker`);
     if (figment.store.getUsedCapacity() > 0) {
       const repairTarget = (this.idea.imagination.ideas[this.idea.name][
         IdeaType.CREATION
@@ -29,6 +28,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
       } else if (buildTarget) {
         figment.addNeuron(NeuronType.BUILD, buildTarget.id, buildTarget.pos);
+        figment.addNeuron(NeuronType.SLEEP, "", null, { sleepTick: 2 });
       } else if (repairTarget) {
         figment.addNeuron(NeuronType.REPAIR, repairTarget.id, repairTarget.pos);
       } else if (controller && controller.my) {

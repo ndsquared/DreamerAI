@@ -54,13 +54,7 @@ export class CreationIdea extends Idea {
   }
 
   public ponder(): void {
-    this.constructionSiteQueue.clear();
-    for (const room of this.spawn.room.neighborhood) {
-      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-      for (const constructionSite of constructionSites) {
-        this.constructionSiteQueue.queue(constructionSite);
-      }
-    }
+    this.fillConstructionSiteQueue();
     if (this.repairQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         const structures = room.find(FIND_STRUCTURES);
@@ -115,6 +109,17 @@ export class CreationIdea extends Idea {
     }
   }
 
+  // TODO: should only need to call this after a successful build result?
+  private fillConstructionSiteQueue(): void {
+    this.constructionSiteQueue.clear();
+    for (const room of this.spawn.room.neighborhood) {
+      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+      for (const constructionSite of constructionSites) {
+        this.constructionSiteQueue.queue(constructionSite);
+      }
+    }
+  }
+
   public canBuild(): boolean {
     if (this.constructionSiteQueue.length) {
       return false;
@@ -129,7 +134,6 @@ export class CreationIdea extends Idea {
     const target = this.constructionSiteQueue.peek();
     if (!Game.getObjectById(target.id)) {
       this.constructionSiteQueue.dequeue();
-      // console.log("got rid of invalid site");
     }
     return target;
   }
@@ -160,7 +164,7 @@ export class CreationIdea extends Idea {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.buildQueue.dequeue();
-          console.log("build a thing!");
+          this.fillConstructionSiteQueue();
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
           this.buildQueue.dequeue();
         } else {
