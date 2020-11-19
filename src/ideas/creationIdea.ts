@@ -61,12 +61,15 @@ export class CreationIdea extends Idea {
       }
     }
     // }
-    // TODO: Filter out roads and containers?
     if (this.repairQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         const structures = room.find(FIND_STRUCTURES);
         for (const s of structures) {
-          if (s.hits < this.repairThreshold && s.hits < s.hitsMax) {
+          if (s.structureType === STRUCTURE_ROAD) {
+            continue;
+          } else if (s.structureType === STRUCTURE_CONTAINER) {
+            continue;
+          } else if (s.hits < this.repairThreshold && s.hits < s.hitsMax) {
             this.repairQueue.queue(s);
           }
         }

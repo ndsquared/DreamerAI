@@ -94,13 +94,13 @@ interface Room {
 
 interface RoomPosition {
   availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
-  availableBuilds(): RoomPosition[];
+  availableBuilds(ignoreRaods?: boolean, ignoreRamparts?: boolean): RoomPosition[];
   availableToMove: boolean;
   neighbors: RoomPosition[];
   hasStructure(structure: StructureConstant): boolean;
   hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
-  isBuildable(): boolean;
+  isBuildable(ignoreRaods?: boolean, ignoreRamparts?: boolean): boolean;
   isVisible: boolean;
   isEdge: boolean;
   toString(): string;

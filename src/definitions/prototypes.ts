@@ -117,11 +117,11 @@ RoomPosition.prototype.availableNeighbors = function (ignoreCreeps = false): Roo
   return _.filter(this.neighbors, pos => pos.isWalkable(ignoreCreeps));
 };
 
-RoomPosition.prototype.availableBuilds = function (): RoomPosition[] {
-  return _.filter(this.neighbors, pos => pos.isBuildable());
+RoomPosition.prototype.availableBuilds = function (ignoreRoads = true, ignoreRamparts = true): RoomPosition[] {
+  return _.filter(this.neighbors, pos => pos.isBuildable(ignoreRoads, ignoreRamparts));
 };
 
-RoomPosition.prototype.isBuildable = function (): boolean {
+RoomPosition.prototype.isBuildable = function (ignoreRoads = true, ignoreRamparts = true): boolean {
   if (Game.map.getRoomTerrain(this.roomName).get(this.x, this.y) === TERRAIN_MASK_WALL) {
     return false;
   }
@@ -132,6 +132,20 @@ RoomPosition.prototype.isBuildable = function (): boolean {
     }
     const lookStructure = this.lookFor(LOOK_STRUCTURES);
     if (lookStructure.length) {
+      if (ignoreRoads) {
+        for (const structure of lookStructure) {
+          if (structure.structureType === STRUCTURE_ROAD) {
+            return true;
+          }
+        }
+      }
+      if (ignoreRamparts) {
+        for (const structure of lookStructure) {
+          if (structure.structureType === STRUCTURE_RAMPART) {
+            return true;
+          }
+        }
+      }
       return false;
     }
   }
