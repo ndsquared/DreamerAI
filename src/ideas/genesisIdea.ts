@@ -19,17 +19,17 @@ export class GenesisIdea extends Idea {
   private queuePriorities: { [type: string]: number } = {};
   private figmentNeeded: { [type: string]: boolean } = {};
   private memory: GenesisMemory;
-  private figmentCountAdjustments: FigmentCountAdjustment[] = [];
   private reset = true;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType, idea: Idea) {
     super(spawn, imagination, type, idea);
-    this.memory = {
-      figmentCount: {}
-    };
     // Initialize the memory
     if (!Memory.imagination.genesisIdeas[this.name]) {
-      Memory.imagination.genesisIdeas[this.name] = this.memory;
+      Memory.imagination.genesisIdeas[this.name] = {
+        figmentCount: {}
+      };
     }
+
+    this.memory = Memory.imagination.genesisIdeas[this.name];
   }
 
   public ponder(): void {
@@ -77,8 +77,6 @@ export class GenesisIdea extends Idea {
   }
 
   public reflect(): void {
-    this.processFigmentCountAdjustments();
-    Memory.imagination.genesisIdeas[this.name] = this.memory;
     if (this.reset) {
       this.reset = false;
     } else {
@@ -284,7 +282,6 @@ export class GenesisIdea extends Idea {
         // this.imagination.addStatus(
         //   `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} w/ priority ${nextSpawn.priority}`
         // );
-        this.adjustFigmentCount(nextSpawn.figmentType, 1);
       }
       // if (statusSpawn) {
       // const cost = _.sum(body, b => BODYPART_COST[b]);
@@ -303,26 +300,5 @@ export class GenesisIdea extends Idea {
       return count;
     }
     return 0;
-  }
-
-  private processFigmentCountAdjustments(): void {
-    while (this.figmentCountAdjustments.length > 0) {
-      const adjustment = this.figmentCountAdjustments.pop();
-      if (adjustment) {
-        const count = this.memory.figmentCount[adjustment.type];
-        if (count) {
-          this.memory.figmentCount[adjustment.type] += adjustment.delta;
-        } else {
-          this.memory.figmentCount[adjustment.type] = adjustment.delta;
-        }
-      }
-    }
-  }
-
-  public adjustFigmentCount(type: string, delta: number): void {
-    this.figmentCountAdjustments.push({
-      type,
-      delta
-    });
   }
 }

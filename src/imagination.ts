@@ -2,7 +2,6 @@
 import { Idea, IdeaType } from "ideas/idea";
 import { Figment } from "figments/figment";
 import { FigmentThought } from "thoughts/figmentThought";
-import { GenesisIdea } from "ideas/genesisIdea";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
 import { exportStats } from "utils/stats";
 import profiler from "screeps-profiler";
@@ -106,15 +105,27 @@ export class Imagination implements IBrain {
   }
 
   private meditate() {
-    // Calculate figment count here!
+    // Reset figment count
+    for (const ideaName in this.ideas) {
+      Memory.imagination.genesisIdeas[ideaName] = {
+        figmentCount: {}
+      };
+    }
     // Clean up figment memory
     for (const name in Memory.creeps) {
+      const idea = this.ideas[Memory.creeps[name].ideaName];
+      const figmentType = Memory.creeps[name].figmentType;
       if (!(name in Game.creeps)) {
-        const idea = this.ideas[Memory.creeps[name].ideaName];
-        if (idea) {
-          (idea.ideas[IdeaType.GENESIS] as GenesisIdea).adjustFigmentCount(Memory.creeps[name].figmentType, -1);
-        }
         delete Memory.creeps[name];
+      } else {
+        // Set figment count
+        if (idea) {
+          if (Memory.imagination.genesisIdeas[idea.name].figmentCount[figmentType]) {
+            Memory.imagination.genesisIdeas[idea.name].figmentCount[figmentType] += 1;
+          } else {
+            Memory.imagination.genesisIdeas[idea.name].figmentCount[figmentType] = 1;
+          }
+        }
       }
     }
     // Clean up metabolism memory
