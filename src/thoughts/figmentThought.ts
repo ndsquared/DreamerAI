@@ -33,18 +33,18 @@ export abstract class FigmentThought extends Thought {
   }
 
   public ponder(): void {
-    for (const figmentType in this.figments) {
-      for (const figment of this.figments[figmentType]) {
-        if (figment.isDreaming) {
-          this.handleFigment(figment);
-        }
-      }
-    }
+    // for (const figmentType in this.figments) {
+    //   for (const figment of this.figments[figmentType]) {
+    //   }
+    // }
   }
 
   public think(): void {
     for (const figmentType in this.figments) {
       for (const figment of this.figments[figmentType]) {
+        if (figment.isDreaming) {
+          this.handleFigment(figment);
+        }
         const tookAction = figment.run();
         // If we didn't take any action this turn, try to take the next action
         if (!tookAction) {

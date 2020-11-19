@@ -160,6 +160,7 @@ export class CreationIdea extends Idea {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.buildQueue.dequeue();
+          console.log("build a thing!");
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
           this.buildQueue.dequeue();
         } else {

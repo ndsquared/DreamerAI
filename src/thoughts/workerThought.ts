@@ -12,6 +12,7 @@ export class WorkerThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
+    console.log(`handling worker`);
     if (figment.store.getUsedCapacity() > 0) {
       const repairTarget = (this.idea.imagination.ideas[this.idea.name][
         IdeaType.CREATION
