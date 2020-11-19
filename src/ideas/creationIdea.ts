@@ -149,6 +149,7 @@ export class CreationIdea extends Idea {
   }
 
   // TODO: need some better handling of build results
+  // TODO: timing is still not right for building back to back, cooldown on worker after build?
   private processBuildQueue(): void {
     // let statusBuild: BuildQueuePayload | null = null;
     if (this.buildQueue.length > 0) {

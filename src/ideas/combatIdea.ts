@@ -23,6 +23,7 @@ export class CombatIdea extends Idea {
 
   public ponder(): void {
     this.enemyQueue.clear();
+    this.healQueue.clear();
     // for (const room of this.spawn.room.neighborhood) {
     const room = this.spawn.room;
     if (!room) {
