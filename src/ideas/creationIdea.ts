@@ -88,11 +88,11 @@ export class CreationIdea extends Idea {
     // this.imagination.addStatus(`Build Q: ${this.buildQueue.length}`);
     // this.imagination.addStatus(`Const Q: ${this.constructionSiteQueue.length}`);
     // this.imagination.addStatus(`Repair Q: ${this.repairQueue.length}`);
+    this.processBuildQueue();
     super.ponder();
   }
 
   public think(): void {
-    this.processBuildQueue();
     super.think();
   }
 
