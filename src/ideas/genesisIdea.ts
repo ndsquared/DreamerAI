@@ -198,7 +198,7 @@ export class GenesisIdea extends Idea {
     let repairTargets = 0;
     if (this.idea) {
       outputs = (this.idea.ideas[IdeaType.METABOLIC] as MetabolicIdea).getOutputs();
-      constructionSites = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length;
+      constructionSites = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).constructionSiteQueue.length ? 1 : 0;
       repairTargets = (this.idea.ideas[IdeaType.CREATION] as CreationIdea).repairQueue.length ? 1 : 0;
     }
     // console.log(thought.name);

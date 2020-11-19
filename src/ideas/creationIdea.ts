@@ -52,14 +52,14 @@ export class CreationIdea extends Idea {
   }
 
   public ponder(): void {
-    if (this.constructionSiteQueue.length === 0) {
-      for (const room of this.spawn.room.neighborhood) {
-        const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-        for (const constructionSite of constructionSites) {
-          this.constructionSiteQueue.queue(constructionSite);
-        }
+    // if (this.constructionSiteQueue.length === 0) {
+    for (const room of this.spawn.room.neighborhood) {
+      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+      for (const constructionSite of constructionSites) {
+        this.constructionSiteQueue.queue(constructionSite);
       }
     }
+    // }
     // TODO: Filter out roads and containers?
     if (this.repairQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
@@ -121,6 +121,7 @@ export class CreationIdea extends Idea {
     return true;
   }
 
+  // TODO: Need to have sites dequeued as soon as they finish
   public getNextConstructionSite(): ConstructionSite | null {
     if (this.constructionSiteQueue.length === 0) {
       return null;
