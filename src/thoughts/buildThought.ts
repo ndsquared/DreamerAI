@@ -66,7 +66,7 @@ export abstract class BuildThought extends Thought {
     const positions: RoomPosition[] = [];
     for (const delta of deltas) {
       const pos = GetRoomPosition(pivotPos.x + delta.x, pivotPos.y + delta.y, pivotPos.roomName);
-      if (pos && pos.isBuildable()) {
+      if (pos && pos.isBuildable(false, false)) {
         positions.push(pos);
       }
     }
