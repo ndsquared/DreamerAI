@@ -166,17 +166,29 @@ export class Imagination implements IBrain {
   public ponder(): void {
     this.meditate();
     for (const name in this.ideas) {
-      this.ideas[name].ponder();
+      try {
+        this.ideas[name].ponder();
+      } catch (error) {
+        console.log(`${name} idea error while pondering`);
+      }
     }
   }
   public think(): void {
     for (const name in this.ideas) {
-      this.ideas[name].think();
+      try {
+        this.ideas[name].think();
+      } catch (error) {
+        console.log(`${name} idea error while thinking`);
+      }
     }
   }
   public reflect(): void {
     for (const name in this.ideas) {
-      this.ideas[name].reflect();
+      try {
+        this.ideas[name].reflect();
+      } catch (error) {
+        console.log(`${name} idea error while reflecting`);
+      }
     }
     this.addStatus(`CPU Usage: ${Game.cpu.getUsed().toFixed(0)}`);
     this.addStatus(`CPU Limit: ${Game.cpu.limit}`);

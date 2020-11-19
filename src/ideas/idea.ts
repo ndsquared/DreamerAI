@@ -45,7 +45,11 @@ export abstract class Idea implements IBrain {
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];
-        thought.ponder();
+        try {
+          thought.ponder();
+        } catch (error) {
+          console.log(`${thought.name} error while pondering`);
+        }
       }
     }
     this.rcl = this.spawn.room.controller?.level === undefined ? 0 : this.spawn.room.controller.level;
@@ -59,7 +63,11 @@ export abstract class Idea implements IBrain {
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];
-        thought.think();
+        try {
+          thought.think();
+        } catch (error) {
+          console.log(`${thought.name} error while thinking`);
+        }
       }
     }
   }
@@ -72,7 +80,11 @@ export abstract class Idea implements IBrain {
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];
-        thought.reflect();
+        try {
+          thought.reflect();
+        } catch (error) {
+          console.log(`${thought.name} error while reflecting`);
+        }
       }
     }
   }
