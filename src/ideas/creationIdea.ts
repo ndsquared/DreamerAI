@@ -34,6 +34,8 @@ export class CreationIdea extends Idea {
     }
   });
   private repairThreshold = 20000;
+  private rateLimitBuildPlanning = true;
+  private rateLimitBuildInterval = 50;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
     super(spawn, imagination, type);
     const buildThoughts: ThoughtMapping[] = [
@@ -52,7 +54,6 @@ export class CreationIdea extends Idea {
   }
 
   public ponder(): void {
-    // if (this.constructionSiteQueue.length === 0) {
     this.constructionSiteQueue.clear();
     for (const room of this.spawn.room.neighborhood) {
       const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
@@ -60,7 +61,6 @@ export class CreationIdea extends Idea {
         this.constructionSiteQueue.queue(constructionSite);
       }
     }
-    // }
     if (this.repairQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         const structures = room.find(FIND_STRUCTURES);
@@ -75,20 +75,19 @@ export class CreationIdea extends Idea {
         }
       }
     }
-    // TODO: Rate-limit this when all builds are finished
     if (this.buildQueue.length === 0) {
-      for (const thoughtName in this.thoughts) {
-        for (const thoughtInstance in this.thoughts[thoughtName]) {
-          const thought = this.thoughts[thoughtName][thoughtInstance];
-          if (thought instanceof BuildThought) {
-            thought.buildPlan(this);
+      if (this.rateLimitBuildPlanning && Game.time % this.rateLimitBuildInterval === 0) {
+        this.rateLimitBuildPlanning = false;
+        for (const thoughtName in this.thoughts) {
+          for (const thoughtInstance in this.thoughts[thoughtName]) {
+            const thought = this.thoughts[thoughtName][thoughtInstance];
+            if (thought instanceof BuildThought) {
+              thought.buildPlan(this);
+            }
           }
         }
       }
     }
-    // this.imagination.addStatus(`Build Q: ${this.buildQueue.length}`);
-    // this.imagination.addStatus(`Const Q: ${this.constructionSiteQueue.length}`);
-    // this.imagination.addStatus(`Repair Q: ${this.repairQueue.length}`);
     this.processBuildQueue();
     super.ponder();
   }
@@ -152,18 +151,15 @@ export class CreationIdea extends Idea {
   // TODO: need some better handling of build results
   // TODO: timing is still not right for building back to back, cooldown on worker after build?
   private processBuildQueue(): void {
-    // let statusBuild: BuildQueuePayload | null = null;
     if (this.buildQueue.length > 0) {
+      this.rateLimitBuildPlanning = true;
       let nextBuild = this.buildQueue.peek();
-      // statusBuild = nextBuild;
       let buildResult: number;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.buildQueue.dequeue();
-          // this.imagination.addStatus(`Building ${nextBuild.structure} ${nextBuild.pos.toString()}`);
-          // statusBuild = null;
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
           this.buildQueue.dequeue();
         } else {
@@ -172,12 +168,7 @@ export class CreationIdea extends Idea {
             this.buildQueue.dequeue();
           }
         }
-      } else {
-        buildResult = ERR_RCL_NOT_ENOUGH;
       }
-      // if (statusBuild && buildResult !== ERR_RCL_NOT_ENOUGH) {
-      //   this.imagination.addStatus(`Next Build: ${statusBuild.structure} with priority ${statusBuild.priority}`);
-      // }
     }
   }
 

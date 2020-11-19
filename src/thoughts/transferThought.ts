@@ -24,13 +24,16 @@ export class TransferThought extends FigmentThought {
     return null;
   }
 
-  // TODO: Should prioritize by free space with towers??
   private getNextTransferTarget(figment: Figment): StoreStructure {
     const targets: StoreStructure[] = [];
     const structures = this.idea.spawn.room.find(FIND_STRUCTURES);
     for (const structureConstant of this.transferPriority) {
       for (const structure of structures) {
-        if (
+        if (structure.structureType === STRUCTURE_TOWER) {
+          if (structure.energy < 951) {
+            targets.push(structure);
+          }
+        } else if (
           isEnergyStructure(structure) &&
           structure.structureType === structureConstant &&
           structure.hasEnergyCapacity
@@ -103,7 +106,12 @@ export class TransferThought extends FigmentThought {
       return false;
     }
     if (figmentType === FigmentType.TRANSFER) {
-      // TODO: Build a transfer figment 200 ticks prior to the current figment TTL?
+      if (this.figments[figmentType].length === 1) {
+        const ttl = this.figments[figmentType][0].ticksToLive;
+        if (ttl && ttl < 200) {
+          return true;
+        }
+      }
       return this.figments[figmentType].length < 1;
     } else if (figmentType === FigmentType.TOWER_FILLER) {
       // TODO: Optimize this call
