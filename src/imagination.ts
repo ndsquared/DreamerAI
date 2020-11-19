@@ -106,6 +106,7 @@ export class Imagination implements IBrain {
   }
 
   private meditate() {
+    // Calculate figment count here!
     // Clean up figment memory
     for (const name in Memory.creeps) {
       if (!(name in Game.creeps)) {

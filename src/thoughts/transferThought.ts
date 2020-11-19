@@ -106,6 +106,18 @@ export class TransferThought extends FigmentThought {
       // TODO: Build a transfer figment 200 ticks prior to the current figment TTL?
       return this.figments[figmentType].length < 1;
     } else if (figmentType === FigmentType.TOWER_FILLER) {
+      // TODO: Optimize this call
+      const towers = this.idea.spawn.room.find(FIND_STRUCTURES, {
+        filter: s => {
+          if (s.structureType === STRUCTURE_TOWER) {
+            return true;
+          }
+          return false;
+        }
+      });
+      if (towers.length === 0) {
+        return false;
+      }
       return this.figments[figmentType].length < 1;
     }
     return false;

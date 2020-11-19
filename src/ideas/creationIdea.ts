@@ -60,7 +60,7 @@ export class CreationIdea extends Idea {
         }
       }
     }
-    // Filter out roads and containers?
+    // TODO: Filter out roads and containers?
     if (this.repairQueue.length === 0) {
       for (const room of this.spawn.room.neighborhood) {
         const structures = room.find(FIND_STRUCTURES);
@@ -71,6 +71,7 @@ export class CreationIdea extends Idea {
         }
       }
     }
+    // TODO: Rate-limit this when all builds are finished
     if (this.buildQueue.length === 0) {
       if (this.idea) {
         for (const thoughtName in this.thoughts) {
