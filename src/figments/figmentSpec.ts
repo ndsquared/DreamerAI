@@ -74,9 +74,9 @@ const scoutBodySpec = {
   bodyParts: [MOVE],
   ratio: [1],
   minParts: 1,
-  maxParts: 2,
+  maxParts: 1,
   ignoreCarry: false,
-  roadTravel: true
+  roadTravel: false
 };
 
 const scoutFigmentSpec = {
