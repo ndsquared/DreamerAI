@@ -71,8 +71,8 @@ const reserveFigmentSpec = {
 };
 
 const scoutBodySpec = {
-  bodyParts: [MOVE],
-  ratio: [1],
+  bodyParts: [],
+  ratio: [],
   minParts: 1,
   maxParts: 1,
   ignoreCarry: false,

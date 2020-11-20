@@ -69,9 +69,6 @@ export class Figment extends Creep implements Figment {
     let bodyPartCount = 0;
     let energySpent = 0;
     let shouldReturn = false;
-    if (bodySpec.minParts === 1 && bodySpec.maxParts === 1) {
-      return bodySpec.bodyParts;
-    }
     while (energySpent < energyAvailable) {
       for (let i = 0; i < bodySpec.bodyParts.length; i++) {
         const bodyPart = bodySpec.bodyParts[i];
@@ -100,8 +97,10 @@ export class Figment extends Creep implements Figment {
       if (shouldReturn) {
         break;
       }
+      // Safety net for bodyspec with no parts
       if (bodySpec.bodyParts.length === 0) {
         bodyParts.push(MOVE);
+        bodyPartCount++;
         break;
       }
     }
