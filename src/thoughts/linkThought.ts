@@ -20,7 +20,7 @@ export class LinkThought extends BuildThought {
         if (links.length === 0) {
           const adjPositions = controller.pos.availableNeighbors(true);
           for (const adjPos of adjPositions) {
-            const linkPos = adjPos.availableBuilds();
+            const linkPos = adjPos.availableBuilds(false);
             if (linkPos.length) {
               creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, false);
               break;
@@ -38,7 +38,7 @@ export class LinkThought extends BuildThought {
         if (links.length === 0) {
           const adjPositions = source.pos.availableNeighbors(true);
           for (const adjPos of adjPositions) {
-            const linkPos = adjPos.availableBuilds();
+            const linkPos = adjPos.availableBuilds(false);
             if (linkPos.length) {
               creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, false);
               break;
