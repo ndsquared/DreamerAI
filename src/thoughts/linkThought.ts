@@ -8,26 +8,42 @@ export class LinkThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  // TODO: Need to account for a controller with no adjacent build positions
   public buildPlan(creationIdea: CreationIdea): void {
     const spawn = this.idea.spawn;
     if (this.links.length < 1) {
       // Build link at controller
       const controller = spawn.room.controller;
       if (controller && controller.my) {
-        const linkPos = controller.pos.availableBuilds();
-        if (controller.pos.availableNeighbors(true).length > 1) {
-          creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, false);
+        const links = controller.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: s => s.structureType === STRUCTURE_LINK
+        });
+        if (links.length === 0) {
+          const adjPositions = controller.pos.availableNeighbors(true);
+          for (const adjPos of adjPositions) {
+            const linkPos = adjPos.availableBuilds();
+            if (linkPos.length) {
+              creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, false);
+              break;
+            }
+          }
         }
       }
     } else if (this.links.length < 3) {
       // Build links at sources
       const sources = Game.rooms[spawn.pos.roomName].find(FIND_SOURCES);
       for (const source of sources) {
-        const linkPos = source.pos.availableBuilds();
-        if (source.pos.availableNeighbors(true).length > 1) {
-          creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, false);
-          continue;
+        const links = source.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: s => s.structureType === STRUCTURE_LINK
+        });
+        if (links.length === 0) {
+          const adjPositions = source.pos.availableNeighbors(true);
+          for (const adjPos of adjPositions) {
+            const linkPos = adjPos.availableBuilds();
+            if (linkPos.length) {
+              creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, false);
+              break;
+            }
+          }
         }
       }
     }
