@@ -7,13 +7,16 @@ export class UpgradeThought extends FigmentThought {
   private controller: StructureController | undefined = undefined;
   private container: StructureContainer | null = null;
   private storage: StructureStorage | null = null;
+  private link: StructureLink | null = null;
   public constructor(idea: Idea, name: string, instance: string) {
     super(idea, name, instance);
     this.figments[FigmentType.UPGRADE] = [];
   }
 
   private getNextWithdrawTarget(): StoreStructure {
-    if (this.container) {
+    if (this.link) {
+      return this.link;
+    } else if (this.container) {
       return this.container;
     } else if (this.storage) {
       return this.storage;
@@ -48,6 +51,18 @@ export class UpgradeThought extends FigmentThought {
     } else {
       this.storage = Game.getObjectById(this.storage.id);
     }
+    if (!this.link) {
+      if (this.controller) {
+        const links = this.controller.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: s => s.structureType === STRUCTURE_LINK
+        });
+        if (links.length > 0) {
+          this.link = links[0] as StructureLink;
+        }
+      }
+    } else {
+      this.link = Game.getObjectById(this.link.id);
+    }
     super.ponder();
   }
 
@@ -73,9 +88,9 @@ export class UpgradeThought extends FigmentThought {
       energyInStorage = this.storage.store.getUsedCapacity(RESOURCE_ENERGY);
     }
     let partsRequired = 1;
-    if (energyInStorage > 300000 && this.figments[figmentType].length < 5) {
+    if (energyInStorage > 300000 && this.figments[figmentType].length < 3) {
       return true;
-    } else if (energyInContainer === 2000 && this.figments[figmentType].length < 2) {
+    } else if (!this.storage && energyInContainer === 2000 && this.figments[figmentType].length < 2) {
       return true;
     }
     if (this.idea.rcl === 8) {

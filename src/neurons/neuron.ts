@@ -50,6 +50,7 @@ export abstract class Neuron {
       this.figment.pos.inRangeTo(this.targetPos, this.interneuron.target.options.targetRange) &&
       !this.figment.pos.isEdge
     ) {
+      console.log(`${this.figment.name} is trying to move off road`);
       this.moveFigmentOffRoad(this.figment, this.targetPos, true);
     }
     const impulseResult = this.impulse();

@@ -15,9 +15,9 @@ export class TransferThought extends FigmentThought {
   }
 
   private getNextWithdrawTarget(): StoreStructure | null {
-    if (this.storage) {
+    if (this.storage && this.storage.store.getUsedCapacity() > 0) {
       return this.storage;
-    } else if (this.container) {
+    } else if (this.container && this.container.store.getUsedCapacity() > 0) {
       return this.container;
     }
 
@@ -93,6 +93,12 @@ export class TransferThought extends FigmentThought {
       const target = this.getNextWithdrawTarget();
       if (target) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
+      } else {
+        figment.addNeuron(NeuronType.SLEEP, this.idea.spawn.id, this.idea.spawn.pos, {
+          sleepTicks: 5,
+          moveOffRoadDuringImpulse: true,
+          targetRange: 10
+        });
       }
     } else {
       const target = this.getNextTransferTarget(figment);

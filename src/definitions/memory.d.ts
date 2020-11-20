@@ -89,7 +89,7 @@ interface InterneuronTargetOptions {
   moveRange: number;
   moveRandom: boolean;
   movingTarget: boolean;
-  sleepTick: number;
+  sleepTicks: number;
 }
 
 interface RoomMemory {

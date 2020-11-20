@@ -75,7 +75,7 @@ export class HarvestThought extends FigmentThought {
     }
     if (figment.store.getUsedCapacity() === 0) {
       figment.addNeuron(NeuronType.HARVEST, this.source.id, this.source.pos, targetOptions);
-    } else if (this.link) {
+    } else if (this.link && this.link.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
       figment.addNeuron(NeuronType.TRANSFER, this.link.id, this.link.pos);
     } else {
       figment.addNeuron(NeuronType.DROP);

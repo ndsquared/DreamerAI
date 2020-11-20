@@ -272,7 +272,7 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentType.WORKER:
-          if (count < constructionSites + repairTargets + 1) {
+          if (count < constructionSites + repairTargets) {
             figmentNeeded = true;
           }
           break;
