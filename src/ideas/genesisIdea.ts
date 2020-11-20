@@ -179,9 +179,16 @@ export class GenesisIdea extends Idea {
     table.renderTable();
   }
 
+  // Minimum viable figments needed to support the economy and new spawns
   private inEmergency(): boolean {
-    const figments = this.spawn.room.find(FIND_MY_CREEPS);
-    if (figments.length < 3) {
+    if (
+      !this.memory.figmentCount[FigmentType.TRANSFER] ||
+      this.memory.figmentCount[FigmentType.TRANSFER] === 0 ||
+      !this.memory.figmentCount[FigmentType.PICKUP] ||
+      this.memory.figmentCount[FigmentType.PICKUP] === 0 ||
+      !this.memory.figmentCount[FigmentType.HARVEST] ||
+      this.memory.figmentCount[FigmentType.HARVEST] === 0
+    ) {
       return true;
     }
     return false;
@@ -299,25 +306,15 @@ export class GenesisIdea extends Idea {
     if (this.spawn.spawning) {
       return;
     }
-    // let statusSpawn: SpawnQueuePayload | null = null;
     if (this.spawnQueue.length > 0) {
       const nextSpawn = this.spawnQueue.peek();
-      // statusSpawn = nextSpawn;
-      // Set minimum energy to use for the next figment spawn
       let energyAvailable = this.spawn.room.energyCapacityAvailable;
-      if (
-        this.inEmergency() ||
-        !this.memory.figmentCount[FigmentType.TRANSFER] ||
-        this.memory.figmentCount[FigmentType.TRANSFER] === 0
-      ) {
+      if (this.inEmergency()) {
         energyAvailable = this.spawn.room.energyAvailable;
       }
       // Calculate the body and check if we can spawn
       const body = Figment.GetBodyFromBodySpec(nextSpawn.figmentSpec.bodySpec, energyAvailable);
       const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
-      // console.log(nextSpawn.thoughtName);
-      // console.log(status);
-      // console.log(body.toString());
 
       if (status === OK && body.length >= nextSpawn.figmentSpec.bodySpec.minParts) {
         const memory = {
@@ -333,16 +330,8 @@ export class GenesisIdea extends Idea {
           inCombat: false
         };
         this.spawn.spawnCreep(body, nextSpawn.name, { memory });
-        // statusSpawn = null;
         this.spawnQueue.dequeue();
-        // this.imagination.addStatus(
-        //   `Spawning ${nextSpawn.thoughtName}:${nextSpawn.thoughtInstance} w/ priority ${nextSpawn.priority}`
-        // );
       }
-      // if (statusSpawn) {
-      // const cost = _.sum(body, b => BODYPART_COST[b]);
-      // this.imagination.addStatus(`Next Spawn: ${statusSpawn.thoughtName} w/ priority ${statusSpawn.priority}`);
-      // }
     }
   }
 
