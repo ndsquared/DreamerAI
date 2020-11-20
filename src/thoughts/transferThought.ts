@@ -84,6 +84,7 @@ export class TransferThought extends FigmentThought {
     super.ponder();
   }
 
+  // TODO: should idle off road
   public handleFigment(figment: Figment): void {
     if (figment.memory.figmentType === FigmentType.TOWER_FILLER) {
       this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];

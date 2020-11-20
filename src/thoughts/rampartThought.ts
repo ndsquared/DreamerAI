@@ -33,7 +33,19 @@ export class RampartThought extends BuildThought {
       }
     });
     const containerPos = _.map(containers, c => c.pos);
-    creationIdea.addBuilds(containerPos, STRUCTURE_RAMPART, 7, false, true, false);
+    creationIdea.addBuilds(containerPos, STRUCTURE_RAMPART, 7, false, false, false);
+
+    // Protect links
+    const links = spawn.room.find(FIND_STRUCTURES, {
+      filter: s => {
+        if (s.structureType === STRUCTURE_LINK) {
+          return true;
+        }
+        return false;
+      }
+    });
+    const linkPos = _.map(links, l => l.pos);
+    creationIdea.addBuilds(linkPos, STRUCTURE_RAMPART, 7, false, false, false);
 
     // Protect towers
     const towers = spawn.room.find(FIND_STRUCTURES, {
