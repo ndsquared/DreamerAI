@@ -95,9 +95,9 @@ export class TransferThought extends FigmentThought {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
       } else {
         figment.addNeuron(NeuronType.SLEEP, this.idea.spawn.id, this.idea.spawn.pos, {
-          sleepTicks: 5,
+          sleepTicks: 10,
           moveOffRoadDuringImpulse: true,
-          targetRange: 10
+          targetRange: 15
         });
       }
     } else {
