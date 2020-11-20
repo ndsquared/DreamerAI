@@ -195,9 +195,7 @@ export class GenesisIdea extends Idea {
         case FigmentType.HARVEST: {
           const count = this.getFigmentCount(figmentType);
           this.queuePriorities[figmentType] = 12;
-          if (count > 5) {
-            this.queuePriorities[figmentType] = 4;
-          } else if (count > 1) {
+          if (count > 1) {
             this.queuePriorities[figmentType] = 7;
           } else if (count > 0) {
             this.queuePriorities[figmentType] = 10;
@@ -274,7 +272,7 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentType.WORKER:
-          if (count < constructionSites + repairTargets + 2) {
+          if (count < constructionSites + repairTargets + 1) {
             figmentNeeded = true;
           }
           break;

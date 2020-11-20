@@ -130,23 +130,17 @@ RoomPosition.prototype.isBuildable = function (ignoreRoads = true, ignoreRampart
     if (lookConstructionSite.length) {
       return false;
     }
-    const lookStructure = this.lookFor(LOOK_STRUCTURES);
-    if (lookStructure.length) {
-      if (ignoreRoads) {
-        for (const structure of lookStructure) {
-          if (structure.structureType === STRUCTURE_ROAD) {
-            return true;
-          }
+    const lookStructures = this.lookFor(LOOK_STRUCTURES);
+    if (lookStructures.length) {
+      for (const structure of lookStructures) {
+        if (ignoreRoads && structure.structureType === STRUCTURE_ROAD) {
+          continue;
+        } else if (ignoreRamparts && structure.structureType === STRUCTURE_RAMPART) {
+          continue;
+        } else {
+          return false;
         }
       }
-      if (ignoreRamparts) {
-        for (const structure of lookStructure) {
-          if (structure.structureType === STRUCTURE_RAMPART) {
-            return true;
-          }
-        }
-      }
-      return false;
     }
   }
   return true;

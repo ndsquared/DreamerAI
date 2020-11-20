@@ -8,6 +8,7 @@ export class LinkThought extends BuildThought {
     super(idea, name, instance);
   }
 
+  // TODO: Need to account for a controller with no adjacent build positions
   public buildPlan(creationIdea: CreationIdea): void {
     const spawn = this.idea.spawn;
     if (this.links.length < 1) {

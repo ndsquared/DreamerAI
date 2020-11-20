@@ -94,7 +94,7 @@ interface Room {
 
 interface RoomPosition {
   availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
-  availableBuilds(ignoreRaods?: boolean, ignoreRamparts?: boolean): RoomPosition[];
+  availableBuilds(ignoreRoads?: boolean, ignoreRamparts?: boolean): RoomPosition[];
   availableToMove: boolean;
   neighbors: RoomPosition[];
   hasStructure(structure: StructureConstant): boolean;
