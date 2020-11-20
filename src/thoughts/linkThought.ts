@@ -16,14 +16,16 @@ export class LinkThought extends BuildThought {
       const controller = spawn.room.controller;
       if (controller && controller.my) {
         const linkPos = controller.pos.availableBuilds();
-        creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, false);
+        if (controller.pos.availableNeighbors(true).length > 1) {
+          creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 2, true, false);
+        }
       }
     } else if (this.links.length < 3) {
       // Build links at sources
       const sources = Game.rooms[spawn.pos.roomName].find(FIND_SOURCES);
       for (const source of sources) {
         const linkPos = source.pos.availableBuilds();
-        if (linkPos.length > 1) {
+        if (source.pos.availableNeighbors(true).length > 1) {
           creationIdea.addBuilds(linkPos, STRUCTURE_LINK, 3, true, false);
           continue;
         }

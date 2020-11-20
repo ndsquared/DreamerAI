@@ -31,6 +31,8 @@ export class TowerThought extends BuildThought {
 
   private runTowers() {
     for (const tower of this.towers) {
+      // TODO: Need to make this smarter and not shoot at non-threatening creeps
+      // TODO: Should towers heal creeps??
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
       if (closestHostile) {
         tower.attack(closestHostile);
