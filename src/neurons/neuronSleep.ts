@@ -13,7 +13,9 @@ export class NeuronSleep extends Neuron {
     return true;
   }
   public impulse(): number {
-    this.figment.say("zzZZzz");
+    if (this.interneuron.target.options.sleepTicks === 1 || this.interneuron.target.options.sleepTicks % 5 === 0) {
+      this.figment.say("zzZZzz");
+    }
     // console.log(`sleeping for ${this.interneuron.target.options.sleepTicks} tick(s)`);
     return OK;
   }

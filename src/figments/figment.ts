@@ -260,7 +260,9 @@ export class Figment extends Creep implements Figment {
       }
     };
     this.memory.interneurons.push(interneuron);
-    this.say(type);
+    if (type !== NeuronType.SLEEP) {
+      this.say(type);
+    }
   }
 
   public removeNeuron(): void {
