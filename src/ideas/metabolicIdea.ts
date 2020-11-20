@@ -20,16 +20,7 @@ export class MetabolicIdea extends Idea {
   private memory: MetabolicMemory;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
     super(spawn, imagination, type);
-    this.memory = {
-      metabolism: {
-        inputs: {},
-        outputs: {}
-      }
-    };
-    // Initialize the memory
-    if (!Memory.imagination.metabolicIdeas[this.name]) {
-      Memory.imagination.metabolicIdeas[this.name] = this.memory;
-    }
+    this.memory = imagination.memory.imagination.metabolicIdeas[this.name];
   }
 
   public getOutputs(): number {
@@ -37,19 +28,18 @@ export class MetabolicIdea extends Idea {
   }
 
   public ponder(): void {
-    this.memory = Memory.imagination.metabolicIdeas[this.name];
+    this.memory = this.imagination.memory.imagination.metabolicIdeas[this.name];
     this.inputQueue.clear();
     this.outputQueue.clear();
     for (const room of this.spawn.room.neighborhood) {
       this.fillQueues(room);
     }
-    // this.imagination.addStatus(`I/O: ${this.inputQueue.length}/${this.outputQueue.length}`);
   }
 
   public reflect(): void {
     this.pruneIO();
-    Memory.imagination.metabolicIdeas[this.name] = this.memory;
     this.contemplate();
+    this.imagination.memory.imagination.metabolicIdeas[this.name] = this.memory;
   }
 
   private pruneIO(): void {
@@ -129,9 +119,7 @@ export class MetabolicIdea extends Idea {
       }
     }
     const capacity = roomObject.store.getCapacity() || roomObject.store.getCapacity(RESOURCE_ENERGY);
-    // console.log(`input: ${roomObject.id} ${adjustedPriority} < ${capacity} ???`);
     if (adjustedPriority < capacity) {
-      // console.log(`adding input: ${roomObject.id} with priority ${adjustedPriority}`);
       this.inputQueue.queue(this.getPayload(roomObject, adjustedPriority));
     }
   }
@@ -143,9 +131,7 @@ export class MetabolicIdea extends Idea {
         adjustedPriority -= this.memory.metabolism.outputs[roomObject.id][name].delta;
       }
     }
-    // console.log(`output: ${roomObject.id} ${adjustedPriority} > 0 ???`);
     if (adjustedPriority > 0) {
-      // console.log(`adding output: ${roomObject.id} with priority ${adjustedPriority}`);
       this.outputQueue.queue(this.getPayload(roomObject, adjustedPriority));
     }
   }

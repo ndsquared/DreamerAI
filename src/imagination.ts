@@ -3,13 +3,31 @@ import { Idea, IdeaType } from "ideas/idea";
 import { Figment } from "figments/figment";
 import { FigmentThought } from "thoughts/figmentThought";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
-import { exportStats } from "utils/stats";
 import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
   public ideas: { [name: string]: { [name: string]: Idea } };
   private consoleStatus: string[] = [];
   private generatedPixel = false;
+  public memory: Memory = {
+    version: 0,
+    imagination: {
+      version: 0,
+      genesisIdeas: {},
+      metabolicIdeas: {}
+    },
+    stats: {
+      time: 0,
+      gcl: {},
+      rooms: {},
+      cpu: {}
+    },
+    creeps: {},
+    powerCreeps: {},
+    rooms: {},
+    spawns: {},
+    flags: {}
+  };
 
   public constructor() {
     console.log("Global reset...");
@@ -87,6 +105,7 @@ export class Imagination implements IBrain {
       console.log(`Not enough CPU in bucket to run! | Bucket: ${Game.cpu.bucket}`);
       return;
     }
+    this.memory = Memory;
     const figments = Object.keys(Game.creeps).length;
     this.consoleStatus = [];
     this.addStatus(`Tick: ${Game.time}`);
@@ -102,46 +121,64 @@ export class Imagination implements IBrain {
     this.ponder();
     this.think();
     this.reflect();
+    RawMemory.set(JSON.stringify(this.memory));
+    this.addStatus(`CPU Usage: ${Game.cpu.getUsed().toFixed(0)}`);
+    this.addStatus(`CPU Limit: ${Game.cpu.limit}`);
+    this.addStatus(`CPU Tick Limit: ${Game.cpu.tickLimit}`);
+    if (this.generatedPixel) {
+      this.addStatus("GENERATED PIXEL");
+    }
+    this.printStatus();
+    // exportStats();
   }
 
   private meditate() {
-    // Reset figment count
     for (const ideaName in this.ideas) {
-      Memory.imagination.genesisIdeas[ideaName] = {
+      // Reset figment count
+      this.memory.imagination.genesisIdeas[ideaName] = {
         figmentCount: {}
       };
+      // Initialize metabolism
+      if (!this.memory.imagination.metabolicIdeas[ideaName]) {
+        this.memory.imagination.metabolicIdeas[ideaName] = {
+          metabolism: {
+            inputs: {},
+            outputs: {}
+          }
+        };
+      }
     }
     // Clean up figment memory
-    for (const name in Memory.creeps) {
-      const ideaName = Memory.creeps[name].ideaName;
-      const figmentType = Memory.creeps[name].figmentType;
+    for (const name in this.memory.creeps) {
+      const ideaName = this.memory.creeps[name].ideaName;
+      const figmentType = this.memory.creeps[name].figmentType;
       if (!(name in Game.creeps)) {
-        delete Memory.creeps[name];
+        delete this.memory.creeps[name];
       } else {
         // Set figment count
-        if (Memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType]) {
-          Memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] += 1;
+        if (this.memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType]) {
+          this.memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] += 1;
         } else {
-          Memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] = 1;
+          this.memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] = 1;
         }
       }
     }
     // Clean up metabolism memory
     for (const ideaName in this.ideas) {
-      if (Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
-        for (const ref in Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
-          for (const name in Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref]) {
+      if (this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
+        for (const ref in this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
+          for (const name in this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref]) {
             if (!(name in Game.creeps)) {
-              delete Memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref][name];
+              delete this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref][name];
             }
           }
         }
       }
-      if (Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
-        for (const ref in Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
-          for (const name in Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref]) {
+      if (this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
+        for (const ref in this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
+          for (const name in this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref]) {
             if (!(name in Game.creeps)) {
-              delete Memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref][name];
+              delete this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref][name];
             }
           }
         }
@@ -205,14 +242,6 @@ export class Imagination implements IBrain {
         }
       }
     }
-    this.addStatus(`CPU Usage: ${Game.cpu.getUsed().toFixed(0)}`);
-    this.addStatus(`CPU Limit: ${Game.cpu.limit}`);
-    this.addStatus(`CPU Tick Limit: ${Game.cpu.tickLimit}`);
-    if (this.generatedPixel) {
-      this.addStatus("GENERATED PIXEL");
-    }
-    this.printStatus();
-    exportStats();
   }
 
   public addStatus(status: string): void {

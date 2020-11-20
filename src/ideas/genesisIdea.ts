@@ -38,14 +38,7 @@ export class GenesisIdea extends Idea {
   private reset = true;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
     super(spawn, imagination, type);
-    // Initialize the memory
-    if (!Memory.imagination.genesisIdeas[this.name]) {
-      Memory.imagination.genesisIdeas[this.name] = {
-        figmentCount: {}
-      };
-    }
-
-    this.memory = Memory.imagination.genesisIdeas[this.name];
+    this.memory = imagination.memory.imagination.genesisIdeas[this.name];
 
     const sources = _.sortBy(
       Game.rooms[spawn.pos.roomName].find(FIND_SOURCES),
@@ -75,7 +68,7 @@ export class GenesisIdea extends Idea {
   }
 
   public ponder(): void {
-    this.memory = Memory.imagination.genesisIdeas[this.name];
+    this.memory = this.imagination.memory.imagination.genesisIdeas[this.name];
     for (const roomName of this.spawn.room.neighborNames) {
       const room = Game.rooms[roomName];
       if (room) {
@@ -105,13 +98,11 @@ export class GenesisIdea extends Idea {
         for (const thoughtInstance in this.thoughts[thoughtName]) {
           const thought = this.thoughts[thoughtName][thoughtInstance];
           if (thought instanceof FigmentThought) {
-            // console.log(thought.name);
             this.processThought(thought);
           }
         }
       }
     }
-    // this.imagination.addStatus(`Spawn Q: ${this.spawnQueue.length}`);
     this.processSpawnQueue();
     super.think();
   }
