@@ -45,7 +45,9 @@ export class GenesisIdea extends Idea {
 
   public ponder(): void {
     for (const source of this.hippocampus.sources) {
-      this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
+      if (!this.thoughts[FigmentType.HARVEST][source.id]) {
+        this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
+      }
     }
     for (const roomName of this.spawn.room.neighborNames) {
       const room = Game.rooms[roomName];

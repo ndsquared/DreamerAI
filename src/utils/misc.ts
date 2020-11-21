@@ -87,3 +87,24 @@ export function GetRoomPosition(x: number, y: number, roomName: string): RoomPos
   }
   return new RoomPosition(x, y, roomName);
 }
+/*
+https://github.com/bencbartlett/Overmind/blob/3ed32276950a2015b3a6c75dfd80e3e58629847d/src/utilities/utils.ts
+*/
+export function getUsername(): string {
+  for (const i in Game.rooms) {
+    const room = Game.rooms[i];
+    if (room.controller && room.controller.my) {
+      if (room.controller.owner) {
+        return room.controller.owner.username;
+      }
+    }
+  }
+  for (const i in Game.creeps) {
+    const creep = Game.creeps[i];
+    if (creep.owner) {
+      return creep.owner.username;
+    }
+  }
+  console.log("ERROR: Could not determine username. You can set this manually in src/settings/settings_user");
+  return "ERROR: Could not determine username.";
+}

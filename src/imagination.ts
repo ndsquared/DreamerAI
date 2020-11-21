@@ -4,9 +4,11 @@ import { Figment } from "figments/figment";
 import { FigmentThought } from "thoughts/figmentThought";
 import { Hippocampus } from "hippocampus";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
+import { getUsername } from "utils/misc";
 import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
+  public username: string;
   public ideas: { [name: string]: { [name: string]: Idea } };
   private consoleStatus: string[] = [];
   private generatedPixel = false;
@@ -33,6 +35,7 @@ export class Imagination implements IBrain {
 
   public constructor() {
     console.log("Global reset...");
+    this.username = getUsername();
     this.ideas = {};
     this.hippocampus = {};
     this.forget();

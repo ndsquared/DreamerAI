@@ -9,7 +9,7 @@ type EnergyWithdrawStructure = StoreStructure | EnergyStructure;
 type ResourceOrEnergyWithdrawStructure = EnergyWithdrawStructure | Resource;
 
 export class Hippocampus {
-  private spawn: StructureSpawn;
+  private spawnId: string;
   private spawnRoom: Room;
 
   private imagination: Imagination;
@@ -116,15 +116,18 @@ export class Hippocampus {
   });
 
   public constructor(spawn: StructureSpawn, imagination: Imagination) {
-    this.spawn = spawn;
+    this.spawnId = spawn.id;
     this.spawnRoom = Game.rooms[spawn.room.name];
     this.imagination = imagination;
     this.memoryIO = imagination.memory.imagination.metabolicIdeas[spawn.room.name];
     this.memoryGen = imagination.memory.imagination.genesisIdeas[spawn.room.name];
   }
 
+  public get spawn(): StructureSpawn | null {
+    return Game.getObjectById(this.spawnId);
+  }
+
   public forget(): void {
-    this.pruneIO();
     // Neutral
     this.structures = [];
     this.constructionSites = [];
@@ -164,7 +167,9 @@ export class Hippocampus {
   public remember(): void {
     this.forget();
     this.memoryIO = this.imagination.memory.imagination.metabolicIdeas[this.spawnRoom.name];
+    // console.log(JSON.stringify(this.memoryIO));
     this.memoryGen = this.imagination.memory.imagination.genesisIdeas[this.spawnRoom.name];
+    // console.log(JSON.stringify(this.memoryGen));
     for (const room of this.spawnRoom.neighborhood) {
       this.hostileEnemyInRoom[room.name] = false;
       this.enemyCreeps = this.enemyCreeps.concat(room.find(FIND_HOSTILE_CREEPS));
@@ -186,6 +191,7 @@ export class Hippocampus {
   }
 
   public contemplate(): void {
+    this.pruneIO();
     // Enemy visuals
     if (this.showEnemyVisuals) {
       if (this.enemyQueue.length > 0) {
@@ -233,10 +239,11 @@ export class Hippocampus {
       }
     }
     // Stats
-    if (this.showStats) {
+    const spawn = this.spawn;
+    if (this.showStats && spawn) {
       // General Stats
       const data: BarGraphData[] = [];
-      const controller = this.spawn.room.controller;
+      const controller = spawn.room.controller;
       if (controller) {
         data.push({
           label: `RCL ${controller.level}`,
@@ -254,12 +261,12 @@ export class Hippocampus {
         current: Game.cpu.bucket,
         max: 10000
       });
-      const anchor = new RoomPosition(1, 1, this.spawn.room.name);
+      const anchor = new RoomPosition(1, 1, spawn.room.name);
       const barGraph = new BarGraph("General Stats", anchor, data);
       barGraph.renderGraph();
 
       // Queues
-      const qTableAnchor = new RoomPosition(12, 1, this.spawn.room.name);
+      const qTableAnchor = new RoomPosition(12, 1, spawn.room.name);
       const qTableData: string[][] = [["Queue", "Count"]];
       qTableData.push(["Spawn", this.spawnQueue.length.toString()]);
       qTableData.push(["Build", this.buildQueue.length.toString()]);
@@ -278,18 +285,24 @@ export class Hippocampus {
       for (const figmentType in this.memoryGen.figmentCount) {
         const figmentCount = this.memoryGen.figmentCount[figmentType];
         total += figmentCount;
-        const priority = this.queuePriorities[figmentType];
-        const needed = this.figmentNeeded[figmentType];
+        let priority = -1;
+        if (this.queuePriorities[figmentType]) {
+          priority = this.queuePriorities[figmentType];
+        }
+        let needed = false;
+        if (this.figmentNeeded[figmentType]) {
+          needed = this.figmentNeeded[figmentType];
+        }
         figmentTableData.push([figmentType, figmentCount.toString(), priority.toString(), String(needed)]);
       }
       figmentTableData.push(["TOTAL", total.toString(), "", ""]);
 
-      const figmentTableAnchor = new RoomPosition(25, 1, this.spawn.room.name);
+      const figmentTableAnchor = new RoomPosition(25, 1, spawn.room.name);
       let title = "Figment Stats";
 
-      if (this.spawn.spawning) {
-        const figment = new Figment(Game.creeps[this.spawn.spawning.name].id);
-        const remainingTicks = this.spawn.spawning.remainingTime;
+      if (spawn.spawning) {
+        const figment = new Figment(Game.creeps[spawn.spawning.name].id);
+        const remainingTicks = spawn.spawning.remainingTime;
         title += ` (Spawning: ${figment.memory.figmentType} in ${remainingTicks})`;
       } else {
         let nextSpawn: SpawnQueuePayload | null = null;
@@ -354,10 +367,14 @@ export class Hippocampus {
           } else if (structure instanceof StructureExtension) {
             this.extensions.push(structure);
           }
-        } else {
+        } else if (structure.owner && structure.owner.username !== this.imagination.username) {
           // Enemy Structures
           this.enemyStructures.push(structure);
-          if (structure.structureType !== STRUCTURE_SPAWN && structure.structureType !== STRUCTURE_KEEPER_LAIR) {
+          if (
+            structure.structureType !== STRUCTURE_SPAWN &&
+            structure.structureType !== STRUCTURE_KEEPER_LAIR &&
+            structure.structureType !== STRUCTURE_CONTROLLER
+          ) {
             this.enemyQueue.queue({
               enemyObject: structure,
               priority: structure.hits
@@ -408,11 +425,14 @@ export class Hippocampus {
       }
       this.controllerLinks = controllerLinks;
     }
-    const spawnContainers = _.filter(this.containers, c => c.pos.inRangeTo(this.spawn.pos, 1));
-    for (const spawnContainer of spawnContainers) {
-      this.addInput(spawnContainer, spawnContainer.store.getUsedCapacity());
+    const spawn = this.spawn;
+    if (spawn) {
+      const spawnContainers = _.filter(this.containers, c => c.pos.inRangeTo(spawn.pos, 1));
+      for (const spawnContainer of spawnContainers) {
+        this.addInput(spawnContainer, spawnContainer.store.getUsedCapacity());
+      }
+      this.spawnContainers = spawnContainers;
     }
-    this.spawnContainers = spawnContainers;
   }
 
   private getPayload(roomObject: Structure | Resource, priority: number): MetabolicQueuePayload {
