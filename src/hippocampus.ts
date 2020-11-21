@@ -53,6 +53,7 @@ export class Hippocampus {
   public controllerLinks: StructureLink[] = [];
   public extensions: StructureExtension[] = [];
   public spawns: StructureSpawn[] = [];
+  public storage: StructureStorage | null = null;
 
   // Enemy
   // TODO: turn this into a queue??
@@ -358,6 +359,7 @@ export class Hippocampus {
           if (structure instanceof StructureLink) {
             this.links.push(structure);
           } else if (structure instanceof StructureStorage) {
+            this.storage = structure;
             this.addInput(structure, structure.store.getUsedCapacity());
           } else if (structure instanceof StructureSpawn) {
             this.spawns.push(structure);

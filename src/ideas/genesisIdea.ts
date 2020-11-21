@@ -200,6 +200,9 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentType.WORKER:
+          if (this.hippocampus.storage && this.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000) {
+            break;
+          }
           if (count < constructionSites + repairTargets) {
             figmentNeeded = true;
           }
