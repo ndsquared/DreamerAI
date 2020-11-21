@@ -310,7 +310,7 @@ export class Hippocampus {
           nextSpawn = this.spawnQueue.peek();
         }
         if (nextSpawn) {
-          title += ` (Next Spawn: ${nextSpawn.thoughtName})`;
+          title += ` (Next Spawn: ${nextSpawn.figmentType})`;
         }
       }
 

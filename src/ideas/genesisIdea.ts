@@ -144,11 +144,20 @@ export class GenesisIdea extends Idea {
         case FigmentType.TRANSFER:
           this.hippocampus.queuePriorities[figmentType] = 8;
           break;
+        case FigmentType.TOWER_FILLER:
+          this.hippocampus.queuePriorities[figmentType] = 7;
+          if (enemies > 0) {
+            this.hippocampus.queuePriorities[figmentType] = 16;
+          }
+          break;
         case FigmentType.UPGRADE:
-          this.hippocampus.queuePriorities[figmentType] = 6;
+          this.hippocampus.queuePriorities[figmentType] = 5;
           break;
         case FigmentType.WORKER:
-          this.hippocampus.queuePriorities[figmentType] = 5;
+          this.hippocampus.queuePriorities[figmentType] = 4;
+          break;
+        case FigmentType.SCOUT:
+          this.hippocampus.queuePriorities[figmentType] = 2;
           break;
         case FigmentType.DEFENSE:
           this.hippocampus.queuePriorities[figmentType] = 1;
@@ -164,15 +173,6 @@ export class GenesisIdea extends Idea {
           break;
         case FigmentType.RESERVE:
           this.hippocampus.queuePriorities[figmentType] = 1;
-          break;
-        case FigmentType.SCOUT:
-          this.hippocampus.queuePriorities[figmentType] = 1;
-          break;
-        case FigmentType.TOWER_FILLER:
-          this.hippocampus.queuePriorities[figmentType] = 1;
-          if (enemies > 0) {
-            this.hippocampus.queuePriorities[figmentType] = 16;
-          }
           break;
         default:
           console.log(`hitting default for set queue priorities`);
