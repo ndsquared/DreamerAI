@@ -152,9 +152,15 @@ export class GenesisIdea extends Idea {
           break;
         case FigmentType.UPGRADE:
           this.hippocampus.queuePriorities[figmentType] = 5;
+          if (this.hippocampus.inEcoMode()) {
+            this.hippocampus.queuePriorities[figmentType] = 0;
+          }
           break;
         case FigmentType.WORKER:
           this.hippocampus.queuePriorities[figmentType] = 4;
+          if (this.hippocampus.inEcoMode()) {
+            this.hippocampus.queuePriorities[figmentType] = 0;
+          }
           break;
         case FigmentType.SCOUT:
           this.hippocampus.queuePriorities[figmentType] = 2;
@@ -173,6 +179,9 @@ export class GenesisIdea extends Idea {
           break;
         case FigmentType.RESERVE:
           this.hippocampus.queuePriorities[figmentType] = 1;
+          if (this.hippocampus.inEcoMode()) {
+            this.hippocampus.queuePriorities[figmentType] = 0;
+          }
           break;
         default:
           console.log(`hitting default for set queue priorities`);
@@ -200,9 +209,6 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentType.WORKER:
-          if (this.hippocampus.storage && this.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000) {
-            break;
-          }
           if (count < constructionSites + repairTargets) {
             figmentNeeded = true;
           }

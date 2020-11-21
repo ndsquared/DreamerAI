@@ -67,9 +67,6 @@ export class UpgradeThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    if (this.idea.hippocampus.storage && this.idea.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000) {
-      return false;
-    }
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
     let energyInContainer = 0;
     if (this.container) {

@@ -33,10 +33,7 @@ export class TowerThought extends BuildThought {
       if (healTarget) {
         tower.heal(healTarget);
       } else {
-        if (
-          this.idea.hippocampus.storage &&
-          this.idea.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000
-        ) {
+        if (this.idea.hippocampus.inEcoMode()) {
           return;
         }
         const repairTarget = this.idea.hippocampus.getNextRepairTarget();

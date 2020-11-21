@@ -21,6 +21,7 @@ export class Hippocampus {
   public figmentNeeded: { [type: string]: boolean } = {};
 
   private repairThreshold = 20000;
+  private ecoStorageThreshold = 20000;
 
   public hostileEnemyInRoom: { [name: string]: boolean } = {};
 
@@ -577,5 +578,12 @@ export class Hippocampus {
       return null;
     }
     return this.repairQueue.peek();
+  }
+
+  public inEcoMode(): boolean {
+    if (this.storage && this.storage.store.getUsedCapacity(RESOURCE_ENERGY) < this.ecoStorageThreshold) {
+      return true;
+    }
+    return false;
   }
 }

@@ -35,9 +35,6 @@ export class AttackThought extends FigmentThought {
     if (this.idea.rcl < 3) {
       return false;
     }
-    if (this.idea.hippocampus.storage && this.idea.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000) {
-      return false;
-    }
     return false;
   }
 }
