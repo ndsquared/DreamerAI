@@ -105,6 +105,6 @@ export function getUsername(): string {
       return creep.owner.username;
     }
   }
-  console.log("ERROR: Could not determine username. You can set this manually in src/settings/settings_user");
-  return "ERROR: Could not determine username.";
+  console.log("ERROR: Could not determine username");
+  return "error: invalidusername";
 }
