@@ -32,6 +32,9 @@ export class ScoutThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    if (this.figments[figmentType].length > 0) {
+      return false;
+    }
     const targetPos = new RoomPosition(25, 25, this.instance);
     const pf = PathFindWithRoad(this.idea.spawn.pos, targetPos);
     if (pf.incomplete && pf.path.length > 0 && !pf.path[pf.path.length - 1].isEdge) {
