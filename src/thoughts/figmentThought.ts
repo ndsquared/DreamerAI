@@ -33,10 +33,7 @@ export abstract class FigmentThought extends Thought {
   }
 
   public ponder(): void {
-    // for (const figmentType in this.figments) {
-    //   for (const figment of this.figments[figmentType]) {
-    //   }
-    // }
+    // Placeholder
   }
 
   public think(): void {

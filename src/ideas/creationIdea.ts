@@ -6,7 +6,6 @@ import { ContainerThought } from "thoughts/containerThought";
 import { ExtensionThought } from "thoughts/extensionThought";
 import { Imagination } from "imagination";
 import { LinkThought } from "thoughts/linkThought";
-import PriorityQueue from "ts-priority-queue";
 import { RampartThought } from "thoughts/rampartThought";
 import { RoadThought } from "thoughts/roadThought";
 import { StorageThought } from "thoughts/storageThought";
@@ -15,25 +14,6 @@ import { getColor } from "utils/colors";
 
 export class CreationIdea extends Idea {
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
-  public buildQueue: PriorityQueue<BuildQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.priority - b.priority;
-    }
-  });
-  public constructionSiteQueue: PriorityQueue<ConstructionSite> = new PriorityQueue({
-    comparator(a, b) {
-      // Higher priority is dequeued first
-      return b.progress - a.progress;
-    }
-  });
-  public repairQueue: PriorityQueue<Structure> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.hits - b.hits;
-    }
-  });
-  private repairThreshold = 20000;
   private rateLimitBuildPlanning = true;
   private rateLimitBuildInterval = 50;
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
@@ -54,22 +34,7 @@ export class CreationIdea extends Idea {
   }
 
   public ponder(): void {
-    this.fillConstructionSiteQueue();
-    if (this.repairQueue.length === 0) {
-      for (const room of this.spawn.room.neighborhood) {
-        const structures = room.find(FIND_STRUCTURES);
-        for (const s of structures) {
-          if (s.structureType === STRUCTURE_ROAD) {
-            continue;
-          } else if (s.structureType === STRUCTURE_CONTAINER) {
-            continue;
-          } else if (s.hits < this.repairThreshold && s.hits < s.hitsMax) {
-            this.repairQueue.queue(s);
-          }
-        }
-      }
-    }
-    if (this.buildQueue.length === 0) {
+    if (this.hippocampus.buildQueue.length === 0) {
       if (this.rateLimitBuildPlanning && Game.time % this.rateLimitBuildInterval === 0) {
         this.rateLimitBuildPlanning = false;
         for (const thoughtName in this.thoughts) {
@@ -92,85 +57,32 @@ export class CreationIdea extends Idea {
 
   public reflect(): void {
     super.reflect();
-    if (!this.showBuildVisuals) {
-      return;
-    }
-    if (this.buildQueue.length > 0) {
-      const nextBuild = this.buildQueue.peek();
-      const rv = new RoomVisual(nextBuild.pos.roomName);
-      rv.circle(nextBuild.pos, { fill: getColor("light-blue"), radius: 0.5 });
-      rv.text(nextBuild.structure, nextBuild.pos);
-    }
-    if (this.repairQueue.length > 0) {
-      const nextRepair = this.repairQueue.peek();
-      const rv = new RoomVisual(nextRepair.pos.roomName);
-      rv.circle(nextRepair.pos, { fill: getColor("indigo"), radius: 0.5 });
-      rv.text(nextRepair.hits.toString(), nextRepair.pos);
-    }
-  }
-
-  // TODO: should only need to call this after a successful build result?
-  private fillConstructionSiteQueue(): void {
-    this.constructionSiteQueue.clear();
-    for (const room of this.spawn.room.neighborhood) {
-      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-      for (const constructionSite of constructionSites) {
-        this.constructionSiteQueue.queue(constructionSite);
-      }
-    }
   }
 
   public canBuild(): boolean {
-    if (this.constructionSiteQueue.length) {
+    if (this.hippocampus.constructionSiteQueue.length) {
       return false;
     }
     return true;
   }
 
-  public getNextConstructionSite(): ConstructionSite | null {
-    if (this.constructionSiteQueue.length === 0) {
-      return null;
-    }
-    const target = this.constructionSiteQueue.peek();
-    if (!Game.getObjectById(target.id)) {
-      this.constructionSiteQueue.dequeue();
-    }
-    return target;
-  }
-
-  public getNextRepairTarget(): Structure | null {
-    if (this.repairQueue.length === 0) {
-      return null;
-    }
-    let target: Structure | null = this.repairQueue.peek();
-    target = Game.getObjectById(target.id);
-    if (!target) {
-      this.repairQueue.dequeue();
-    } else if (target.hits === target.hitsMax || target.hits >= this.repairThreshold) {
-      this.repairQueue.dequeue();
-    }
-    return target;
-  }
-
   // TODO: need some better handling of build results
-  // TODO: timing is still not right for building back to back, cooldown on worker after build?
   private processBuildQueue(): void {
-    if (this.buildQueue.length > 0) {
+    if (this.hippocampus.buildQueue.length > 0) {
       this.rateLimitBuildPlanning = true;
-      let nextBuild = this.buildQueue.peek();
+      let nextBuild = this.hippocampus.buildQueue.peek();
       let buildResult: number;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
-          nextBuild = this.buildQueue.dequeue();
-          this.fillConstructionSiteQueue();
+          nextBuild = this.hippocampus.buildQueue.dequeue();
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
-          this.buildQueue.dequeue();
+          this.hippocampus.buildQueue.dequeue();
         } else {
           console.log(`Build result for ${nextBuild.structure} at ${nextBuild.pos.toString()} is ${buildResult}`);
           if (buildResult === ERR_INVALID_TARGET) {
-            this.buildQueue.dequeue();
+            this.hippocampus.buildQueue.dequeue();
           }
         }
       }
@@ -220,6 +132,6 @@ export class CreationIdea extends Idea {
       }
       rv.text(text, pos);
     }
-    this.buildQueue.queue(buildPayload);
+    this.hippocampus.buildQueue.queue(buildPayload);
   }
 }

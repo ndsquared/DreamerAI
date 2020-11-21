@@ -14,6 +14,7 @@ export function isEnergyStructure(structure: Structure): structure is EnergyStru
   return (structure as EnergyStructure).energy !== undefined;
 }
 
+// TODO: need to reuse this cost matrix
 const callback = (roomName: string): CostMatrix | boolean => {
   const room = Game.rooms[roomName];
   if (!room) return false;

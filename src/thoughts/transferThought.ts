@@ -1,8 +1,8 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
-import { PathFindWithRoad, isEnergyStructure, isStoreStructure } from "utils/misc";
 import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
+import { PathFindWithRoad } from "utils/misc";
 
 export class TransferThought extends FigmentThought {
   private container: StructureContainer | null = null;
@@ -25,28 +25,17 @@ export class TransferThought extends FigmentThought {
   }
 
   private getNextTransferTarget(figment: Figment): StoreStructure {
-    const targets: StoreStructure[] = [];
-    const structures = this.idea.spawn.room.find(FIND_STRUCTURES);
+    let targets: StoreStructure[] = [];
     for (const structureConstant of this.transferPriority) {
-      for (const structure of structures) {
-        if (structure.structureType === STRUCTURE_TOWER && structure.structureType === structureConstant) {
-          if (structure.energy < 501) {
-            targets.push(structure);
-          }
-        } else if (
-          isEnergyStructure(structure) &&
-          structure.structureType === structureConstant &&
-          structure.hasEnergyCapacity
-        ) {
-          targets.push(structure);
-        } else if (
-          !isEnergyStructure(structure) &&
-          isStoreStructure(structure) &&
-          structure.structureType === structureConstant &&
-          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-        ) {
-          targets.push(structure);
-        }
+      if (structureConstant === STRUCTURE_EXTENSION) {
+        const extensions = _.filter(this.idea.hippocampus.extensions, e => e.hasEnergyCapacity);
+        targets = targets.concat(extensions);
+      } else if (structureConstant === STRUCTURE_SPAWN) {
+        const spawns = _.filter(this.idea.hippocampus.spawns, s => s.hasEnergyCapacity);
+        targets = targets.concat(spawns);
+      } else if (structureConstant === STRUCTURE_TOWER) {
+        const towers = _.filter(this.idea.hippocampus.towers, t => t.energy < 501);
+        targets = targets.concat(towers);
       }
       if (targets.length) {
         break;
@@ -58,18 +47,8 @@ export class TransferThought extends FigmentThought {
 
   public ponder(): void {
     if (!this.container) {
-      if (this.idea.spawn) {
-        const containers = this.idea.spawn.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: s => {
-            if (s.structureType === STRUCTURE_CONTAINER) {
-              return true;
-            }
-            return false;
-          }
-        });
-        if (containers.length) {
-          this.container = containers[0] as StructureContainer;
-        }
+      if (this.idea.hippocampus.spawnContainers.length) {
+        this.container = this.idea.hippocampus.spawnContainers[0];
       }
     } else {
       this.container = Game.getObjectById(this.container.id);
@@ -84,7 +63,6 @@ export class TransferThought extends FigmentThought {
     super.ponder();
   }
 
-  // TODO: should idle off road
   public handleFigment(figment: Figment): void {
     if (figment.memory.figmentType === FigmentType.TOWER_FILLER) {
       this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];
@@ -121,16 +99,7 @@ export class TransferThought extends FigmentThought {
       }
       return this.figments[figmentType].length < 1;
     } else if (figmentType === FigmentType.TOWER_FILLER) {
-      // TODO: Optimize this call
-      const towers = this.idea.spawn.room.find(FIND_STRUCTURES, {
-        filter: s => {
-          if (s.structureType === STRUCTURE_TOWER) {
-            return true;
-          }
-          return false;
-        }
-      });
-      if (towers.length === 0) {
+      if (this.idea.hippocampus.towers.length === 0) {
         return false;
       }
       return this.figments[figmentType].length < 1;

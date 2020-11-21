@@ -1,3 +1,4 @@
+import { Hippocampus } from "hippocampus";
 import { Imagination } from "imagination";
 import { Thought } from "thoughts/thought";
 
@@ -9,9 +10,7 @@ export interface ThoughtMapping {
 export enum IdeaType {
   TABULA_RASA = "Tabula Rasa",
   GENESIS = "Genesis",
-  CREATION = "Creation",
-  COMBAT = "Combat",
-  METABOLIC = "Metabolic"
+  CREATION = "Creation"
 }
 
 export abstract class Idea implements IBrain {
@@ -32,6 +31,10 @@ export abstract class Idea implements IBrain {
     this.type = type;
   }
 
+  public get hippocampus(): Hippocampus {
+    return this.imagination.hippocampus[this.name];
+  }
+
   public ponder(): void {
     this.spawn = Game.spawns[this.spawn.name];
     for (const thoughtName in this.thoughts) {
@@ -41,6 +44,7 @@ export abstract class Idea implements IBrain {
           thought.ponder();
         } catch (error) {
           console.log(`${thought.name} error while pondering`);
+          console.log(error);
         }
       }
     }
@@ -55,6 +59,7 @@ export abstract class Idea implements IBrain {
           thought.think();
         } catch (error) {
           console.log(`${thought.name} error while thinking`);
+          console.log(error);
         }
       }
     }
@@ -68,12 +73,13 @@ export abstract class Idea implements IBrain {
           thought.reflect();
         } catch (error) {
           console.log(`${thought.name} error while reflecting`);
+          console.log(error);
         }
       }
     }
   }
 
-  public getSibling<T extends Idea>(siblingType: IdeaType): T {
-    return this.imagination.ideas[this.name][siblingType] as T;
-  }
+  // public getSibling<T extends Idea>(siblingType: IdeaType): T {
+  //   return this.imagination.ideas[this.name][siblingType] as T;
+  // }
 }

@@ -1,7 +1,6 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
-import { Idea, IdeaType } from "ideas/idea";
-import { CombatIdea } from "ideas/combatIdea";
 import { Figment } from "figments/figment";
+import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { RandomRoomPatrolPos } from "utils/misc";
 
@@ -12,10 +11,8 @@ export class DefenseThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
-    const enemyTarget = (this.idea.imagination.ideas[this.idea.name][
-      IdeaType.COMBAT
-    ] as CombatIdea).getNextEnemyTarget();
-    const healTarget = (this.idea.imagination.ideas[this.idea.name][IdeaType.COMBAT] as CombatIdea).getNextHealTarget();
+    const enemyTarget = this.idea.hippocampus.getNextEnemyTarget();
+    const healTarget = this.idea.hippocampus.getNextHealTarget();
     if (enemyTarget) {
       console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
       figment.addNeuron(NeuronType.RANGED_ATTACK, enemyTarget.id, enemyTarget.pos);

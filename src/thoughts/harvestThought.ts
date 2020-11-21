@@ -23,22 +23,16 @@ export class HarvestThought extends FigmentThought {
       return;
     }
     if (!this.container) {
-      const containers = this.source.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER
-      });
-      if (containers.length > 0) {
-        this.container = containers[0] as StructureContainer;
+      if (this.idea.hippocampus.sourceContainers[this.sourceId].length > 0) {
+        this.container = this.idea.hippocampus.sourceContainers[this.sourceId][0];
       }
     } else {
       this.container = Game.getObjectById(this.container.id);
     }
 
     if (!this.link) {
-      const links = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType === STRUCTURE_LINK
-      });
-      if (links.length > 0) {
-        this.link = links[0] as StructureLink;
+      if (this.idea.hippocampus.sourceLinks[this.sourceId].length > 0) {
+        this.link = this.idea.hippocampus.sourceLinks[this.sourceId][0];
       }
     } else {
       this.link = Game.getObjectById(this.link.id);

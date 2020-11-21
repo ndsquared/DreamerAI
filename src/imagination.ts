@@ -2,6 +2,7 @@
 import { Idea, IdeaType } from "ideas/idea";
 import { Figment } from "figments/figment";
 import { FigmentThought } from "thoughts/figmentThought";
+import { Hippocampus } from "hippocampus";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
 import profiler from "screeps-profiler";
 
@@ -28,10 +29,12 @@ export class Imagination implements IBrain {
     spawns: {},
     flags: {}
   };
+  public hippocampus: { [name: string]: Hippocampus };
 
   public constructor() {
     console.log("Global reset...");
     this.ideas = {};
+    this.hippocampus = {};
     this.forget();
     this.fantasize();
   }
@@ -95,16 +98,22 @@ export class Imagination implements IBrain {
   private fantasize() {
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
-      this.ideas[spawn.room.name] = {};
-      this.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(spawn, this, IdeaType.TABULA_RASA);
+      // TODO: need to handle multiple spawns better
+      if (!this.ideas[spawn.room.name]) {
+        this.ideas[spawn.room.name] = {};
+        this.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(spawn, this, IdeaType.TABULA_RASA);
+        this.hippocampus[spawn.room.name] = new Hippocampus(spawn, this);
+      }
     }
   }
 
   public imagine(): void {
+    // CPU guard
     if (Game.cpu.bucket < 200) {
       console.log(`Not enough CPU in bucket to run! | Bucket: ${Game.cpu.bucket}`);
       return;
     }
+    // Initial status
     this.memory = Memory;
     const figments = Object.keys(Game.creeps).length;
     this.consoleStatus = [];
@@ -118,9 +127,12 @@ export class Imagination implements IBrain {
       this.generatedPixel = false;
     }
     this.addStatus(`Figments: ${figments}`);
+    // Core
+    this.meditate();
     this.ponder();
     this.think();
     this.reflect();
+    // Ending status
     RawMemory.set(JSON.stringify(this.memory));
     this.addStatus(`CPU Usage: ${Game.cpu.getUsed().toFixed(0)}`);
     this.addStatus(`CPU Limit: ${Game.cpu.limit}`);
@@ -146,6 +158,12 @@ export class Imagination implements IBrain {
             outputs: {}
           }
         };
+      }
+      try {
+        this.hippocampus[ideaName].remember();
+      } catch (error) {
+        console.log(`${ideaName} hippocampus could not remember`);
+        console.log(error);
       }
     }
     // Clean up figment memory
@@ -210,13 +228,13 @@ export class Imagination implements IBrain {
   }
 
   public ponder(): void {
-    this.meditate();
     for (const roomName in this.ideas) {
       for (const ideaName in this.ideas[roomName]) {
         try {
           this.ideas[roomName][ideaName].ponder();
         } catch (error) {
           console.log(`${roomName}:${ideaName} idea error while pondering`);
+          console.log(error);
         }
       }
     }
@@ -228,6 +246,7 @@ export class Imagination implements IBrain {
           this.ideas[roomName][ideaName].think();
         } catch (error) {
           console.log(`${roomName}:${ideaName} idea error while thinking`);
+          console.log(error);
         }
       }
     }
@@ -239,7 +258,15 @@ export class Imagination implements IBrain {
           this.ideas[roomName][ideaName].reflect();
         } catch (error) {
           console.log(`${roomName}:${ideaName} idea error while reflecting`);
+          console.log(error);
         }
+      }
+      try {
+        // Display stats/visuals
+        this.hippocampus[roomName].contemplate();
+      } catch (error) {
+        console.log(`${roomName} hippocampus could not contemplate`);
+        console.log(error);
       }
     }
   }
@@ -254,43 +281,45 @@ export class Imagination implements IBrain {
   }
 
   public rall(roomName: string): string {
-    if (!this.ideas[roomName]) {
-      return `Could not toggle all visuals for ${roomName}`;
+    if (!this.hippocampus[roomName]) {
+      return `Could not toggle all stats/visuals for ${roomName}`;
     }
     this.rstats(roomName);
     this.rbuild(roomName);
     this.rmeta(roomName);
-    return `Successfully toggled all visuals for ${roomName}`;
+    return `Successfully toggled all stats/visuals for ${roomName}`;
   }
 
   public rstats(roomName: string): string {
-    if (!this.ideas[roomName]) {
-      return `Could not toggle room stats for ${roomName}`;
+    if (!this.hippocampus[roomName]) {
+      return `Could not toggle stats for ${roomName}`;
     }
-    for (const ideaName in this.ideas[roomName]) {
-      this.ideas[roomName][ideaName].showStats = !this.ideas[roomName].showStats;
-    }
-    return `Successfully toggled room stats for ${roomName}`;
+    this.hippocampus[roomName].showStats = !this.hippocampus[roomName].showStats;
+    return `Successfully toggled stats for ${roomName}`;
   }
 
   public rbuild(roomName: string): string {
-    if (!this.ideas[roomName]) {
-      return `Could not toggle room build visuals for ${roomName}`;
+    if (!this.hippocampus[roomName]) {
+      return `Could not toggle build visuals for ${roomName}`;
     }
-    for (const ideaName in this.ideas[roomName]) {
-      this.ideas[roomName][ideaName].showBuildVisuals = !this.ideas[roomName].showBuildVisuals;
-    }
-    return `Successfully toggled room build visuals for ${roomName}`;
+    this.hippocampus[roomName].showBuildVisuals = !this.hippocampus[roomName].showBuildVisuals;
+    return `Successfully toggled build visuals for ${roomName}`;
   }
 
   public rmeta(roomName: string): string {
-    if (!this.ideas[roomName]) {
-      return `Could not toggle room metabolic visuals for ${roomName}`;
+    if (!this.hippocampus[roomName]) {
+      return `Could not toggle metabolic visuals for ${roomName}`;
     }
-    for (const ideaName in this.ideas[roomName]) {
-      this.ideas[roomName][ideaName].showMetaVisuals = !this.ideas[roomName].showMetaVisuals;
+    this.hippocampus[roomName].showMetaVisuals = !this.hippocampus[roomName].showMetaVisuals;
+    return `Successfully toggled metabolic visuals for ${roomName}`;
+  }
+
+  public renemy(roomName: string): string {
+    if (!this.hippocampus[roomName]) {
+      return `Could not toggle enemy visuals for ${roomName}`;
     }
-    return `Successfully toggled room metabolic visuals for ${roomName}`;
+    this.hippocampus[roomName].showEnemyVisuals = !this.hippocampus[roomName].showEnemyVisuals;
+    return `Successfully toggled enemy visuals for ${roomName}`;
   }
 }
 

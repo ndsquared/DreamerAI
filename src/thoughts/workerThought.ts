@@ -1,9 +1,7 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
-import { Idea, IdeaType } from "ideas/idea";
 import { PathFindWithRoad, isStoreStructure } from "utils/misc";
-import { CreationIdea } from "ideas/creationIdea";
 import { Figment } from "figments/figment";
-import { MetabolicIdea } from "ideas/metabolicIdea";
+import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class WorkerThought extends FigmentThought {
@@ -14,9 +12,8 @@ export class WorkerThought extends FigmentThought {
 
   public handleFigment(figment: Figment): void {
     if (figment.store.getUsedCapacity() > 0) {
-      const creationIdea = this.idea.getSibling<CreationIdea>(IdeaType.CREATION);
-      const repairTarget = creationIdea.getNextRepairTarget();
-      const buildTarget = creationIdea.getNextConstructionSite();
+      const repairTarget = this.idea.hippocampus.getNextRepairTarget();
+      const buildTarget = this.idea.hippocampus.getNextConstructionSite();
       const controller = this.idea.spawn.room.controller;
       if (
         repairTarget &&
@@ -33,8 +30,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
       }
     } else {
-      const metabolicIdea = this.idea.getSibling<MetabolicIdea>(IdeaType.METABOLIC);
-      const target = metabolicIdea.metabolizeClosestResourceOrStructure(figment);
+      const target = this.idea.hippocampus.metabolizeClosestResourceOrStructure(figment);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {

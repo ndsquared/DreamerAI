@@ -28,17 +28,9 @@ export class UpgradeThought extends FigmentThought {
   public ponder(): void {
     this.controller = this.idea.spawn.room.controller;
     if (!this.container) {
-      if (this.controller) {
-        const containers = this.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: s => {
-            if (s.structureType === STRUCTURE_CONTAINER) {
-              return true;
-            }
-            return false;
-          }
-        });
-        if (containers.length) {
-          this.container = containers[0] as StructureContainer;
+      if (this.controller && this.controller.my) {
+        if (this.idea.hippocampus.controllerContainers.length) {
+          this.container = this.idea.hippocampus.controllerContainers[0];
         }
       }
     } else {
@@ -52,12 +44,9 @@ export class UpgradeThought extends FigmentThought {
       this.storage = Game.getObjectById(this.storage.id);
     }
     if (!this.link) {
-      if (this.controller) {
-        const links = this.controller.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: s => s.structureType === STRUCTURE_LINK
-        });
-        if (links.length > 0) {
-          this.link = links[0] as StructureLink;
+      if (this.controller && this.controller.my) {
+        if (this.idea.hippocampus.controllerLinks.length > 0) {
+          this.link = this.idea.hippocampus.controllerLinks[0];
         }
       }
     } else {

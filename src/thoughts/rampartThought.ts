@@ -24,39 +24,16 @@ export class RampartThought extends BuildThought {
     }
 
     // Protect containers
-    const containers = spawn.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.structureType === STRUCTURE_CONTAINER) {
-          return true;
-        }
-        return false;
-      }
-    });
-    const containerPos = _.map(containers, c => c.pos);
+    // TODO: Optimize so this only runs on containers in spawn room
+    const containerPos = _.map(this.idea.hippocampus.containers, c => c.pos);
     creationIdea.addBuilds(containerPos, STRUCTURE_RAMPART, 7, false, false, false);
 
     // Protect links
-    const links = spawn.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.structureType === STRUCTURE_LINK) {
-          return true;
-        }
-        return false;
-      }
-    });
-    const linkPos = _.map(links, l => l.pos);
+    const linkPos = _.map(this.idea.hippocampus.links, l => l.pos);
     creationIdea.addBuilds(linkPos, STRUCTURE_RAMPART, 7, false, false, false);
 
     // Protect towers
-    const towers = spawn.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.structureType === STRUCTURE_TOWER) {
-          return true;
-        }
-        return false;
-      }
-    });
-    const towerPos = _.map(towers, t => t.pos);
+    const towerPos = _.map(this.idea.hippocampus.towers, t => t.pos);
     creationIdea.addBuilds(towerPos, STRUCTURE_RAMPART, 5, false, false, false);
 
     // Protect base

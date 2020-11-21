@@ -11,10 +11,7 @@ export class ContainerThought extends BuildThought {
   public buildPlan(creationIdea: CreationIdea): void {
     const spawn = this.idea.spawn;
     if (spawn && !spawn.room.storage) {
-      const containers = spawn.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER
-      });
-      if (containers.length === 0) {
+      if (this.idea.hippocampus.spawnContainers.length === 0) {
         // Build container next to spawn
         const containerPositions = this.getPositionsStandard(this.idea.spawn.pos);
         creationIdea.addBuilds(containerPositions, STRUCTURE_CONTAINER, 4, true, false);
@@ -24,10 +21,7 @@ export class ContainerThought extends BuildThought {
     // Build container next to controller
     const controller = spawn.room.controller;
     if (controller && controller.my) {
-      const containers = controller.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER
-      });
-      if (containers.length === 0) {
+      if (this.idea.hippocampus.controllerContainers.length === 0) {
         const buildPositions = controller.pos.availableBuilds();
         const priority = PathFindWithRoad(spawn.pos, controller.pos).cost;
         creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
@@ -35,17 +29,11 @@ export class ContainerThought extends BuildThought {
     }
 
     // Build container next to all the sources in the neighborhood
-    for (const room of spawn.room.neighborhood) {
-      const sources = room.find(FIND_SOURCES);
-      for (const source of sources) {
-        const containers = source.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: s => s.structureType === STRUCTURE_CONTAINER
-        });
-        if (containers.length === 0) {
-          const buildPositions = source.pos.availableBuilds();
-          const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
-          creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
-        }
+    for (const source of this.idea.hippocampus.sources) {
+      if (this.idea.hippocampus.sourceContainers[source.id].length === 0) {
+        const buildPositions = source.pos.availableBuilds();
+        const priority = PathFindWithRoad(spawn.pos, source.pos).cost;
+        creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
       }
     }
   }
