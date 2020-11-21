@@ -29,15 +29,20 @@ export class TowerThought extends BuildThought {
     if (enemy) {
       tower.attack(enemy);
     } else {
-      if (
-        this.idea.hippocampus.storage &&
-        this.idea.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000
-      ) {
-        return;
-      }
-      const repairTarget = this.idea.hippocampus.getNextRepairTarget();
-      if (repairTarget) {
-        tower.repair(repairTarget);
+      const healTarget = this.idea.hippocampus.getNextHealTarget();
+      if (healTarget) {
+        tower.heal(healTarget);
+      } else {
+        if (
+          this.idea.hippocampus.storage &&
+          this.idea.hippocampus.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 10000
+        ) {
+          return;
+        }
+        const repairTarget = this.idea.hippocampus.getNextRepairTarget();
+        if (repairTarget) {
+          tower.repair(repairTarget);
+        }
       }
     }
   }

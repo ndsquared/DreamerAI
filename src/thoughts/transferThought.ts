@@ -82,6 +82,12 @@ export class TransferThought extends FigmentThought {
       const target = this.getNextTransferTarget(figment);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
+      } else {
+        figment.addNeuron(NeuronType.SLEEP, this.idea.spawn.id, this.idea.spawn.pos, {
+          sleepTicks: 10,
+          moveOffRoadDuringImpulse: true,
+          targetRange: 15
+        });
       }
     }
   }
