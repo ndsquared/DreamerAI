@@ -8,6 +8,10 @@ export class ExtensionThought extends BuildThought {
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
+    if (this.idea.hippocampus.extensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][this.idea.rcl]) {
+      // console.log("At max extensions for RCL");
+      return;
+    }
     const extensionDeltas: Coord[] = this.standardDeltas();
     const roadDeltas: Coord[] = this.cardinalDirections();
 

@@ -9,6 +9,10 @@ export class TowerThought extends BuildThought {
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
+    if (this.idea.hippocampus.towers.length >= CONTROLLER_STRUCTURES[STRUCTURE_TOWER][this.idea.rcl]) {
+      // console.log("At max towers for RCL");
+      return;
+    }
     const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
 
     if (pivotPos) {

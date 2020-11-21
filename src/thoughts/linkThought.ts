@@ -8,6 +8,10 @@ export class LinkThought extends BuildThought {
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
+    if (this.idea.hippocampus.links.length >= CONTROLLER_STRUCTURES[STRUCTURE_LINK][this.idea.rcl]) {
+      // console.log("At max links for RCL");
+      return;
+    }
     const spawn = this.idea.spawn;
     if (this.idea.hippocampus.links.length < 1) {
       // Build link at controller
