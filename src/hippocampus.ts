@@ -288,11 +288,11 @@ export class Hippocampus {
         const figmentCount = this.memoryGen.figmentCount[figmentType];
         total += figmentCount;
         let priority = -1;
-        if (this.queuePriorities[figmentType]) {
+        if (this.queuePriorities[figmentType] !== undefined) {
           priority = this.queuePriorities[figmentType];
         }
         let needed = false;
-        if (this.figmentNeeded[figmentType]) {
+        if (this.figmentNeeded[figmentType] !== undefined) {
           needed = this.figmentNeeded[figmentType];
         }
         figmentTableData.push([figmentType, figmentCount.toString(), priority.toString(), String(needed)]);
