@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { NeuronType, Neurons } from "neurons/neurons";
-import { PathFindWithRoad, ShuffleArray, isEnergyStructure, isStoreStructure } from "utils/misc";
+import { ShuffleArray } from "utils/misc";
 import { Traveler } from "utils/traveler";
 import profiler from "screeps-profiler";
 
@@ -282,46 +282,6 @@ export class Figment extends Creep implements Figment {
         delete Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.outputs[neuron.target.ref][this.name];
       }
     }
-  }
-
-  // TODO: How can we do this smarter?
-  public getClosestPickupTarget({
-    minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3
-  }: ClosestTarget): Resource | null {
-    const roomResources = this.room.find(FIND_DROPPED_RESOURCES, {
-      filter: s => s.amount >= minCapacity
-    });
-    return _.first(_.sortBy(roomResources, r => PathFindWithRoad(this.pos, r.pos).cost));
-  }
-
-  // TODO: Might want to make this multi-room?
-  public getClosestPickupOrWithdrawTarget({
-    resourceType = RESOURCE_ENERGY,
-    minCapacity = this.store.getCapacity(RESOURCE_ENERGY) / 3
-  }: ClosestTarget): RoomObject | null {
-    let targets: RoomObject[] = [];
-    const resource = this.getClosestPickupTarget({ minCapacity });
-    if (resource) {
-      targets.push(resource);
-    }
-    // Don't withdraw from extensions or towers
-    const roomTargets = this.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        if (s.structureType === STRUCTURE_EXTENSION) {
-          return false;
-        } else if (s.structureType === STRUCTURE_TOWER) {
-          return false;
-        } else if (isEnergyStructure(s)) {
-          return s.energy > minCapacity;
-        } else if (isStoreStructure(s)) {
-          return s.store.getUsedCapacity(resourceType) > minCapacity;
-        }
-        return false;
-      }
-    });
-
-    targets = targets.concat(roomTargets);
-    return _.first(_.sortBy(targets, r => PathFindWithRoad(this.pos, r.pos).cost));
   }
 }
 

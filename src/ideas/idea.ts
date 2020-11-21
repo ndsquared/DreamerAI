@@ -72,4 +72,8 @@ export abstract class Idea implements IBrain {
       }
     }
   }
+
+  public getSibling<T extends Idea>(siblingType: IdeaType): T {
+    return this.imagination.ideas[this.name][siblingType] as T;
+  }
 }

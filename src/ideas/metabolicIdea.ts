@@ -1,8 +1,12 @@
 import { Idea, IdeaType } from "./idea";
+import { PathFindWithRoad, isEnergyStructure, isStoreStructure } from "utils/misc";
 import { Figment } from "figments/figment";
 import { Imagination } from "imagination";
 import PriorityQueue from "ts-priority-queue";
 import { getColor } from "utils/colors";
+
+type EnergyWithdrawStructure = StoreStructure | EnergyStructure;
+type ResourceOrEnergyWithdrawStructure = EnergyWithdrawStructure | Resource;
 
 export class MetabolicIdea extends Idea {
   public inputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
@@ -18,6 +22,8 @@ export class MetabolicIdea extends Idea {
     }
   });
   private memory: MetabolicMemory;
+  public droppedResources: Resource[] = [];
+  public energyWithdrawStructures: EnergyWithdrawStructure[] = [];
   public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
     super(spawn, imagination, type);
     this.memory = imagination.memory.imagination.metabolicIdeas[this.name];
@@ -31,6 +37,8 @@ export class MetabolicIdea extends Idea {
     this.memory = this.imagination.memory.imagination.metabolicIdeas[this.name];
     this.inputQueue.clear();
     this.outputQueue.clear();
+    this.droppedResources = [];
+    this.energyWithdrawStructures = [];
     for (const room of this.spawn.room.neighborhood) {
       this.fillQueues(room);
     }
@@ -73,6 +81,18 @@ export class MetabolicIdea extends Idea {
       rv.circle(pos, { fill: getColor("red"), radius: 0.5 });
       rv.text(output.priority.toString(), pos);
     }
+  }
+
+  public metabolizeClosestResourceOrStructure(figment: Figment): EnergyWithdrawStructure | Resource | null {
+    let targets: ResourceOrEnergyWithdrawStructure[] = [];
+    if (this.energyWithdrawStructures.length === 0) {
+      return null;
+    }
+    targets = targets.concat(this.energyWithdrawStructures);
+    targets = targets.concat(this.droppedResources);
+    const target = _.first(_.sortBy(targets, r => PathFindWithRoad(figment.pos, r.pos).cost));
+    // TODO: adjust priorities for inputs/outpus
+    return target;
   }
 
   public metabolizeInput(figment: Figment): StoreStructure | Resource | null {
@@ -153,10 +173,12 @@ export class MetabolicIdea extends Idea {
     const resources = room.find(FIND_DROPPED_RESOURCES);
     for (const resource of resources) {
       this.addOutput(resource, resource.amount);
+      this.droppedResources.push(resource);
     }
     // Add structures to queues
     const structures = room.find(FIND_STRUCTURES);
     for (const s of structures) {
+      this.addEnergyWithdrawStructure(s);
       if (s.structureType === STRUCTURE_CONTAINER) {
         const controller = s.room.controller;
         if (controller) {
@@ -187,6 +209,20 @@ export class MetabolicIdea extends Idea {
         // TODO: Only add the link next to the controller
         // this.addOutput(s, s.store.getUsedCapacity(RESOURCE_ENERGY));
       }
+    }
+  }
+
+  private addEnergyWithdrawStructure(structure: Structure): void {
+    // Don't withdraw from extensions or towers
+    if (structure.structureType === STRUCTURE_EXTENSION) {
+      return;
+    } else if (structure.structureType === STRUCTURE_TOWER) {
+      return;
+    }
+    if (isEnergyStructure(structure) && structure.energy > 0) {
+      this.energyWithdrawStructures.push(structure);
+    } else if (isStoreStructure(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+      this.energyWithdrawStructures.push(structure);
     }
   }
 }
