@@ -8,7 +8,6 @@ export class RoadThought extends BuildThought {
     super(idea, name, instance);
   }
 
-  // TODO: Some weirdness happening with road planning, seeing overlaps
   public buildPlan(creationIdea: CreationIdea): void {
     if (this.idea.rcl < 3) {
       return;

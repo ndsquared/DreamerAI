@@ -82,7 +82,7 @@ export class HarvestThought extends FigmentThought {
     if (room) {
       controller = room.controller;
     }
-    // TODO: Rooms should be designated as hostile using the logic below
+    // TODO: Logic below should be a prototype or misc function
     if (!controller) {
       return false;
     }
