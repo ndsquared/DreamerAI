@@ -1,7 +1,6 @@
 import { FigmentThought, FigmentType } from "./figmentThought";
 import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
-import { NeuronType } from "neurons/neurons";
 import { getColor } from "utils/colors";
 
 export class ScoutThought extends FigmentThought {
@@ -35,7 +34,8 @@ export class ScoutThought extends FigmentThought {
       return;
     }
     const targetPos = new RoomPosition(25, 25, this.targetRoomName);
-    figment.addNeuron(NeuronType.MOVE, "", targetPos, { moveRange: 20 });
+    figment.travelTo(targetPos);
+    // figment.addNeuron(NeuronType.MOVE, "", targetPos, { moveRange: 20 });
   }
 
   public figmentNeeded(figmentType: string): boolean {

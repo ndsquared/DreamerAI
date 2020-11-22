@@ -79,6 +79,12 @@ interface MetabolicQueuePayload {
   priority: number;
 }
 
+interface MapTerritoryPayload {
+  roomNames: string[];
+  text: string;
+  color: string;
+}
+
 interface PathfinderReturn {
   path: RoomPosition[];
   ops: number;

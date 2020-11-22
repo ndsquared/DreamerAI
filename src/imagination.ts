@@ -310,6 +310,8 @@ export class Imagination implements IBrain {
     this.rstats(roomName);
     this.rbuild(roomName);
     this.rmeta(roomName);
+    this.renemy(roomName);
+    this.rmap(roomName);
     return `Successfully toggled all stats/visuals for ${roomName}`;
   }
 
@@ -343,6 +345,14 @@ export class Imagination implements IBrain {
     }
     this.hippocampus[roomName].showEnemyVisuals = !this.hippocampus[roomName].showEnemyVisuals;
     return `Successfully toggled enemy visuals for ${roomName}`;
+  }
+
+  public rmap(roomName: string): string {
+    if (!this.hippocampus[roomName]) {
+      return `Could not toggle map visuals for ${roomName}`;
+    }
+    this.hippocampus[roomName].showMapVisuals = !this.hippocampus[roomName].showMapVisuals;
+    return `Successfully toggled map visuals for ${roomName}`;
   }
 }
 

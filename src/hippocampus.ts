@@ -32,11 +32,11 @@ export class Hippocampus {
   private repairThreshold = 20000;
   private ecoStorageThreshold = 20000;
 
-  public showStats = true;
-  public showBuildVisuals = true;
-  public showMetaVisuals = true;
-  public showEnemyVisuals = true;
-  public showMapVisuals = true;
+  public showStats = false;
+  public showBuildVisuals = false;
+  public showMetaVisuals = false;
+  public showEnemyVisuals = false;
+  public showMapVisuals = false;
 
   /* ********** Arrays ********** */
 
@@ -380,54 +380,19 @@ export class Hippocampus {
       figmentTable.renderTable();
     }
     if (this.showMapVisuals) {
-      // Standard
-      for (const roomName of this.standardRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("yellow"), opacity: 0.2 });
-        Game.map.visual.text(`T-${roomData.roomDistance}`, pos, { align: "left" });
-      }
-      // Neighborhood
-      for (const roomName of this.neighborhoodRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("blue"), opacity: 0.2 });
-        Game.map.visual.text(`N-${roomData.roomDistance}`, pos, { align: "left" });
-      }
-      // SK
-      for (const roomName of this.sourceKeeperRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("red"), opacity: 0.2 });
-        Game.map.visual.text(`SK-${roomData.roomDistance}`, pos, { align: "left" });
-      }
-      // Center
-      for (const roomName of this.centerRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("purple"), opacity: 0.2 });
-        Game.map.visual.text(`C-${roomData.roomDistance}`, pos, { align: "left" });
-      }
-      // Highway
-      for (const roomName of this.highwayRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("indigo"), opacity: 0.2 });
-        Game.map.visual.text(`H-${roomData.roomDistance}`, pos, { align: "left" });
-      }
-      // Crossroads
-      for (const roomName of this.highwayRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("indigo", "900"), opacity: 0.2 });
-        Game.map.visual.text(`X-${roomData.roomDistance}`, pos, { align: "left" });
-      }
-      // Unknown
-      for (const roomName of this.highwayRoomNames) {
-        const pos = new RoomPosition(1, 1, roomName);
-        const roomData = this.memoryTerritory.rooms[roomName];
-        Game.map.visual.rect(pos, 48, 48, { fill: getColor("pink"), opacity: 0.2 });
-        Game.map.visual.text(`U-${roomData.roomDistance}`, pos, { align: "left" });
+      const mapTerritoryPayloads: MapTerritoryPayload[] = [
+        { roomNames: this.standardRoomNames, text: "T", color: getColor("yellow") },
+        { roomNames: this.neighborhoodRoomNames, text: "N", color: getColor("blue") },
+        { roomNames: this.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
+        { roomNames: this.centerRoomNames, text: "C", color: getColor("purple") },
+        { roomNames: this.highwayRoomNames, text: "H", color: getColor("indigo") },
+        { roomNames: this.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
+        { roomNames: this.unknownRoomNames, text: "U", color: getColor("pink") }
+      ];
+      for (const mapTerritoryPayload of mapTerritoryPayloads) {
+        for (const roomName of mapTerritoryPayload.roomNames) {
+          this.mapTerritoryVisual(roomName, mapTerritoryPayload.text, mapTerritoryPayload.color);
+        }
       }
       // Recon targets
       for (const reconRoomName of this.reconRoomNames) {
@@ -436,6 +401,13 @@ export class Hippocampus {
         Game.map.visual.text(`S`, nextScoutPos);
       }
     }
+  }
+
+  private mapTerritoryVisual(roomName: string, text: string, color: string): void {
+    const pos = new RoomPosition(1, 1, roomName);
+    const roomData = this.memoryTerritory.rooms[roomName];
+    Game.map.visual.rect(pos, 48, 48, { fill: color, opacity: 0.2 });
+    Game.map.visual.text(`${text}-${roomData.roomDistance}`, pos, { align: "left" });
   }
 
   private processEnemyCreeps(): void {
