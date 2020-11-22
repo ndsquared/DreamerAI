@@ -32,6 +32,7 @@ export class Hippocampus {
 
   private repairThreshold = 20000;
   private ecoStorageThreshold = 20000;
+  private neighborhoodThreshold = 5;
 
   public showStats = false;
   public showBuildVisuals = false;
@@ -246,7 +247,7 @@ export class Hippocampus {
           this.unknownRoomNames.push(roomName);
           break;
         case RoomType.ROOM_STANDARD:
-          if (roomMemory.roomDistance < 5) {
+          if (roomMemory.roomDistance < this.neighborhoodThreshold) {
             this.neighborhoodRoomNames.push(roomName);
             if (room) {
               this.enemyCreeps = this.enemyCreeps.concat(this.roomObjects[roomName][FIND_HOSTILE_CREEPS]);
@@ -474,7 +475,7 @@ export class Hippocampus {
         }
       }
     }
-    if (hostiles.length) {
+    if (hostiles.length && this.memoryTerritory.rooms[room.name].roomDistance < this.neighborhoodThreshold) {
       this.memoryTerritory.rooms[room.name].defendScore = hostiles.length;
     } else {
       delete this.memoryTerritory.rooms[room.name].defendScore;
@@ -484,16 +485,55 @@ export class Hippocampus {
     } else {
       delete this.memoryTerritory.rooms[room.name].attackScore;
     }
-    let expandScore = 0;
     if (
-      this.memoryTerritory.rooms[room.name].roomDistance > 10 &&
+      !this.memoryTerritory.rooms[room.name].expansionScore &&
+      this.memoryTerritory.rooms[room.name].roomDistance > this.neighborhoodThreshold * 2 &&
+      this.memoryTerritory.rooms[room.name].roomDistance < this.neighborhoodThreshold * 3 &&
       this.memoryTerritory.rooms[room.name].roomType === RoomType.ROOM_STANDARD
     ) {
-      expandScore += this.roomObjects[room.name][FIND_SOURCES].length;
+      let expandScore = 0;
+      const terrainScore = this.getTerrainScore(room.name);
+      expandScore += terrainScore;
+      expandScore += this.roomObjects[room.name][FIND_SOURCES].length * 10;
       this.memoryTerritory.rooms[room.name].expansionScore = expandScore;
-    } else {
-      delete this.memoryTerritory.rooms[room.name].expansionScore;
     }
+  }
+
+  private getTerrainScore(roomName: string): number {
+    let swampTiles = 0;
+    let wallTiles = 0;
+    let plainTiles = 0;
+    const terrain = new Room.Terrain(roomName);
+    for (let y = 0; y < 50; y++) {
+      for (let x = 0; x < 50; x++) {
+        const tile = terrain.get(x, y);
+        switch (tile) {
+          case TERRAIN_MASK_SWAMP:
+            swampTiles++;
+            break;
+          case TERRAIN_MASK_WALL:
+            wallTiles++;
+            break;
+          default:
+            plainTiles++;
+            break;
+        }
+      }
+    }
+    const total = swampTiles + wallTiles + plainTiles;
+    if (total !== 50 * 50) {
+      console.log(`Total mismatch for room ${roomName}`);
+    }
+    let score = 10;
+    if (swampTiles / total > 0.4) {
+      score -= 5;
+      console.log(`${roomName} was found to be swampy`);
+    }
+    if (wallTiles / total > 0.4) {
+      score -= 2;
+      console.log(`${roomName} was found to be wally`);
+    }
+    return score;
   }
 
   private processEnemyCreeps(): void {
