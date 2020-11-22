@@ -26,7 +26,6 @@ export class GenesisIdea extends Idea {
     super(spawn, imagination, type);
 
     this.thoughts[FigmentType.HARVEST] = {};
-    this.thoughts[FigmentType.SCOUT] = {};
     this.thoughts[FigmentType.RESERVE] = {};
 
     const figmentThoughts: ThoughtMapping[] = [
@@ -35,7 +34,8 @@ export class GenesisIdea extends Idea {
       { name: FigmentType.WORKER, thought: WorkerThought },
       { name: FigmentType.UPGRADE, thought: UpgradeThought },
       { name: FigmentType.ATTACK, thought: AttackThought },
-      { name: FigmentType.DEFENSE, thought: DefenseThought }
+      { name: FigmentType.DEFENSE, thought: DefenseThought },
+      { name: FigmentType.SCOUT, thought: ScoutThought }
     ];
     for (const figmentThought of figmentThoughts) {
       this.thoughts[figmentThought.name] = {};
@@ -55,9 +55,6 @@ export class GenesisIdea extends Idea {
         if (!this.thoughts[FigmentType.RESERVE][room.name]) {
           this.thoughts[FigmentType.RESERVE][room.name] = new ReserveThought(this, FigmentType.RESERVE, room.name);
         }
-      }
-      if (!this.thoughts[FigmentType.SCOUT][roomName]) {
-        this.thoughts[FigmentType.SCOUT][roomName] = new ScoutThought(this, FigmentType.SCOUT, roomName);
       }
     }
     super.ponder();
@@ -150,6 +147,9 @@ export class GenesisIdea extends Idea {
             this.hippocampus.queuePriorities[figmentType] = 16;
           }
           break;
+        case FigmentType.SCOUT:
+          this.hippocampus.queuePriorities[figmentType] = 5;
+          break;
         case FigmentType.UPGRADE:
           this.hippocampus.queuePriorities[figmentType] = 5;
           if (this.hippocampus.inEcoMode()) {
@@ -161,9 +161,6 @@ export class GenesisIdea extends Idea {
           if (this.hippocampus.inEcoMode()) {
             this.hippocampus.queuePriorities[figmentType] = 0;
           }
-          break;
-        case FigmentType.SCOUT:
-          this.hippocampus.queuePriorities[figmentType] = 2;
           break;
         case FigmentType.DEFENSE:
           this.hippocampus.queuePriorities[figmentType] = 1;

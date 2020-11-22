@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { isEnergyStructure, isStoreStructure } from "utils/misc";
+import { getNeighborRoomNames, isEnergyStructure, isStoreStructure } from "utils/misc";
 
 // Room
 
@@ -26,18 +26,7 @@ Object.defineProperty(Room.prototype, "neighbors", {
 
 Object.defineProperty(Room.prototype, "neighborNames", {
   get() {
-    const adjRoomNames: string[] = [];
-
-    const exits = Game.map.describeExits(this.name);
-    if (exits) {
-      for (const roomName of Object.values(exits)) {
-        if (roomName) {
-          adjRoomNames.push(roomName);
-        }
-      }
-    }
-
-    return adjRoomNames;
+    return getNeighborRoomNames(this.name);
   }
 });
 

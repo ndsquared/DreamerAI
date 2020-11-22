@@ -275,11 +275,11 @@ export class Figment extends Creep implements Figment {
       neuron.type === NeuronType.WITHDRAW ||
       neuron.type === NeuronType.TRANSFER
     ) {
-      if (Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.inputs[neuron.target.ref]) {
-        delete Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.inputs[neuron.target.ref][this.name];
+      if (Memory.imagination.metabolic[this.memory.ideaName].metabolism.inputs[neuron.target.ref]) {
+        delete Memory.imagination.metabolic[this.memory.ideaName].metabolism.inputs[neuron.target.ref][this.name];
       }
-      if (Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.outputs[neuron.target.ref]) {
-        delete Memory.imagination.metabolicIdeas[this.memory.ideaName].metabolism.outputs[neuron.target.ref][this.name];
+      if (Memory.imagination.metabolic[this.memory.ideaName].metabolism.outputs[neuron.target.ref]) {
+        delete Memory.imagination.metabolic[this.memory.ideaName].metabolism.outputs[neuron.target.ref][this.name];
       }
     }
   }

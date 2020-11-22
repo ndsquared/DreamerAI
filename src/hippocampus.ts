@@ -1,5 +1,12 @@
 import { BarGraph, Table } from "utils/visuals";
-import { PathFindWithRoad, isEnergyStructure, isStoreStructure } from "utils/misc";
+import {
+  PathFindWithRoad,
+  getNeighborRoomNames,
+  getReconRoomData,
+  isEnergyStructure,
+  isSourceKeeperRoom,
+  isStoreStructure
+} from "utils/misc";
 import { Figment } from "figments/figment";
 import { Imagination } from "imagination";
 import PriorityQueue from "ts-priority-queue";
@@ -16,6 +23,7 @@ export class Hippocampus {
 
   private memoryIO: MetabolicMemory;
   public memoryGen: GenesisMemory;
+  public memoryTerritory: TerritoryMemory;
 
   public queuePriorities: { [type: string]: number } = {};
   public figmentNeeded: { [type: string]: boolean } = {};
@@ -23,12 +31,11 @@ export class Hippocampus {
   private repairThreshold = 20000;
   private ecoStorageThreshold = 20000;
 
-  public hostileEnemyInRoom: { [name: string]: boolean } = {};
-
   public showStats = true;
   public showBuildVisuals = true;
   public showMetaVisuals = true;
   public showEnemyVisuals = true;
+  public showMapVisuals = true;
 
   /* ********** Arrays ********** */
 
@@ -41,6 +48,7 @@ export class Hippocampus {
   public spawnContainers: StructureContainer[] = [];
   public sourceContainers: { [name: string]: StructureContainer[] } = {};
   public controllerContainers: StructureContainer[] = [];
+  public reconRoomNames: string[] = [];
 
   // Owned
   public myCreeps: Creep[] = [];
@@ -55,12 +63,14 @@ export class Hippocampus {
   public extensions: StructureExtension[] = [];
   public spawns: StructureSpawn[] = [];
   public storage: StructureStorage | null = null;
+  public neighborhoodNames: string[] = [];
 
   // Enemy
   // TODO: turn this into a queue??
   public towerEnemies: Creep[] = [];
   public enemyCreeps: Creep[] = [];
   public enemyStructures: Structure[] = [];
+  public sourceKeeperRoomNames: string[] = [];
 
   /* ********** Queues ********** */
   // Neutral
@@ -121,8 +131,9 @@ export class Hippocampus {
     this.spawnId = spawn.id;
     this.spawnRoom = Game.rooms[spawn.room.name];
     this.imagination = imagination;
-    this.memoryIO = imagination.memory.imagination.metabolicIdeas[spawn.room.name];
-    this.memoryGen = imagination.memory.imagination.genesisIdeas[spawn.room.name];
+    this.memoryIO = imagination.memory.imagination.metabolic[spawn.room.name];
+    this.memoryGen = imagination.memory.imagination.genesis[spawn.room.name];
+    this.memoryTerritory = imagination.memory.imagination.territory[spawn.room.name];
   }
 
   public get spawn(): StructureSpawn | null {
@@ -158,28 +169,37 @@ export class Hippocampus {
     this.controllerLinks = [];
     this.extensions = [];
     this.spawns = [];
+    this.neighborhoodNames = [];
 
     // Enemy
     this.enemyQueue.clear();
     this.towerEnemies = [];
     this.enemyCreeps = [];
     this.enemyStructures = [];
+    this.sourceKeeperRoomNames = [];
   }
 
   public remember(): void {
     this.forget();
-    this.memoryIO = this.imagination.memory.imagination.metabolicIdeas[this.spawnRoom.name];
-    // console.log(JSON.stringify(this.memoryIO));
-    this.memoryGen = this.imagination.memory.imagination.genesisIdeas[this.spawnRoom.name];
-    // console.log(JSON.stringify(this.memoryGen));
-    for (const room of this.spawnRoom.neighborhood) {
-      this.hostileEnemyInRoom[room.name] = false;
-      this.enemyCreeps = this.enemyCreeps.concat(room.find(FIND_HOSTILE_CREEPS));
-      this.myCreeps = this.myCreeps.concat(room.find(FIND_MY_CREEPS));
-      this.structures = this.structures.concat(room.find(FIND_STRUCTURES));
-      this.constructionSites = this.constructionSites.concat(room.find(FIND_CONSTRUCTION_SITES));
-      this.droppedResources = this.droppedResources.concat(room.find(FIND_DROPPED_RESOURCES));
-      this.sources = this.sources.concat(room.find(FIND_SOURCES));
+    this.memoryIO = this.imagination.memory.imagination.metabolic[this.spawnRoom.name];
+    this.memoryGen = this.imagination.memory.imagination.genesis[this.spawnRoom.name];
+    this.memoryTerritory = this.imagination.memory.imagination.territory[this.spawnRoom.name];
+    for (const roomName in this.memoryTerritory.rooms) {
+      const roomMemory = this.memoryTerritory.rooms[roomName];
+      if (roomMemory.isSourceKeeperOwned) {
+        this.sourceKeeperRoomNames.push(roomName);
+      } else if (roomMemory.isInNeighborhood) {
+        this.neighborhoodNames.push(roomName);
+        const room = Game.rooms[roomName];
+        if (room) {
+          this.enemyCreeps = this.enemyCreeps.concat(room.find(FIND_HOSTILE_CREEPS));
+          this.myCreeps = this.myCreeps.concat(room.find(FIND_MY_CREEPS));
+          this.structures = this.structures.concat(room.find(FIND_STRUCTURES));
+          this.constructionSites = this.constructionSites.concat(room.find(FIND_CONSTRUCTION_SITES));
+          this.droppedResources = this.droppedResources.concat(room.find(FIND_DROPPED_RESOURCES));
+          this.sources = this.sources.concat(room.find(FIND_SOURCES));
+        }
+      }
     }
     // Process neutral
     this.processStructures();
@@ -267,6 +287,16 @@ export class Hippocampus {
       const barGraph = new BarGraph("General Stats", anchor, data);
       barGraph.renderGraph();
 
+      // Territory
+      const tTableAnchor = new RoomPosition(12, 16, spawn.room.name);
+      const tTableData: string[][] = [["Type", "Count"]];
+      tTableData.push(["Territory", Object.keys(this.memoryTerritory.rooms).length.toString()]);
+      tTableData.push(["Recon", this.reconRoomNames.length.toString()]);
+      tTableData.push(["Neighborhood", this.neighborhoodNames.length.toString()]);
+      tTableData.push(["SourceKeeper", this.sourceKeeperRoomNames.length.toString()]);
+      const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
+      tTable.renderTable();
+
       // Queues
       const qTableAnchor = new RoomPosition(12, 1, spawn.room.name);
       const qTableData: string[][] = [["Queue", "Count"]];
@@ -319,6 +349,26 @@ export class Hippocampus {
       const figmentTable = new Table(title, figmentTableAnchor, figmentTableData);
       figmentTable.renderTable();
     }
+    if (this.showMapVisuals) {
+      // Neighborhood
+      for (const neighborhoodRoomName of this.neighborhoodNames) {
+        const nPos = new RoomPosition(1, 1, neighborhoodRoomName);
+        Game.map.visual.rect(nPos, 48, 48, { fill: getColor("blue"), opacity: 0.2 });
+        Game.map.visual.text(`N`, nPos, { align: "left" });
+      }
+      // SK
+      for (const sourceKeeperRoomName of this.sourceKeeperRoomNames) {
+        const kPos = new RoomPosition(1, 1, sourceKeeperRoomName);
+        Game.map.visual.rect(kPos, 48, 48, { fill: getColor("red"), opacity: 0.2 });
+        Game.map.visual.text(`SK`, kPos, { align: "left" });
+      }
+      // Recon targets
+      for (const reconRoomName of this.reconRoomNames) {
+        const nextScoutPos = new RoomPosition(25, 25, reconRoomName);
+        Game.map.visual.circle(nextScoutPos, { fill: getColor("red") });
+        Game.map.visual.text(`S`, nextScoutPos);
+      }
+    }
   }
 
   private processEnemyCreeps(): void {
@@ -327,7 +377,6 @@ export class Hippocampus {
         enemyObject: enemyCreep,
         priority: enemyCreep.hits
       });
-      this.hostileEnemyInRoom[enemyCreep.room.name] = true;
       if (enemyCreep.getActiveBodyparts(ATTACK) > 2 || enemyCreep.getActiveBodyparts(RANGED_ATTACK) > 2) {
         this.towerEnemies.push(enemyCreep);
       }
@@ -585,5 +634,35 @@ export class Hippocampus {
       return true;
     }
     return false;
+  }
+
+  public getNextReconRoomName(): string | undefined {
+    if (this.reconRoomNames.length === 0) {
+      this.populateReconRoomNames();
+    }
+    return this.reconRoomNames.shift();
+  }
+
+  private populateReconRoomNames(): void {
+    const visitedRoomNames = Object.keys(this.memoryTerritory.rooms);
+    for (const visitedRoomName of visitedRoomNames) {
+      const neighborRoomNames = getNeighborRoomNames(visitedRoomName);
+      for (const neighborRoomName of neighborRoomNames) {
+        if (!this.memoryTerritory.rooms[neighborRoomName]) {
+          if (isSourceKeeperRoom(neighborRoomName)) {
+            this.memoryTerritory.rooms[neighborRoomName] = getReconRoomData(this.spawnRoom.name, neighborRoomName);
+            this.memoryTerritory.rooms[neighborRoomName].isSourceKeeperOwned = true;
+          } else {
+            this.reconRoomNames.push(neighborRoomName);
+          }
+        }
+      }
+    }
+  }
+
+  public addReconRoomData(room: Room): void {
+    if (!this.memoryTerritory.rooms[room.name]) {
+      this.memoryTerritory.rooms[room.name] = getReconRoomData(this.spawnRoom.name, room.name);
+    }
   }
 }

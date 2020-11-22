@@ -108,3 +108,52 @@ export function getUsername(): string {
   console.log("ERROR: Could not determine username");
   return "error: invalidusername";
 }
+
+export function getNeighborRoomNames(originRoomName: string): string[] {
+  const adjRoomNames: string[] = [];
+
+  const exits = Game.map.describeExits(originRoomName);
+  if (exits) {
+    for (const roomName of Object.values(exits)) {
+      if (roomName) {
+        adjRoomNames.push(roomName);
+      }
+    }
+  }
+
+  return adjRoomNames;
+}
+
+export function getReconRoomData(srcRoom: string, dstRoom: string): RoomMemory {
+  const avoid = false;
+  const isSourceKeeperOwned = false;
+  const isInNeighborhood = Game.map.getRoomLinearDistance(srcRoom, dstRoom) <= 3;
+  const expansionScore = -1;
+  const attackScore = -1;
+  const defendScore = -1;
+  const harassScore = -1;
+  return {
+    avoid,
+    isSourceKeeperOwned,
+    isInNeighborhood,
+    expansionScore,
+    attackScore,
+    defendScore,
+    harassScore
+  };
+}
+
+/*
+https://github.com/screepers/screeps-snippets/blob/master/src/misc/JavaScript/Check%20if%20room%20is%20a%20source%20keeper%20room.js
+*/
+
+export function isSourceKeeperRoom(roomName: string): boolean {
+  const regExResult = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
+  if (regExResult) {
+    const fMod = parseInt(regExResult[1], 10) % 10;
+    const sMod = parseInt(regExResult[2], 10) % 10;
+    const isSK = !(fMod === 5 && sMod === 5) && fMod >= 4 && fMod <= 6 && sMod >= 4 && sMod <= 6;
+    return isSK;
+  }
+  return false;
+}

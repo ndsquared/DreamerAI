@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Idea, IdeaType } from "ideas/idea";
+import { getReconRoomData, getUsername } from "utils/misc";
 import { Figment } from "figments/figment";
 import { FigmentThought } from "thoughts/figmentThought";
 import { Hippocampus } from "hippocampus";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
-import { getUsername } from "utils/misc";
 import profiler from "screeps-profiler";
 
 export class Imagination implements IBrain {
@@ -16,8 +16,9 @@ export class Imagination implements IBrain {
     version: 0,
     imagination: {
       version: 0,
-      genesisIdeas: {},
-      metabolicIdeas: {}
+      genesis: {},
+      metabolic: {},
+      territory: {}
     },
     stats: {
       time: 0,
@@ -87,14 +88,18 @@ export class Imagination implements IBrain {
       console.log("forgetting...");
       Memory.imagination = {
         version: Memory.version,
-        genesisIdeas: {},
-        metabolicIdeas: {}
+        genesis: {},
+        metabolic: {},
+        territory: {}
       };
       Memory.creeps = {};
       delete Memory.flags;
       delete Memory.rooms;
       delete Memory.spawns;
       delete Memory.powerCreeps;
+      if (Memory.stats) {
+        delete Memory.stats;
+      }
     }
   }
 
@@ -150,17 +155,28 @@ export class Imagination implements IBrain {
   private meditate() {
     for (const ideaName in this.ideas) {
       // Reset figment count
-      this.memory.imagination.genesisIdeas[ideaName] = {
+      this.memory.imagination.genesis[ideaName] = {
         figmentCount: {}
       };
       // Initialize metabolism
-      if (!this.memory.imagination.metabolicIdeas[ideaName]) {
-        this.memory.imagination.metabolicIdeas[ideaName] = {
+      if (!this.memory.imagination.metabolic[ideaName]) {
+        this.memory.imagination.metabolic[ideaName] = {
           metabolism: {
             inputs: {},
             outputs: {}
           }
         };
+      }
+      // Initialize territory
+      if (!this.memory.imagination.territory[ideaName]) {
+        this.memory.imagination.territory[ideaName] = {
+          rooms: {}
+        };
+        // Seed spawn room
+        const room = Game.rooms[ideaName];
+        if (room) {
+          this.memory.imagination.territory[ideaName].rooms[ideaName] = getReconRoomData(room.name, room.name);
+        }
       }
       try {
         this.hippocampus[ideaName].remember();
@@ -175,31 +191,35 @@ export class Imagination implements IBrain {
       const figmentType = this.memory.creeps[name].figmentType;
       if (!(name in Game.creeps)) {
         delete this.memory.creeps[name];
-      } else {
+      } else if (ideaName && figmentType) {
         // Set figment count
-        if (this.memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType]) {
-          this.memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] += 1;
+        if (this.memory.imagination.genesis[ideaName].figmentCount[figmentType]) {
+          this.memory.imagination.genesis[ideaName].figmentCount[figmentType] += 1;
         } else {
-          this.memory.imagination.genesisIdeas[ideaName].figmentCount[figmentType] = 1;
+          this.memory.imagination.genesis[ideaName].figmentCount[figmentType] = 1;
         }
+      } else {
+        const orphanedCreep = Game.creeps[name];
+        orphanedCreep.suicide();
+        console.log(`${orphanedCreep.name} committed suduko!`);
       }
     }
     // Clean up metabolism memory
     for (const ideaName in this.ideas) {
-      if (this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
-        for (const ref in this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs) {
-          for (const name in this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref]) {
+      if (this.memory.imagination.metabolic[ideaName].metabolism.inputs) {
+        for (const ref in this.memory.imagination.metabolic[ideaName].metabolism.inputs) {
+          for (const name in this.memory.imagination.metabolic[ideaName].metabolism.inputs[ref]) {
             if (!(name in Game.creeps)) {
-              delete this.memory.imagination.metabolicIdeas[ideaName].metabolism.inputs[ref][name];
+              delete this.memory.imagination.metabolic[ideaName].metabolism.inputs[ref][name];
             }
           }
         }
       }
-      if (this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
-        for (const ref in this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs) {
-          for (const name in this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref]) {
+      if (this.memory.imagination.metabolic[ideaName].metabolism.outputs) {
+        for (const ref in this.memory.imagination.metabolic[ideaName].metabolism.outputs) {
+          for (const name in this.memory.imagination.metabolic[ideaName].metabolism.outputs[ref]) {
             if (!(name in Game.creeps)) {
-              delete this.memory.imagination.metabolicIdeas[ideaName].metabolism.outputs[ref][name];
+              delete this.memory.imagination.metabolic[ideaName].metabolism.outputs[ref][name];
             }
           }
         }

@@ -61,11 +61,14 @@ interface MetabolismIO {
 
 interface ImaginationMemory {
   version: number;
-  genesisIdeas: {
+  genesis: {
     [name: string]: GenesisMemory;
   };
-  metabolicIdeas: {
+  metabolic: {
     [name: string]: MetabolicMemory;
+  };
+  territory: {
+    [name: string]: TerritoryMemory;
   };
 }
 
@@ -93,5 +96,17 @@ interface InterneuronTargetOptions {
 }
 
 interface RoomMemory {
-  avoid: number;
+  avoid: boolean;
+  isSourceKeeperOwned: boolean;
+  isInNeighborhood: boolean;
+  expansionScore?: number;
+  attackScore?: number;
+  harassScore?: number;
+  defendScore?: number;
+}
+
+interface TerritoryMemory {
+  rooms: {
+    [name: string]: RoomMemory;
+  };
 }

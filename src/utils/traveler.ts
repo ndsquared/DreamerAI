@@ -36,9 +36,6 @@ export class Traveler {
    */
 
   public static travelTo(creep: Creep, destination: HasPos | RoomPosition, options: TravelToOptions = {}): number {
-    // uncomment if you would like to register hostile rooms entered
-    // this.updateRoomStatus(creep.room);
-
     if (!destination) {
       return ERR_INVALID_ARGS;
     }
@@ -197,7 +194,7 @@ export class Traveler {
    * @returns {RoomMemory|number}
    */
 
-  public static checkAvoid(roomName: string): number {
+  public static checkAvoid(roomName: string): boolean {
     return Memory.rooms && Memory.rooms[roomName] && Memory.rooms[roomName].avoid;
   }
 
@@ -248,24 +245,6 @@ export class Traveler {
       strokeWidth: 0.15,
       opacity
     });
-  }
-
-  /**
-   * update memory on whether a room should be avoided based on controller owner
-   * @param room
-   */
-
-  public static updateRoomStatus(room: Room): void {
-    if (!room) {
-      return;
-    }
-    if (room.controller) {
-      if (room.controller.owner && !room.controller.my) {
-        room.memory.avoid = 1;
-      } else {
-        delete room.memory.avoid;
-      }
-    }
   }
 
   /**
@@ -622,38 +601,6 @@ export class Traveler {
       return;
     }
     return new RoomPosition(x, y, origin.roomName);
-  }
-
-  /**
-   * convert room avoidance memory from the old pattern to the one currently used
-   * @param cleanup
-   */
-
-  public static patchMemory(cleanup = false): void {
-    if (!Memory.empire) {
-      return;
-    }
-    if (!Memory.empire.hostileRooms) {
-      return;
-    }
-    let count = 0;
-    for (const roomName in Memory.empire.hostileRooms) {
-      if (Memory.empire.hostileRooms[roomName]) {
-        if (!Memory.rooms[roomName]) {
-          Memory.rooms[roomName] = {} as any;
-        }
-        Memory.rooms[roomName].avoid = 1;
-        count++;
-      }
-      if (cleanup) {
-        delete Memory.empire.hostileRooms[roomName];
-      }
-    }
-    if (cleanup) {
-      delete Memory.empire.hostileRooms;
-    }
-
-    console.log(`TRAVELER: room avoidance data patched for ${count} rooms`);
   }
 
   private static deserializeState(travelData: TravelData, destination: RoomPosition): TravelState {
