@@ -1,10 +1,11 @@
 import { BarGraph, Table } from "utils/visuals";
 import {
   PathFindWithRoad,
+  RoomType,
   getNeighborRoomNames,
   getReconRoomData,
+  getRoomType,
   isEnergyStructure,
-  isSourceKeeperRoom,
   isStoreStructure
 } from "utils/misc";
 import { Figment } from "figments/figment";
@@ -49,6 +50,11 @@ export class Hippocampus {
   public sourceContainers: { [name: string]: StructureContainer[] } = {};
   public controllerContainers: StructureContainer[] = [];
   public reconRoomNames: string[] = [];
+  public standardRoomNames: string[] = [];
+  public centerRoomNames: string[] = [];
+  public highwayRoomNames: string[] = [];
+  public crossroadRoomNames: string[] = [];
+  public unknownRoomNames: string[] = [];
 
   // Owned
   public myCreeps: Creep[] = [];
@@ -63,7 +69,7 @@ export class Hippocampus {
   public extensions: StructureExtension[] = [];
   public spawns: StructureSpawn[] = [];
   public storage: StructureStorage | null = null;
-  public neighborhoodNames: string[] = [];
+  public neighborhoodRoomNames: string[] = [];
 
   // Enemy
   // TODO: turn this into a queue??
@@ -150,6 +156,11 @@ export class Hippocampus {
     this.spawnContainers = [];
     this.sourceContainers = {};
     this.controllerContainers = [];
+    this.standardRoomNames = [];
+    this.centerRoomNames = [];
+    this.highwayRoomNames = [];
+    this.crossroadRoomNames = [];
+    this.unknownRoomNames = [];
 
     // Owned
     this.healQueue.clear();
@@ -169,7 +180,7 @@ export class Hippocampus {
     this.controllerLinks = [];
     this.extensions = [];
     this.spawns = [];
-    this.neighborhoodNames = [];
+    this.neighborhoodRoomNames = [];
 
     // Enemy
     this.enemyQueue.clear();
@@ -186,19 +197,38 @@ export class Hippocampus {
     this.memoryTerritory = this.imagination.memory.imagination.territory[this.spawnRoom.name];
     for (const roomName in this.memoryTerritory.rooms) {
       const roomMemory = this.memoryTerritory.rooms[roomName];
-      if (roomMemory.isSourceKeeperOwned) {
-        this.sourceKeeperRoomNames.push(roomName);
-      } else if (roomMemory.isInNeighborhood) {
-        this.neighborhoodNames.push(roomName);
-        const room = Game.rooms[roomName];
-        if (room) {
-          this.enemyCreeps = this.enemyCreeps.concat(room.find(FIND_HOSTILE_CREEPS));
-          this.myCreeps = this.myCreeps.concat(room.find(FIND_MY_CREEPS));
-          this.structures = this.structures.concat(room.find(FIND_STRUCTURES));
-          this.constructionSites = this.constructionSites.concat(room.find(FIND_CONSTRUCTION_SITES));
-          this.droppedResources = this.droppedResources.concat(room.find(FIND_DROPPED_RESOURCES));
-          this.sources = this.sources.concat(room.find(FIND_SOURCES));
-        }
+      switch (roomMemory.roomType) {
+        case RoomType.ROOM_CENTER:
+          this.centerRoomNames.push(roomName);
+          break;
+        case RoomType.ROOM_SOURCE_KEEPER:
+          this.sourceKeeperRoomNames.push(roomName);
+          break;
+        case RoomType.ROOM_HIGHWAY:
+          this.highwayRoomNames.push(roomName);
+          break;
+        case RoomType.ROOM_CROSSROAD:
+          this.crossroadRoomNames.push(roomName);
+          break;
+        case RoomType.ROOM_UNKNOWN:
+          this.unknownRoomNames.push(roomName);
+          break;
+        case RoomType.ROOM_STANDARD:
+          if (roomMemory.roomDistance < 5) {
+            this.neighborhoodRoomNames.push(roomName);
+            const room = Game.rooms[roomName];
+            if (room) {
+              this.enemyCreeps = this.enemyCreeps.concat(room.find(FIND_HOSTILE_CREEPS));
+              this.myCreeps = this.myCreeps.concat(room.find(FIND_MY_CREEPS));
+              this.structures = this.structures.concat(room.find(FIND_STRUCTURES));
+              this.constructionSites = this.constructionSites.concat(room.find(FIND_CONSTRUCTION_SITES));
+              this.droppedResources = this.droppedResources.concat(room.find(FIND_DROPPED_RESOURCES));
+              this.sources = this.sources.concat(room.find(FIND_SOURCES));
+            }
+          } else {
+            this.standardRoomNames.push(roomName);
+          }
+          break;
       }
     }
     // Process neutral
@@ -292,7 +322,7 @@ export class Hippocampus {
       const tTableData: string[][] = [["Type", "Count"]];
       tTableData.push(["Territory", Object.keys(this.memoryTerritory.rooms).length.toString()]);
       tTableData.push(["Recon", this.reconRoomNames.length.toString()]);
-      tTableData.push(["Neighborhood", this.neighborhoodNames.length.toString()]);
+      tTableData.push(["Neighborhood", this.neighborhoodRoomNames.length.toString()]);
       tTableData.push(["SourceKeeper", this.sourceKeeperRoomNames.length.toString()]);
       const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
       tTable.renderTable();
@@ -350,17 +380,54 @@ export class Hippocampus {
       figmentTable.renderTable();
     }
     if (this.showMapVisuals) {
+      // Standard
+      for (const roomName of this.standardRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("yellow"), opacity: 0.2 });
+        Game.map.visual.text(`T-${roomData.roomDistance}`, pos, { align: "left" });
+      }
       // Neighborhood
-      for (const neighborhoodRoomName of this.neighborhoodNames) {
-        const nPos = new RoomPosition(1, 1, neighborhoodRoomName);
-        Game.map.visual.rect(nPos, 48, 48, { fill: getColor("blue"), opacity: 0.2 });
-        Game.map.visual.text(`N`, nPos, { align: "left" });
+      for (const roomName of this.neighborhoodRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("blue"), opacity: 0.2 });
+        Game.map.visual.text(`N-${roomData.roomDistance}`, pos, { align: "left" });
       }
       // SK
-      for (const sourceKeeperRoomName of this.sourceKeeperRoomNames) {
-        const kPos = new RoomPosition(1, 1, sourceKeeperRoomName);
-        Game.map.visual.rect(kPos, 48, 48, { fill: getColor("red"), opacity: 0.2 });
-        Game.map.visual.text(`SK`, kPos, { align: "left" });
+      for (const roomName of this.sourceKeeperRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("red"), opacity: 0.2 });
+        Game.map.visual.text(`SK-${roomData.roomDistance}`, pos, { align: "left" });
+      }
+      // Center
+      for (const roomName of this.centerRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("purple"), opacity: 0.2 });
+        Game.map.visual.text(`C-${roomData.roomDistance}`, pos, { align: "left" });
+      }
+      // Highway
+      for (const roomName of this.highwayRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("indigo"), opacity: 0.2 });
+        Game.map.visual.text(`H-${roomData.roomDistance}`, pos, { align: "left" });
+      }
+      // Crossroads
+      for (const roomName of this.highwayRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("indigo", "900"), opacity: 0.2 });
+        Game.map.visual.text(`X-${roomData.roomDistance}`, pos, { align: "left" });
+      }
+      // Unknown
+      for (const roomName of this.highwayRoomNames) {
+        const pos = new RoomPosition(1, 1, roomName);
+        const roomData = this.memoryTerritory.rooms[roomName];
+        Game.map.visual.rect(pos, 48, 48, { fill: getColor("pink"), opacity: 0.2 });
+        Game.map.visual.text(`U-${roomData.roomDistance}`, pos, { align: "left" });
       }
       // Recon targets
       for (const reconRoomName of this.reconRoomNames) {
@@ -377,7 +444,11 @@ export class Hippocampus {
         enemyObject: enemyCreep,
         priority: enemyCreep.hits
       });
-      if (enemyCreep.getActiveBodyparts(ATTACK) > 2 || enemyCreep.getActiveBodyparts(RANGED_ATTACK) > 2) {
+      if (
+        enemyCreep.getActiveBodyparts(ATTACK) > 2 ||
+        enemyCreep.getActiveBodyparts(RANGED_ATTACK) > 2 ||
+        enemyCreep.hits < 1500
+      ) {
         this.towerEnemies.push(enemyCreep);
       }
     }
@@ -649,10 +720,10 @@ export class Hippocampus {
       const neighborRoomNames = getNeighborRoomNames(visitedRoomName);
       for (const neighborRoomName of neighborRoomNames) {
         if (!this.memoryTerritory.rooms[neighborRoomName]) {
-          if (isSourceKeeperRoom(neighborRoomName)) {
+          const roomType = getRoomType(neighborRoomName);
+          if (roomType !== RoomType.ROOM_STANDARD) {
             this.memoryTerritory.rooms[neighborRoomName] = getReconRoomData(this.spawnRoom.name, neighborRoomName);
-            this.memoryTerritory.rooms[neighborRoomName].isSourceKeeperOwned = true;
-          } else {
+          } else if (!this.reconRoomNames.includes(neighborRoomName)) {
             this.reconRoomNames.push(neighborRoomName);
           }
         }

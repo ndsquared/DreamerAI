@@ -97,8 +97,8 @@ interface InterneuronTargetOptions {
 
 interface RoomMemory {
   avoid: boolean;
-  isSourceKeeperOwned: boolean;
-  isInNeighborhood: boolean;
+  roomType: string;
+  roomDistance: number;
   expansionScore?: number;
   attackScore?: number;
   harassScore?: number;

@@ -1,3 +1,14 @@
+import { Traveler } from "./traveler";
+
+export enum RoomType {
+  ROOM_STANDARD = "standard",
+  ROOM_SOURCE_KEEPER = "source_keeper",
+  ROOM_CENTER = "center",
+  ROOM_HIGHWAY = "highway",
+  ROOM_CROSSROAD = "crossroad",
+  ROOM_UNKNOWN = "unknown"
+}
+
 export function ShuffleArray(array: any[]): void {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -126,34 +137,35 @@ export function getNeighborRoomNames(originRoomName: string): string[] {
 
 export function getReconRoomData(srcRoom: string, dstRoom: string): RoomMemory {
   const avoid = false;
-  const isSourceKeeperOwned = false;
-  const isInNeighborhood = Game.map.getRoomLinearDistance(srcRoom, dstRoom) <= 3;
-  const expansionScore = -1;
-  const attackScore = -1;
-  const defendScore = -1;
-  const harassScore = -1;
+  const roomType = getRoomType(dstRoom);
+  const roomDistance = Traveler.routeDistance(srcRoom, dstRoom);
   return {
     avoid,
-    isSourceKeeperOwned,
-    isInNeighborhood,
-    expansionScore,
-    attackScore,
-    defendScore,
-    harassScore
+    roomType,
+    roomDistance: roomDistance ? roomDistance : 1000
   };
 }
 
 /*
-https://github.com/screepers/screeps-snippets/blob/master/src/misc/JavaScript/Check%20if%20room%20is%20a%20source%20keeper%20room.js
+https://github.com/screepers/screeps-snippets/blob/master/src/misc/JavaScript/roomDescribe.js
 */
 
-export function isSourceKeeperRoom(roomName: string): boolean {
-  const regExResult = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
-  if (regExResult) {
-    const fMod = parseInt(regExResult[1], 10) % 10;
-    const sMod = parseInt(regExResult[2], 10) % 10;
-    const isSK = !(fMod === 5 && sMod === 5) && fMod >= 4 && fMod <= 6 && sMod >= 4 && sMod <= 6;
-    return isSK;
+export function getRoomType(roomName: string): RoomType {
+  const regExMatch = roomName.match(/\d+/g);
+  if (regExMatch && regExMatch.length === 2) {
+    const EW = parseInt(regExMatch[0], 10);
+    const NS = parseInt(regExMatch[1], 10);
+    if (EW % 10 === 0 && NS % 10 === 0) {
+      return RoomType.ROOM_CROSSROAD;
+    } else if (EW % 10 === 0 || NS % 10 === 0) {
+      return RoomType.ROOM_HIGHWAY;
+    } else if (EW % 5 === 0 && NS % 5 === 0) {
+      return RoomType.ROOM_CENTER;
+    } else if (Math.abs(5 - (EW % 10)) <= 1 && Math.abs(5 - (NS % 10)) <= 1) {
+      return RoomType.ROOM_SOURCE_KEEPER;
+    } else {
+      return RoomType.ROOM_STANDARD;
+    }
   }
-  return false;
+  return RoomType.ROOM_UNKNOWN;
 }

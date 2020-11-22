@@ -49,6 +49,7 @@ export class GenesisIdea extends Idea {
         this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
       }
     }
+    // TODO: should expand this to the entire neighborhood?
     for (const roomName of this.spawn.room.neighborNames) {
       const room = Game.rooms[roomName];
       if (room) {
