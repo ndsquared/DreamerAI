@@ -25,6 +25,15 @@ export function isEnergyStructure(structure: Structure): structure is EnergyStru
   return (structure as EnergyStructure).energy !== undefined;
 }
 
+export function isInvulnerableStructure(structure: Structure): boolean {
+  if (structure.structureType === STRUCTURE_CONTROLLER) {
+    return true;
+  } else if (structure.structureType === STRUCTURE_KEEPER_LAIR) {
+    return true;
+  }
+  return false;
+}
+
 // TODO: need to reuse this cost matrix
 const callback = (roomName: string): CostMatrix | boolean => {
   const room = Game.rooms[roomName];

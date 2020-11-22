@@ -6,6 +6,7 @@ import {
   getReconRoomData,
   getRoomType,
   isEnergyStructure,
+  isInvulnerableStructure,
   isStoreStructure
 } from "utils/misc";
 import { Figment } from "figments/figment";
@@ -37,6 +38,17 @@ export class Hippocampus {
   public showMetaVisuals = false;
   public showEnemyVisuals = false;
   public showMapVisuals = false;
+
+  public roomObjects: {
+    [roomName: string]: {
+      103: Creep[];
+      102: Creep[];
+      107: Structure[];
+      111: ConstructionSite[];
+      106: Resource[];
+      105: Source[];
+    };
+  } = {};
 
   /* ********** Arrays ********** */
 
@@ -196,6 +208,26 @@ export class Hippocampus {
     this.memoryGen = this.imagination.memory.imagination.genesis[this.spawnRoom.name];
     this.memoryTerritory = this.imagination.memory.imagination.territory[this.spawnRoom.name];
     for (const roomName in this.memoryTerritory.rooms) {
+      const room = Game.rooms[roomName];
+      if (room) {
+        if (!this.roomObjects[roomName]) {
+          this.roomObjects[roomName] = {
+            103: [],
+            102: [],
+            107: [],
+            111: [],
+            106: [],
+            105: []
+          };
+        }
+        this.roomObjects[roomName][FIND_HOSTILE_CREEPS] = room.find(FIND_HOSTILE_CREEPS);
+        this.roomObjects[roomName][FIND_MY_CREEPS] = room.find(FIND_MY_CREEPS);
+        this.roomObjects[roomName][FIND_STRUCTURES] = room.find(FIND_STRUCTURES);
+        this.roomObjects[roomName][FIND_CONSTRUCTION_SITES] = room.find(FIND_CONSTRUCTION_SITES);
+        this.roomObjects[roomName][FIND_DROPPED_RESOURCES] = room.find(FIND_DROPPED_RESOURCES);
+        this.roomObjects[roomName][FIND_SOURCES] = room.find(FIND_SOURCES);
+        this.scoreRoom(room);
+      }
       const roomMemory = this.memoryTerritory.rooms[roomName];
       switch (roomMemory.roomType) {
         case RoomType.ROOM_CENTER:
@@ -216,14 +248,15 @@ export class Hippocampus {
         case RoomType.ROOM_STANDARD:
           if (roomMemory.roomDistance < 5) {
             this.neighborhoodRoomNames.push(roomName);
-            const room = Game.rooms[roomName];
             if (room) {
-              this.enemyCreeps = this.enemyCreeps.concat(room.find(FIND_HOSTILE_CREEPS));
-              this.myCreeps = this.myCreeps.concat(room.find(FIND_MY_CREEPS));
-              this.structures = this.structures.concat(room.find(FIND_STRUCTURES));
-              this.constructionSites = this.constructionSites.concat(room.find(FIND_CONSTRUCTION_SITES));
-              this.droppedResources = this.droppedResources.concat(room.find(FIND_DROPPED_RESOURCES));
-              this.sources = this.sources.concat(room.find(FIND_SOURCES));
+              this.enemyCreeps = this.enemyCreeps.concat(this.roomObjects[roomName][FIND_HOSTILE_CREEPS]);
+              this.myCreeps = this.myCreeps.concat(this.roomObjects[roomName][FIND_MY_CREEPS]);
+              this.structures = this.structures.concat(this.roomObjects[roomName][FIND_STRUCTURES]);
+              this.constructionSites = this.constructionSites.concat(
+                this.roomObjects[roomName][FIND_CONSTRUCTION_SITES]
+              );
+              this.droppedResources = this.droppedResources.concat(this.roomObjects[roomName][FIND_DROPPED_RESOURCES]);
+              this.sources = this.sources.concat(this.roomObjects[roomName][FIND_SOURCES]);
             }
           } else {
             this.standardRoomNames.push(roomName);
@@ -239,6 +272,7 @@ export class Hippocampus {
     this.processMyCreeps();
     // Process enemy
     this.processEnemyCreeps();
+    // Process special cases
     this.processSpecial();
   }
 
@@ -404,10 +438,62 @@ export class Hippocampus {
   }
 
   private mapTerritoryVisual(roomName: string, text: string, color: string): void {
-    const pos = new RoomPosition(1, 1, roomName);
+    const identifierPos = new RoomPosition(1, 1, roomName);
     const roomData = this.memoryTerritory.rooms[roomName];
-    Game.map.visual.rect(pos, 48, 48, { fill: color, opacity: 0.2 });
-    Game.map.visual.text(`${text}-${roomData.roomDistance}`, pos, { align: "left" });
+    Game.map.visual.rect(identifierPos, 48, 48, { fill: color, opacity: 0.2 });
+    Game.map.visual.text(`${text}-${roomData.roomDistance}`, identifierPos, { align: "left" });
+    if (roomData.expansionScore) {
+      const pos = new RoomPosition(10, 10, roomName);
+      Game.map.visual.circle(pos, { fill: getColor("cyan"), radius: 5 });
+      Game.map.visual.text(`e-${roomData.expansionScore}`, pos, { fontSize: 7 });
+    }
+    if (roomData.attackScore) {
+      const pos = new RoomPosition(10, 20, roomName);
+      Game.map.visual.circle(pos, { fill: getColor("cyan"), radius: 5 });
+      Game.map.visual.text(`a-${roomData.attackScore}`, pos, { fontSize: 7 });
+    }
+    if (roomData.defendScore) {
+      const pos = new RoomPosition(10, 30, roomName);
+      Game.map.visual.circle(pos, { fill: getColor("cyan"), radius: 5 });
+      Game.map.visual.text(`d-${roomData.defendScore}`, pos, { fontSize: 7 });
+    }
+    if (roomData.harassScore) {
+      const pos = new RoomPosition(10, 40, roomName);
+      Game.map.visual.circle(pos, { fill: getColor("cyan"), radius: 5 });
+      Game.map.visual.text(`h-${roomData.harassScore}`, pos, { fontSize: 7 });
+    }
+  }
+
+  private scoreRoom(room: Room): void {
+    const hostiles = this.roomObjects[room.name][FIND_HOSTILE_CREEPS];
+    const hostileStructures: Structure[] = [];
+    for (const s of this.roomObjects[room.name][FIND_STRUCTURES]) {
+      if (s instanceof OwnedStructure) {
+        if (!s.my && !isInvulnerableStructure(s)) {
+          hostileStructures.push(s);
+        }
+      }
+    }
+    if (hostiles.length) {
+      this.memoryTerritory.rooms[room.name].defendScore = hostiles.length;
+    } else {
+      delete this.memoryTerritory.rooms[room.name].defendScore;
+    }
+    if (hostileStructures.length) {
+      this.memoryTerritory.rooms[room.name].attackScore = hostileStructures.length;
+    } else {
+      delete this.memoryTerritory.rooms[room.name].attackScore;
+    }
+    let expandScore = 0;
+    if (
+      this.memoryTerritory.rooms[room.name].roomDistance > 10 &&
+      this.memoryTerritory.rooms[room.name].roomType === RoomType.ROOM_STANDARD
+    ) {
+      expandScore += this.roomObjects[room.name][FIND_SOURCES].length;
+      this.memoryTerritory.rooms[room.name].expansionScore = expandScore;
+    } else {
+      delete this.memoryTerritory.rooms[room.name].expansionScore;
+    }
   }
 
   private processEnemyCreeps(): void {
@@ -465,11 +551,7 @@ export class Hippocampus {
         } else if (structure.owner && structure.owner.username !== this.imagination.username) {
           // Enemy Structures
           this.enemyStructures.push(structure);
-          if (
-            structure.structureType !== STRUCTURE_SPAWN &&
-            structure.structureType !== STRUCTURE_KEEPER_LAIR &&
-            structure.structureType !== STRUCTURE_CONTROLLER
-          ) {
+          if (!isInvulnerableStructure(structure)) {
             this.enemyQueue.queue({
               enemyObject: structure,
               priority: structure.hits
