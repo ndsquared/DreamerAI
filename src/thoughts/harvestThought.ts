@@ -83,13 +83,10 @@ export class HarvestThought extends FigmentThought {
       controller = room.controller;
     }
     // TODO: Logic below should be a prototype or misc function
-    if (!controller) {
+    if (controller && controller.reservation && controller.reservation.username !== this.idea.spawn.owner.username) {
       return false;
     }
-    if (controller.reservation && controller.reservation.username !== this.idea.spawn.owner.username) {
-      return false;
-    }
-    if (controller.owner && controller.owner.username !== this.idea.spawn.owner.username) {
+    if (controller && controller.owner && controller.owner.username !== this.idea.spawn.owner.username) {
       return false;
     }
     // TODO: could also calculate TTL and length of path to optimize replacements

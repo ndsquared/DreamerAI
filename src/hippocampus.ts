@@ -475,12 +475,16 @@ export class Hippocampus {
         }
       }
     }
-    if (hostiles.length && this.memoryTerritory.rooms[room.name].roomDistance < this.neighborhoodThreshold) {
+    if (
+      hostiles.length &&
+      this.memoryTerritory.rooms[room.name].roomDistance < this.neighborhoodThreshold &&
+      this.memoryTerritory.rooms[room.name].roomType === RoomType.ROOM_STANDARD
+    ) {
       this.memoryTerritory.rooms[room.name].defendScore = hostiles.length;
     } else {
       delete this.memoryTerritory.rooms[room.name].defendScore;
     }
-    if (hostileStructures.length) {
+    if (hostileStructures.length && this.memoryTerritory.rooms[room.name].roomType !== RoomType.ROOM_SOURCE_KEEPER) {
       this.memoryTerritory.rooms[room.name].attackScore = hostileStructures.length;
     } else {
       delete this.memoryTerritory.rooms[room.name].attackScore;
