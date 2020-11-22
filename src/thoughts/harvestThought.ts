@@ -1,5 +1,6 @@
-import { FigmentThought, FigmentType } from "./figmentThought";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "./figmentThought";
+import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
@@ -9,12 +10,12 @@ export class HarvestThought extends FigmentThought {
   private sourcePos: RoomPosition;
   private container: StructureContainer | null = null;
   private link: StructureLink | null = null;
-  public constructor(idea: Idea, name: string, source: Source) {
-    super(idea, name, source.id);
+  public constructor(idea: Idea, type: FigmentThoughtType, source: Source) {
+    super(idea, type, source.id);
     this.source = source;
     this.sourceId = source.id;
     this.sourcePos = source.pos;
-    this.figments[FigmentType.HARVEST] = [];
+    this.figments[FigmentThoughtType.HARVEST] = [];
   }
 
   public ponder(): void {
@@ -83,17 +84,17 @@ export class HarvestThought extends FigmentThought {
       controller = room.controller;
     }
     // TODO: Logic below should be a prototype or misc function
-    if (controller && controller.reservation && controller.reservation.username !== this.idea.spawn.owner.username) {
+    if (controller && controller.reservation && controller.reservation.username !== this.idea.imagination.username) {
       return false;
     }
-    if (controller && controller.owner && controller.owner.username !== this.idea.spawn.owner.username) {
+    if (controller && controller.owner && !controller.my) {
       return false;
     }
     // TODO: could also calculate TTL and length of path to optimize replacements
     this.source = Game.getObjectById(this.sourceId);
     if (this.source) {
       const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
-      const availablePos = this.source.pos.availableNeighbors(true);
+      const availablePos = this.source.pos.availableAdjacentPositions(true);
       if (totalWorkParts < 5 && this.figments[figmentType].length < availablePos.length) {
         return true;
       }

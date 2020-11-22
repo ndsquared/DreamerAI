@@ -1,20 +1,25 @@
-import { FigmentThought, FigmentType } from "./figmentThought";
 import { PathFindWithRoad, isStoreStructure } from "utils/misc";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "./figmentThought";
+import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class WorkerThought extends FigmentThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
-    this.figments[FigmentType.WORKER] = [];
+  public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
+    super(idea, type, instance);
+    this.figments[FigmentThoughtType.WORKER] = [];
   }
 
   public handleFigment(figment: Figment): void {
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
     if (figment.store.getUsedCapacity() > 0) {
       const repairTarget = this.idea.hippocampus.getNextRepairTarget();
       const buildTarget = this.idea.hippocampus.getNextConstructionSite();
-      const controller = this.idea.spawn.room.controller;
+      const controller = room.controller;
       if (
         repairTarget &&
         buildTarget &&

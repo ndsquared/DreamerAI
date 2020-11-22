@@ -1,13 +1,14 @@
-import { FigmentThought, FigmentType } from "./figmentThought";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "./figmentThought";
+import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { getColor } from "utils/colors";
 
 export class ScoutThought extends FigmentThought {
   public targetRoomName: string | undefined = undefined;
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
-    this.figments[FigmentType.SCOUT] = [];
+  public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
+    super(idea, type, instance);
+    this.figments[FigmentThoughtType.SCOUT] = [];
   }
 
   public ponder(): void {
@@ -20,6 +21,7 @@ export class ScoutThought extends FigmentThought {
     }
   }
 
+  // Figment is handled every turn
   public handleFigment(figment: Figment): void {
     if (figment.room.name === this.targetRoomName) {
       const room = Game.rooms[figment.room.name];
@@ -35,10 +37,12 @@ export class ScoutThought extends FigmentThought {
     }
     const targetPos = new RoomPosition(25, 25, this.targetRoomName);
     figment.travelTo(targetPos);
-    // figment.addNeuron(NeuronType.MOVE, "", targetPos, { moveRange: 20 });
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    if (!this.targetRoomName) {
+      return false;
+    }
     return this.figments[figmentType].length < 1;
   }
 }

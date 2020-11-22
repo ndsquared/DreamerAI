@@ -1,5 +1,6 @@
-import { FigmentThought, FigmentType } from "./figmentThought";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "./figmentThought";
+import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
@@ -8,12 +9,12 @@ export class UpgradeThought extends FigmentThought {
   private container: StructureContainer | null = null;
   private storage: StructureStorage | null = null;
   private link: StructureLink | null = null;
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
-    this.figments[FigmentType.UPGRADE] = [];
+  public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
+    super(idea, type, instance);
+    this.figments[FigmentThoughtType.UPGRADE] = [];
   }
 
-  private getNextWithdrawTarget(): StoreStructure {
+  private getNextWithdrawTarget(): StoreStructure | null {
     if (this.link) {
       return this.link;
     } else if (this.container) {
@@ -21,12 +22,19 @@ export class UpgradeThought extends FigmentThought {
     } else if (this.storage) {
       return this.storage;
     }
-
-    return this.idea.spawn;
+    const room = this.idea.room;
+    if (room) {
+      return this.idea.hippocampus.getNextAvailableSpawn(room.name);
+    }
+    return null;
   }
 
   public ponder(): void {
-    this.controller = this.idea.spawn.room.controller;
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
+    this.controller = room.controller;
     if (!this.container) {
       if (this.controller && this.controller.my) {
         if (this.idea.hippocampus.controllerContainers.length) {
@@ -37,8 +45,8 @@ export class UpgradeThought extends FigmentThought {
       this.container = Game.getObjectById(this.container.id);
     }
     if (!this.storage) {
-      if (this.idea.spawn.room.storage) {
-        this.storage = this.idea.spawn.room.storage;
+      if (room.storage) {
+        this.storage = room.storage;
       }
     } else {
       this.storage = Game.getObjectById(this.storage.id);
@@ -62,7 +70,9 @@ export class UpgradeThought extends FigmentThought {
       }
     } else {
       const target = this.getNextWithdrawTarget();
-      figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
+      if (target) {
+        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
+      }
     }
   }
 

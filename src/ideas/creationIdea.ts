@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { BuildThought, BuildThoughtName } from "thoughts/buildThought";
 import { Idea, IdeaType, ThoughtMapping } from "./idea";
+import { BuildThought } from "thoughts/buildThought";
+import { BuildThoughtType } from "thoughts/thought";
 import { ContainerThought } from "thoughts/containerThought";
 import { ExtensionThought } from "thoughts/extensionThought";
 import { Imagination } from "imagination";
@@ -16,16 +17,16 @@ export class CreationIdea extends Idea {
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
   private rateLimitBuildPlanning = true;
   private rateLimitBuildInterval = 50;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
-    super(spawn, imagination, type);
+  public constructor(roomName: string, imagination: Imagination, type: IdeaType) {
+    super(roomName, imagination, type);
     const buildThoughts: ThoughtMapping[] = [
-      { name: BuildThoughtName.EXTENSION, thought: ExtensionThought },
-      { name: BuildThoughtName.ROAD, thought: RoadThought },
-      { name: BuildThoughtName.CONTAINER, thought: ContainerThought },
-      { name: BuildThoughtName.TOWER, thought: TowerThought },
-      { name: BuildThoughtName.STORAGE, thought: StorageThought },
-      { name: BuildThoughtName.RAMPART, thought: RampartThought },
-      { name: BuildThoughtName.LINK, thought: LinkThought }
+      { name: BuildThoughtType.EXTENSION, thought: ExtensionThought },
+      { name: BuildThoughtType.ROAD, thought: RoadThought },
+      { name: BuildThoughtType.CONTAINER, thought: ContainerThought },
+      { name: BuildThoughtType.TOWER, thought: TowerThought },
+      { name: BuildThoughtType.STORAGE, thought: StorageThought },
+      { name: BuildThoughtType.RAMPART, thought: RampartThought },
+      { name: BuildThoughtType.LINK, thought: LinkThought }
     ];
     for (const buildThought of buildThoughts) {
       this.thoughts[buildThought.name] = {};

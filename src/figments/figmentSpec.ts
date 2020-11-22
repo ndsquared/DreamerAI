@@ -1,4 +1,4 @@
-import { FigmentType } from "thoughts/figmentThought";
+import { FigmentThoughtType } from "thoughts/thought";
 
 const attackBodySpec = {
   bodyParts: [TOUGH, ATTACK],
@@ -129,34 +129,34 @@ const workerFigmentSpec = {
 export function GetFigmentSpec(figmentType: string): FigmentSpec {
   let spec: FigmentSpec;
   switch (figmentType) {
-    case FigmentType.HARVEST:
+    case FigmentThoughtType.HARVEST:
       spec = harvestFigmentSpec;
       break;
-    case FigmentType.TRANSFER:
+    case FigmentThoughtType.TRANSFER:
       spec = transferFigmentSpec;
       break;
-    case FigmentType.TOWER_FILLER:
+    case FigmentThoughtType.TOWER_FILLER:
       spec = transferFigmentSpec;
       break;
-    case FigmentType.PICKUP:
+    case FigmentThoughtType.PICKUP:
       spec = pickupFigmentSpec;
       break;
-    case FigmentType.UPGRADE:
+    case FigmentThoughtType.UPGRADE:
       spec = upgradeFigmentSpec;
       break;
-    case FigmentType.WORKER:
+    case FigmentThoughtType.WORKER:
       spec = workerFigmentSpec;
       break;
-    case FigmentType.DEFENSE:
+    case FigmentThoughtType.DEFENSE:
       spec = defenseFigmentSpec;
       break;
-    case FigmentType.ATTACK:
+    case FigmentThoughtType.ATTACK:
       spec = attackFigmentSpec;
       break;
-    case FigmentType.RESERVE:
+    case FigmentThoughtType.RESERVE:
       spec = reserveFigmentSpec;
       break;
-    case FigmentType.SCOUT:
+    case FigmentThoughtType.SCOUT:
       spec = scoutFigmentSpec;
       break;
     default:

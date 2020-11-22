@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { FigmentThought, FigmentType } from "thoughts/figmentThought";
 import { Idea, IdeaType } from "./idea";
 import { AttackThought } from "thoughts/attackThought";
 import { DefenseThought } from "thoughts/defenseThought";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "thoughts/figmentThought";
+import { FigmentThoughtType } from "thoughts/thought";
 import { GetFigmentSpec } from "figments/figmentSpec";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Imagination } from "imagination";
@@ -22,20 +23,20 @@ interface ThoughtMapping {
 
 export class GenesisIdea extends Idea {
   private reset = true;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
-    super(spawn, imagination, type);
+  public constructor(roomName: string, imagination: Imagination, type: IdeaType) {
+    super(roomName, imagination, type);
 
-    this.thoughts[FigmentType.HARVEST] = {};
-    this.thoughts[FigmentType.RESERVE] = {};
+    this.thoughts[FigmentThoughtType.HARVEST] = {};
+    this.thoughts[FigmentThoughtType.RESERVE] = {};
 
     const figmentThoughts: ThoughtMapping[] = [
-      { name: FigmentType.TRANSFER, thought: TransferThought },
-      { name: FigmentType.PICKUP, thought: PickupThought },
-      { name: FigmentType.WORKER, thought: WorkerThought },
-      { name: FigmentType.UPGRADE, thought: UpgradeThought },
-      { name: FigmentType.ATTACK, thought: AttackThought },
-      { name: FigmentType.DEFENSE, thought: DefenseThought },
-      { name: FigmentType.SCOUT, thought: ScoutThought }
+      { name: FigmentThoughtType.TRANSFER, thought: TransferThought },
+      { name: FigmentThoughtType.PICKUP, thought: PickupThought },
+      { name: FigmentThoughtType.WORKER, thought: WorkerThought },
+      { name: FigmentThoughtType.UPGRADE, thought: UpgradeThought },
+      { name: FigmentThoughtType.ATTACK, thought: AttackThought },
+      { name: FigmentThoughtType.DEFENSE, thought: DefenseThought },
+      { name: FigmentThoughtType.SCOUT, thought: ScoutThought }
     ];
     for (const figmentThought of figmentThoughts) {
       this.thoughts[figmentThought.name] = {};
@@ -45,16 +46,23 @@ export class GenesisIdea extends Idea {
 
   public ponder(): void {
     for (const source of this.hippocampus.sources) {
-      if (!this.thoughts[FigmentType.HARVEST][source.id]) {
-        this.thoughts[FigmentType.HARVEST][source.id] = new HarvestThought(this, FigmentType.HARVEST, source);
+      if (!this.thoughts[FigmentThoughtType.HARVEST][source.id]) {
+        this.thoughts[FigmentThoughtType.HARVEST][source.id] = new HarvestThought(
+          this,
+          FigmentThoughtType.HARVEST,
+          source
+        );
       }
     }
-    // TODO: should expand this to the entire neighborhood?
-    for (const roomName of this.spawn.room.neighborNames) {
+    for (const roomName of this.hippocampus.getNeighborhoodRoomNames(this.roomName)) {
       const room = Game.rooms[roomName];
       if (room) {
-        if (!this.thoughts[FigmentType.RESERVE][room.name]) {
-          this.thoughts[FigmentType.RESERVE][room.name] = new ReserveThought(this, FigmentType.RESERVE, room.name);
+        if (!this.thoughts[FigmentThoughtType.RESERVE][room.name]) {
+          this.thoughts[FigmentThoughtType.RESERVE][room.name] = new ReserveThought(
+            this,
+            FigmentThoughtType.RESERVE,
+            room.name
+          );
         }
       }
     }
@@ -64,7 +72,6 @@ export class GenesisIdea extends Idea {
   public think(): void {
     if (!this.reset) {
       this.hippocampus.spawnQueue.clear();
-      this.ensureMinimumPickups();
       this.setQueuePriorities();
       for (const thoughtName in this.thoughts) {
         for (const thoughtInstance in this.thoughts[thoughtName]) {
@@ -86,36 +93,15 @@ export class GenesisIdea extends Idea {
     }
   }
 
-  private ensureMinimumPickups() {
-    if (
-      this.hippocampus.memoryGen.figmentCount[FigmentType.PICKUP] &&
-      this.hippocampus.memoryGen.figmentCount[FigmentType.PICKUP] > 1
-    ) {
-      return;
-    }
-    const priorities = [11, 9];
-    for (const priority of priorities) {
-      const payload = {
-        name: Figment.GetUniqueName(),
-        figmentSpec: GetFigmentSpec(FigmentType.PICKUP),
-        figmentType: FigmentType.PICKUP,
-        priority,
-        thoughtName: FigmentType.PICKUP,
-        thoughtInstance: "0"
-      };
-      this.addSpawn(payload);
-    }
-  }
-
   // Minimum viable figments needed to support the economy and new spawns
   private inEmergency(): boolean {
     if (
-      !this.hippocampus.memoryGen.figmentCount[FigmentType.TRANSFER] ||
-      this.hippocampus.memoryGen.figmentCount[FigmentType.TRANSFER] === 0 ||
-      !this.hippocampus.memoryGen.figmentCount[FigmentType.PICKUP] ||
-      this.hippocampus.memoryGen.figmentCount[FigmentType.PICKUP] === 0 ||
-      !this.hippocampus.memoryGen.figmentCount[FigmentType.HARVEST] ||
-      this.hippocampus.memoryGen.figmentCount[FigmentType.HARVEST] === 0
+      !this.hippocampus.memoryGen.figmentCount[FigmentThoughtType.TRANSFER] ||
+      this.hippocampus.memoryGen.figmentCount[FigmentThoughtType.TRANSFER] === 0 ||
+      !this.hippocampus.memoryGen.figmentCount[FigmentThoughtType.PICKUP] ||
+      this.hippocampus.memoryGen.figmentCount[FigmentThoughtType.PICKUP] === 0 ||
+      !this.hippocampus.memoryGen.figmentCount[FigmentThoughtType.HARVEST] ||
+      this.hippocampus.memoryGen.figmentCount[FigmentThoughtType.HARVEST] === 0
     ) {
       return true;
     }
@@ -124,9 +110,9 @@ export class GenesisIdea extends Idea {
 
   private setQueuePriorities(): void {
     const enemies = this.hippocampus.enemyQueue.length;
-    for (const figmentType of Object.values(FigmentType)) {
+    for (const figmentType of Object.values(FigmentThoughtType)) {
       switch (figmentType) {
-        case FigmentType.HARVEST: {
+        case FigmentThoughtType.HARVEST: {
           const count = this.getFigmentCount(figmentType);
           this.hippocampus.queuePriorities[figmentType] = 12;
           if (count > 1) {
@@ -136,46 +122,46 @@ export class GenesisIdea extends Idea {
           }
           break;
         }
-        case FigmentType.PICKUP:
+        case FigmentThoughtType.PICKUP:
           this.hippocampus.queuePriorities[figmentType] = 11;
           break;
-        case FigmentType.TRANSFER:
+        case FigmentThoughtType.TRANSFER:
           this.hippocampus.queuePriorities[figmentType] = 8;
           break;
-        case FigmentType.TOWER_FILLER:
+        case FigmentThoughtType.TOWER_FILLER:
           this.hippocampus.queuePriorities[figmentType] = 7;
           if (enemies > 0) {
             this.hippocampus.queuePriorities[figmentType] = 16;
           }
           break;
-        case FigmentType.SCOUT:
+        case FigmentThoughtType.SCOUT:
           this.hippocampus.queuePriorities[figmentType] = 5;
           break;
-        case FigmentType.UPGRADE:
+        case FigmentThoughtType.UPGRADE:
           this.hippocampus.queuePriorities[figmentType] = 5;
           if (this.hippocampus.inEcoMode()) {
             this.hippocampus.queuePriorities[figmentType] = 0;
           }
           break;
-        case FigmentType.WORKER:
+        case FigmentThoughtType.WORKER:
           this.hippocampus.queuePriorities[figmentType] = 4;
           if (this.hippocampus.inEcoMode()) {
             this.hippocampus.queuePriorities[figmentType] = 0;
           }
           break;
-        case FigmentType.DEFENSE:
+        case FigmentThoughtType.DEFENSE:
           this.hippocampus.queuePriorities[figmentType] = 1;
           if (enemies > 0) {
             this.hippocampus.queuePriorities[figmentType] = 15;
           }
           break;
-        case FigmentType.ATTACK:
+        case FigmentThoughtType.ATTACK:
           this.hippocampus.queuePriorities[figmentType] = 1;
           if (enemies > 0) {
             this.hippocampus.queuePriorities[figmentType] = 14;
           }
           break;
-        case FigmentType.RESERVE:
+        case FigmentThoughtType.RESERVE:
           this.hippocampus.queuePriorities[figmentType] = 1;
           if (this.hippocampus.inEcoMode()) {
             this.hippocampus.queuePriorities[figmentType] = 0;
@@ -196,7 +182,7 @@ export class GenesisIdea extends Idea {
       let figmentNeeded = false;
       const count = this.getFigmentCount(figmentType);
       switch (figmentType) {
-        case FigmentType.PICKUP: {
+        case FigmentThoughtType.PICKUP: {
           // Dividing by zero is bad
           if (outputs) {
             const ratio = count / outputs;
@@ -206,7 +192,7 @@ export class GenesisIdea extends Idea {
           }
           break;
         }
-        case FigmentType.WORKER:
+        case FigmentThoughtType.WORKER:
           if (count < constructionSites + repairTargets) {
             figmentNeeded = true;
           }
@@ -218,11 +204,11 @@ export class GenesisIdea extends Idea {
       this.hippocampus.figmentNeeded[figmentType] = figmentNeeded;
       if (figmentNeeded) {
         const payload = {
-          name: Figment.GetUniqueName(),
+          figmentName: Figment.GetUniqueName(),
           figmentSpec: GetFigmentSpec(figmentType),
           figmentType,
           priority: this.hippocampus.queuePriorities[figmentType],
-          thoughtName: thought.name,
+          thoughtType: thought.type,
           thoughtInstance: thought.instance
         };
         this.addSpawn(payload);
@@ -231,33 +217,38 @@ export class GenesisIdea extends Idea {
   }
 
   private processSpawnQueue() {
-    if (this.spawn.spawning) {
+    const room = this.room;
+    if (!room) {
+      return;
+    }
+    const spawn = this.hippocampus.getNextAvailableSpawn(room.name);
+    if (!spawn) {
       return;
     }
     if (this.hippocampus.spawnQueue.length > 0) {
       const nextSpawn = this.hippocampus.spawnQueue.peek();
-      let energyAvailable = this.spawn.room.energyCapacityAvailable;
+      let energyAvailable = room.energyCapacityAvailable;
       if (this.inEmergency()) {
-        energyAvailable = this.spawn.room.energyAvailable;
+        energyAvailable = room.energyAvailable;
       }
       // Calculate the body and check if we can spawn
       const body = Figment.GetBodyFromBodySpec(nextSpawn.figmentSpec.bodySpec, energyAvailable);
-      const status = this.spawn.spawnCreep(body, nextSpawn.name, { dryRun: true });
+      const status = spawn.spawnCreep(body, nextSpawn.figmentName, { dryRun: true });
 
       if (status === OK && body.length >= nextSpawn.figmentSpec.bodySpec.minParts) {
         const memory = {
           _trav: {},
           interneurons: [],
-          ideaName: this.name,
+          roomName: this.roomName,
           figmentType: nextSpawn.figmentType,
-          thoughtType: nextSpawn.thoughtName,
+          thoughtType: nextSpawn.thoughtType,
           thoughtInstance: nextSpawn.thoughtInstance,
           underAttack: false,
           underAttackCooldown: 5,
           combatReady: nextSpawn.figmentSpec.combatReady,
           inCombat: false
         };
-        this.spawn.spawnCreep(body, nextSpawn.name, { memory });
+        spawn.spawnCreep(body, nextSpawn.figmentName, { memory });
         this.hippocampus.spawnQueue.dequeue();
       }
     }

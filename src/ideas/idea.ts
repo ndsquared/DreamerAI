@@ -1,4 +1,4 @@
-import { Hippocampus } from "hippocampus";
+import { Hippocampus } from "temporal/hippocampus";
 import { Imagination } from "imagination";
 import { Thought } from "thoughts/thought";
 
@@ -14,41 +14,49 @@ export enum IdeaType {
 }
 
 export abstract class Idea implements IBrain {
-  public name: string;
+  public roomName: string;
   public thoughts: { [type: string]: { [instance: string]: Thought } } = {};
-  public spawn: StructureSpawn;
   public imagination: Imagination;
   public type: IdeaType;
-  public rcl = 0;
   public showStats = true;
   public showBuildVisuals = true;
   public showMetaVisuals = true;
   public showEnemyVisuals = true;
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
-    this.spawn = spawn;
-    this.name = spawn.room.name;
+  public constructor(roomName: string, imagination: Imagination, type: IdeaType) {
+    this.roomName = roomName;
     this.imagination = imagination;
     this.type = type;
   }
 
   public get hippocampus(): Hippocampus {
-    return this.imagination.hippocampus[this.name];
+    return this.imagination.hippocampus;
+  }
+
+  public get room(): Room | undefined {
+    return Game.rooms[this.roomName];
+  }
+
+  public get rcl(): number {
+    const room = this.room;
+    if (room) {
+      return room.controller?.level === undefined ? 0 : room.controller.level;
+    }
+    console.log(`unable to attain rcl for idea ${this.type}`);
+    return 0;
   }
 
   public ponder(): void {
-    this.spawn = Game.spawns[this.spawn.name];
     for (const thoughtName in this.thoughts) {
       for (const thoughtInstance in this.thoughts[thoughtName]) {
         const thought = this.thoughts[thoughtName][thoughtInstance];
         try {
           thought.ponder();
         } catch (error) {
-          console.log(`${thought.name} error while pondering`);
+          console.log(`${thought.type} error while pondering`);
           console.log(error);
         }
       }
     }
-    this.rcl = this.spawn.room.controller?.level === undefined ? 0 : this.spawn.room.controller.level;
   }
 
   public think(): void {
@@ -58,7 +66,7 @@ export abstract class Idea implements IBrain {
         try {
           thought.think();
         } catch (error) {
-          console.log(`${thought.name} error while thinking`);
+          console.log(`${thought.type} error while thinking`);
           console.log(error);
         }
       }
@@ -72,14 +80,10 @@ export abstract class Idea implements IBrain {
         try {
           thought.reflect();
         } catch (error) {
-          console.log(`${thought.name} error while reflecting`);
+          console.log(`${thought.type} error while reflecting`);
           console.log(error);
         }
       }
     }
   }
-
-  // public getSibling<T extends Idea>(siblingType: IdeaType): T {
-  //   return this.imagination.ideas[this.name][siblingType] as T;
-  // }
 }

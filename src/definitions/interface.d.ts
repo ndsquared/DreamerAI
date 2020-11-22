@@ -92,19 +92,19 @@ interface PathfinderReturn {
   incomplete: boolean;
 }
 
-interface Room {
-  neighbors: Room[];
-  neighborNames: string[];
-  neighborhood: Room[];
-}
+// interface Room {
+//   neighbors: Room[];
+//   neighborNames: string[];
+//   neighborhood: Room[];
+// }
 
 interface RoomPosition {
-  availableNeighbors(ignoreCreeps?: boolean): RoomPosition[];
-  availableBuilds(ignoreRoads?: boolean, ignoreRamparts?: boolean): RoomPosition[];
-  availableToMove: boolean;
-  neighbors: RoomPosition[];
+  availableAdjacentPositions(ignoreCreeps?: boolean): RoomPosition[];
+  availableAdjacentBuilds(ignoreRoads?: boolean, ignoreRamparts?: boolean): RoomPosition[];
+  // availableToMove: boolean;
+  adjacentPositions: RoomPosition[];
   hasStructure(structure: StructureConstant): boolean;
-  hasAdjacentKeeper: boolean;
+  // hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
   isBuildable(ignoreRaods?: boolean, ignoreRamparts?: boolean): boolean;
   isVisible: boolean;
@@ -113,12 +113,12 @@ interface RoomPosition {
 }
 
 interface SpawnQueuePayload {
-  name: string;
+  figmentName: string;
+  thoughtType: string;
+  thoughtInstance: string;
   figmentSpec: FigmentSpec;
   figmentType: string;
   priority: number;
-  thoughtName: string;
-  thoughtInstance: string;
 }
 
 interface StoreStructure extends Structure {

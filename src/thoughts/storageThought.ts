@@ -1,17 +1,23 @@
 import { BuildThought } from "./buildThought";
+import { BuildThoughtType } from "./thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 
 export class StorageThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  public constructor(idea: Idea, type: BuildThoughtType, instance: string) {
+    super(idea, type, instance);
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
-    if (this.idea.spawn.room.storage) {
+    const room = this.idea.room;
+    if (!room) {
       return;
     }
-    const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
+    if (room.storage) {
+      return;
+    }
+    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+    const pivotPos = this.getNextPivotPosStandard(baseOriginPos, 3);
 
     if (pivotPos) {
       const storagePositions: RoomPosition[] = this.getPositionsStandard(pivotPos);

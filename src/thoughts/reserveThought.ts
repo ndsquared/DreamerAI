@@ -1,12 +1,13 @@
-import { FigmentThought, FigmentType } from "./figmentThought";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "./figmentThought";
+import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class ReserveThought extends FigmentThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
-    this.figments[FigmentType.RESERVE] = [];
+  public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
+    super(idea, type, instance);
+    this.figments[FigmentThoughtType.RESERVE] = [];
   }
 
   public handleFigment(figment: Figment): void {

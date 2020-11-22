@@ -1,25 +1,30 @@
 import { Rectangle, getCutTiles } from "utils/minCut";
 import { BuildThought } from "./buildThought";
+import { BuildThoughtType } from "./thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 
 export class RampartThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  public constructor(idea: Idea, type: BuildThoughtType, instance: string) {
+    super(idea, type, instance);
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
     if (this.idea.rcl < 3) {
       return;
     }
-    const spawn = this.idea.spawn;
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
+    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
     // Protect spawn
-    creationIdea.addBuild(spawn.pos, STRUCTURE_RAMPART, 3, false, false);
+    creationIdea.addBuild(baseOriginPos, STRUCTURE_RAMPART, 3, false, false);
 
     // Protect controller
-    const controller = this.idea.spawn.room.controller;
+    const controller = room.controller;
     if (controller) {
-      const controllerNeighbors = controller.pos.availableNeighbors(true);
+      const controllerNeighbors = controller.pos.availableAdjacentPositions(true);
       creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, true, false, false);
     }
 
@@ -38,10 +43,10 @@ export class RampartThought extends BuildThought {
 
     // Protect base
     const rect: Rectangle[] = [];
-    const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
+    const pivotPos = this.getNextPivotPosStandard(baseOriginPos, 3);
     if (pivotPos) {
-      const xDelta = Math.abs(pivotPos.x - this.idea.spawn.pos.x);
-      const yDelta = Math.abs(pivotPos.y - this.idea.spawn.pos.y);
+      const xDelta = Math.abs(pivotPos.x - baseOriginPos.x);
+      const yDelta = Math.abs(pivotPos.y - baseOriginPos.y);
       let basePadding: number;
       if (xDelta) {
         basePadding = xDelta + 4;
@@ -49,14 +54,14 @@ export class RampartThought extends BuildThought {
         basePadding = yDelta + 4;
       }
       rect.push({
-        x1: this.idea.spawn.pos.x - basePadding,
-        y1: this.idea.spawn.pos.y - basePadding,
-        x2: this.idea.spawn.pos.x + basePadding,
-        y2: this.idea.spawn.pos.y + basePadding
+        x1: baseOriginPos.x - basePadding,
+        y1: baseOriginPos.y - basePadding,
+        x2: baseOriginPos.x + basePadding,
+        y2: baseOriginPos.y + basePadding
       });
     }
 
-    const positions = getCutTiles(this.idea.spawn.room.name, rect, true, Infinity, false);
+    const positions = getCutTiles(room.name, rect, true, Infinity, false);
     for (const pos of positions) {
       creationIdea.addBuild(pos, STRUCTURE_RAMPART, 6, true, false);
     }

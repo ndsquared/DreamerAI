@@ -1,24 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import { BuildThoughtType, Thought } from "./thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { GetRoomPosition } from "utils/misc";
 import { Idea } from "ideas/idea";
-import { Thought } from "./thought";
 import profiler from "screeps-profiler";
 
-export enum BuildThoughtName {
-  EXTENSION = "Extension",
-  ROAD = "Road",
-  CONTAINER = "Container",
-  TOWER = "Tower",
-  STORAGE = "Storage",
-  RAMPART = "Rampart",
-  LINK = "Link",
-  TERMINAL = "Terminal"
-}
-
 export abstract class BuildThought extends Thought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  public constructor(idea: Idea, type: BuildThoughtType, instance: string) {
+    super(idea, type, instance);
   }
 
   public abstract buildPlan(creationIdea: CreationIdea): void;

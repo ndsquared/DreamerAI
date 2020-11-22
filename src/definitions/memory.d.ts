@@ -24,11 +24,12 @@ interface RoomStats {
 
 interface CreepMemory {
   _trav: any;
-  ideaName: string;
+  roomName: string;
   figmentType: string;
   thoughtType: string;
   thoughtInstance: string;
   interneurons: Interneuron[];
+  // TODO: evaluate if the below are useful anymore
   underAttack: boolean;
   underAttackCooldown: number;
   combatReady: boolean;
@@ -67,9 +68,6 @@ interface ImaginationMemory {
   metabolic: {
     [name: string]: MetabolicMemory;
   };
-  territory: {
-    [name: string]: TerritoryMemory;
-  };
 }
 
 interface Interneuron {
@@ -98,15 +96,10 @@ interface InterneuronTargetOptions {
 interface RoomMemory {
   avoid: boolean;
   roomType: string;
+  // Need to identify which neighborhood a room is apart of
   roomDistance: number;
   expansionScore?: number;
   attackScore?: number;
   harassScore?: number;
   defendScore?: number;
-}
-
-interface TerritoryMemory {
-  rooms: {
-    [name: string]: RoomMemory;
-  };
 }

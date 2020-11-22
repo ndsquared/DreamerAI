@@ -1,5 +1,6 @@
-import { FigmentThought, FigmentType } from "./figmentThought";
 import { Figment } from "figments/figment";
+import { FigmentThought } from "./figmentThought";
+import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { PathFindWithRoad } from "utils/misc";
@@ -8,10 +9,10 @@ export class TransferThought extends FigmentThought {
   private container: StructureContainer | null = null;
   private storage: StructureStorage | null = null;
   private transferPriority: StructureConstant[] = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER];
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
-    this.figments[FigmentType.TRANSFER] = [];
-    this.figments[FigmentType.TOWER_FILLER] = [];
+  public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
+    super(idea, type, instance);
+    this.figments[FigmentThoughtType.TRANSFER] = [];
+    this.figments[FigmentThoughtType.TOWER_FILLER] = [];
   }
 
   private getNextWithdrawTarget(): StoreStructure | null {
@@ -46,6 +47,10 @@ export class TransferThought extends FigmentThought {
   }
 
   public ponder(): void {
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
     if (!this.container) {
       if (this.idea.hippocampus.spawnContainers.length) {
         this.container = this.idea.hippocampus.spawnContainers[0];
@@ -54,8 +59,8 @@ export class TransferThought extends FigmentThought {
       this.container = Game.getObjectById(this.container.id);
     }
     if (!this.storage) {
-      if (this.idea.spawn.room.storage) {
-        this.storage = this.idea.spawn.room.storage;
+      if (room.storage) {
+        this.storage = room.storage;
       }
     } else {
       this.storage = Game.getObjectById(this.storage.id);
@@ -64,15 +69,20 @@ export class TransferThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): void {
-    if (figment.memory.figmentType === FigmentType.TOWER_FILLER) {
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
+    if (figment.memory.figmentType === FigmentThoughtType.TOWER_FILLER) {
       this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];
     }
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.getNextWithdrawTarget();
+      const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
       if (target) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
       } else {
-        figment.addNeuron(NeuronType.SLEEP, this.idea.spawn.id, this.idea.spawn.pos, {
+        figment.addNeuron(NeuronType.SLEEP, "", baseOriginPos, {
           sleepTicks: 10,
           moveOffRoadDuringImpulse: true,
           targetRange: 15
@@ -80,10 +90,11 @@ export class TransferThought extends FigmentThought {
       }
     } else {
       const target = this.getNextTransferTarget(figment);
+      const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       } else {
-        figment.addNeuron(NeuronType.SLEEP, this.idea.spawn.id, this.idea.spawn.pos, {
+        figment.addNeuron(NeuronType.SLEEP, "", baseOriginPos, {
           sleepTicks: 10,
           moveOffRoadDuringImpulse: true,
           targetRange: 15
@@ -96,7 +107,7 @@ export class TransferThought extends FigmentThought {
     if (!this.storage && !this.container) {
       return false;
     }
-    if (figmentType === FigmentType.TRANSFER) {
+    if (figmentType === FigmentThoughtType.TRANSFER) {
       if (this.figments[figmentType].length === 1) {
         const ttl = this.figments[figmentType][0].ticksToLive;
         if (ttl && ttl < 200) {
@@ -104,7 +115,7 @@ export class TransferThought extends FigmentThought {
         }
       }
       return this.figments[figmentType].length < 1;
-    } else if (figmentType === FigmentType.TOWER_FILLER) {
+    } else if (figmentType === FigmentThoughtType.TOWER_FILLER) {
       if (this.idea.hippocampus.towers.length === 0) {
         return false;
       }

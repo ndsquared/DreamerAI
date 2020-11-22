@@ -18,14 +18,12 @@ type EnergyWithdrawStructure = StoreStructure | EnergyStructure;
 type ResourceOrEnergyWithdrawStructure = EnergyWithdrawStructure | Resource;
 
 export class Hippocampus {
-  private spawnId: string;
-  private spawnRoom: Room;
+  private baseRoomNames: string[] = [];
 
   private imagination: Imagination;
 
   private memoryIO: MetabolicMemory;
   public memoryGen: GenesisMemory;
-  public memoryTerritory: TerritoryMemory;
 
   public queuePriorities: { [type: string]: number } = {};
   public figmentNeeded: { [type: string]: boolean } = {};
@@ -155,8 +153,8 @@ export class Hippocampus {
     this.memoryTerritory = imagination.memory.imagination.territory[spawn.room.name];
   }
 
-  public get spawn(): StructureSpawn | null {
-    return Game.getObjectById(this.spawnId);
+  public addBaseRoomName(roomName: string): void {
+    this.baseRoomNames.push(roomName);
   }
 
   public forget(): void {
@@ -796,6 +794,21 @@ export class Hippocampus {
       return null;
     }
     return this.repairQueue.peek();
+  }
+
+  public getNeighborhoodRoomNames(roomName: string): string[] {
+    // TODO: Implement
+    return [];
+  }
+
+  public getNextAvailableSpawn(roomName: string): StructureSpawn | undefined {
+    // TODO: Implement this for real
+    return undefined;
+  }
+
+  public getBaseOriginPos(roomName: string): RoomPosition {
+    // TODO: Implement this for real
+    return new RoomPosition(25, 25, roomName);
   }
 
   public inEcoMode(): boolean {

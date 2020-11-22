@@ -1,26 +1,32 @@
 import { BuildThought } from "./buildThought";
+import { BuildThoughtType } from "./thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 import { PathFindWithRoad } from "utils/misc";
 
 export class RoadThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  public constructor(idea: Idea, type: BuildThoughtType, instance: string) {
+    super(idea, type, instance);
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
     if (this.idea.rcl < 3) {
       return;
     }
-    const spawn = this.idea.spawn;
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
+
+    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
     // Build roads around spawn
     const roadDeltas: Coord[] = this.cardinalDirections();
-    const roadPositions: RoomPosition[] = this.getPositionsFromDelta(spawn.pos, roadDeltas);
+    const roadPositions: RoomPosition[] = this.getPositionsFromDelta(baseOriginPos, roadDeltas);
     creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false, false);
 
     // Build roads to all containers
     for (const container of this.idea.hippocampus.containers) {
-      this.buildRoadToPosition(creationIdea, spawn.pos, container.pos, false);
+      this.buildRoadToPosition(creationIdea, baseOriginPos, container.pos, false);
     }
   }
 

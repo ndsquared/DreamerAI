@@ -1,26 +1,13 @@
+import { FigmentThoughtType, Thought } from "./thought";
 import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
-import { Thought } from "./thought";
 import profiler from "screeps-profiler";
-
-export enum FigmentType {
-  HARVEST = "Harvest",
-  PICKUP = "Pickup",
-  WORKER = "Worker",
-  TRANSFER = "Transfer",
-  TOWER_FILLER = "Tower Filler",
-  SCOUT = "Scout",
-  RESERVE = "Reserve",
-  UPGRADE = "Upgrade",
-  ATTACK = "Attack",
-  DEFENSE = "Defense"
-}
 
 export abstract class FigmentThought extends Thought {
   public figments: { [type: string]: Figment[] } = {};
 
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
+    super(idea, type, instance);
   }
 
   public addFigment(figment: Figment): void {

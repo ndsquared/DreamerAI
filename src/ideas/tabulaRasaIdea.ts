@@ -3,12 +3,17 @@ import { CreationIdea } from "./creationIdea";
 import { GenesisIdea } from "./genesisIdea";
 import { Imagination } from "imagination";
 
+// TODO: Is this class even useful anymore?
 export class TabulaRasaIdea extends Idea {
-  public constructor(spawn: StructureSpawn, imagination: Imagination, type: IdeaType) {
-    super(spawn, imagination, type);
+  public constructor(roomName: string, imagination: Imagination, type: IdeaType) {
+    super(roomName, imagination, type);
 
     // Initialize ideas
-    this.imagination.ideas[this.name][IdeaType.GENESIS] = new GenesisIdea(spawn, imagination, IdeaType.GENESIS);
-    this.imagination.ideas[this.name][IdeaType.CREATION] = new CreationIdea(spawn, imagination, IdeaType.CREATION);
+    this.imagination.ideas[this.roomName][IdeaType.GENESIS] = new GenesisIdea(roomName, imagination, IdeaType.GENESIS);
+    this.imagination.ideas[this.roomName][IdeaType.CREATION] = new CreationIdea(
+      roomName,
+      imagination,
+      IdeaType.CREATION
+    );
   }
 }

@@ -72,7 +72,7 @@ export abstract class Neuron {
       return OK;
     }
 
-    let positions = _.sortBy(figment.pos.availableNeighbors(), (p: RoomPosition) => p.getRangeTo(pos));
+    let positions = _.sortBy(figment.pos.availableAdjacentPositions(), (p: RoomPosition) => p.getRangeTo(pos));
     if (maintainDistance) {
       const currentRange = figment.pos.getRangeTo(pos);
       positions = _.filter(positions, (p: RoomPosition) => p.getRangeTo(pos) <= currentRange);

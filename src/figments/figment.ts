@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { NeuronType, Neurons } from "neurons/neurons";
+import { Imagination } from "imagination";
 import { ShuffleArray } from "utils/misc";
 import { Traveler } from "utils/traveler";
 import profiler from "screeps-profiler";
 
 export class Figment extends Creep implements Figment {
-  public constructor(creepId: Id<Creep>) {
+  public imagination: Imagination;
+  public constructor(creepId: Id<Creep>, imagination: Imagination) {
     super(creepId);
+    this.imagination = imagination;
   }
 
   public travelTo(destination: RoomPosition | { pos: RoomPosition }, options?: TravelToOptions): number {
@@ -150,63 +153,63 @@ export class Figment extends Creep implements Figment {
   }
 
   // TODO: Move this logic to the combat idea and interrupt figments when necessary
-  private preRunChecks(): void {
-    if (this.memory.combatReady && this.memory.ideaName) {
-      if (this.memory.inCombat) {
-        return;
-      }
-      const spawnRoom = Game.rooms[this.memory.ideaName];
-      for (const room of spawnRoom.neighborhood) {
-        const enemies = room.find(FIND_HOSTILE_CREEPS);
-        if (enemies.length) {
-          this.memory.interneurons = [];
-          return;
-        }
-        const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
-        if (enemyStructures.length) {
-          this.memory.interneurons = [];
-          return;
-        }
-      }
-    } else {
-      if (this.memory.underAttack) {
-        this.memory.underAttack = false;
-        this.memory.underAttackCooldown--;
-        const enemies = this.room.find(FIND_HOSTILE_CREEPS);
-        if (enemies.length) {
-          for (const enemy of enemies) {
-            if (enemy.pos.inRangeTo(this.pos, 4)) {
-              this.memory.underAttack = true;
-            }
-          }
-        }
-        if (!this.memory.underAttack) {
-          if (this.memory.underAttackCooldown <= 0) {
-            this.memory.interneurons = [];
-            this.memory.underAttackCooldown = 5;
-          }
-        }
-      } else {
-        const target = Game.spawns.Spawn1;
-        const enemies = this.room.find(FIND_HOSTILE_CREEPS);
-        if (enemies.length) {
-          for (const enemy of enemies) {
-            if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
-              if (enemy.pos.inRangeTo(this.pos, 4)) {
-                this.say("Noooo!", true);
-                console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
-                this.memory.interneurons = [];
-                const randomDir = _.random(1, 8);
-                this.move(randomDir as DirectionConstant);
-                this.addNeuron(NeuronType.MOVE, "", target.pos, { moveRange: 3 });
-                this.memory.underAttack = true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  // private preRunChecks(): void {
+  //   if (this.memory.combatReady && this.memory.ideaName) {
+  //     if (this.memory.inCombat) {
+  //       return;
+  //     }
+  //     const spawnRoom = Game.rooms[this.memory.ideaName];
+  //     for (const room of spawnRoom.neighborhood) {
+  //       const enemies = room.find(FIND_HOSTILE_CREEPS);
+  //       if (enemies.length) {
+  //         this.memory.interneurons = [];
+  //         return;
+  //       }
+  //       const enemyStructures = room.find(FIND_HOSTILE_STRUCTURES);
+  //       if (enemyStructures.length) {
+  //         this.memory.interneurons = [];
+  //         return;
+  //       }
+  //     }
+  //   } else {
+  //     if (this.memory.underAttack) {
+  //       this.memory.underAttack = false;
+  //       this.memory.underAttackCooldown--;
+  //       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
+  //       if (enemies.length) {
+  //         for (const enemy of enemies) {
+  //           if (enemy.pos.inRangeTo(this.pos, 4)) {
+  //             this.memory.underAttack = true;
+  //           }
+  //         }
+  //       }
+  //       if (!this.memory.underAttack) {
+  //         if (this.memory.underAttackCooldown <= 0) {
+  //           this.memory.interneurons = [];
+  //           this.memory.underAttackCooldown = 5;
+  //         }
+  //       }
+  //     } else {
+  //       const target = Game.spawns.Spawn1;
+  //       const enemies = this.room.find(FIND_HOSTILE_CREEPS);
+  //       if (enemies.length) {
+  //         for (const enemy of enemies) {
+  //           if (enemy.getActiveBodyparts(ATTACK) > 0 || enemy.getActiveBodyparts(RANGED_ATTACK) > 0) {
+  //             if (enemy.pos.inRangeTo(this.pos, 4)) {
+  //               this.say("Noooo!", true);
+  //               console.log(`${this.name} is under attack! at ${this.pos.toString()}`);
+  //               this.memory.interneurons = [];
+  //               const randomDir = _.random(1, 8);
+  //               this.move(randomDir as DirectionConstant);
+  //               this.addNeuron(NeuronType.MOVE, "", target.pos, { moveRange: 3 });
+  //               this.memory.underAttack = true;
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   public run(): boolean {
     try {
@@ -270,16 +273,17 @@ export class Figment extends Creep implements Figment {
     if (!neuron) {
       return;
     }
+    // TODO: Do this smarter and use imagination object
     if (
       neuron.type === NeuronType.PICKUP ||
       neuron.type === NeuronType.WITHDRAW ||
       neuron.type === NeuronType.TRANSFER
     ) {
-      if (Memory.imagination.metabolic[this.memory.ideaName].metabolism.inputs[neuron.target.ref]) {
-        delete Memory.imagination.metabolic[this.memory.ideaName].metabolism.inputs[neuron.target.ref][this.name];
+      if (Memory.imagination.metabolic[this.memory.roomName].metabolism.inputs[neuron.target.ref]) {
+        delete Memory.imagination.metabolic[this.memory.roomName].metabolism.inputs[neuron.target.ref][this.name];
       }
-      if (Memory.imagination.metabolic[this.memory.ideaName].metabolism.outputs[neuron.target.ref]) {
-        delete Memory.imagination.metabolic[this.memory.ideaName].metabolism.outputs[neuron.target.ref][this.name];
+      if (Memory.imagination.metabolic[this.memory.roomName].metabolism.outputs[neuron.target.ref]) {
+        delete Memory.imagination.metabolic[this.memory.roomName].metabolism.outputs[neuron.target.ref][this.name];
       }
     }
   }

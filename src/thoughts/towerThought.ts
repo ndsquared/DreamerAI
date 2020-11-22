@@ -1,19 +1,25 @@
 import { BuildThought } from "./buildThought";
+import { BuildThoughtType } from "./thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 import { PathFindWithRoad } from "utils/misc";
 
 export class TowerThought extends BuildThought {
-  public constructor(idea: Idea, name: string, instance: string) {
-    super(idea, name, instance);
+  public constructor(idea: Idea, type: BuildThoughtType, instance: string) {
+    super(idea, type, instance);
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
+    const room = this.idea.room;
+    if (!room) {
+      return;
+    }
     if (this.idea.hippocampus.towers.length >= CONTROLLER_STRUCTURES[STRUCTURE_TOWER][this.idea.rcl]) {
       // console.log("At max towers for RCL");
       return;
     }
-    const pivotPos = this.getNextPivotPosStandard(this.idea.spawn.pos, 3);
+    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+    const pivotPos = this.getNextPivotPosStandard(baseOriginPos, 3);
 
     if (pivotPos) {
       const towerPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);

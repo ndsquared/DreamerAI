@@ -1,41 +1,41 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { getNeighborRoomNames, isEnergyStructure, isStoreStructure } from "utils/misc";
+import { isEnergyStructure, isStoreStructure } from "utils/misc";
 
 // Room
 
-Object.defineProperty(Room.prototype, "neighbors", {
-  get() {
-    const adjRooms: Room[] = [];
+// Object.defineProperty(Room.prototype, "neighbors", {
+//   get() {
+//     const adjRooms: Room[] = [];
 
-    const exits = Game.map.describeExits(this.name);
-    if (exits) {
-      for (const roomName of Object.values(exits)) {
-        if (roomName) {
-          const room = Game.rooms[roomName];
-          if (room) {
-            adjRooms.push(room);
-          }
-        }
-      }
-    }
-    return adjRooms;
-  }
-});
+//     const exits = Game.map.describeExits(this.name);
+//     if (exits) {
+//       for (const roomName of Object.values(exits)) {
+//         if (roomName) {
+//           const room = Game.rooms[roomName];
+//           if (room) {
+//             adjRooms.push(room);
+//           }
+//         }
+//       }
+//     }
+//     return adjRooms;
+//   }
+// });
 
-Object.defineProperty(Room.prototype, "neighborNames", {
-  get() {
-    return getNeighborRoomNames(this.name);
-  }
-});
+// Object.defineProperty(Room.prototype, "neighborNames", {
+//   get() {
+//     return getNeighborRoomNames(this.name);
+//   }
+// });
 
-Object.defineProperty(Room.prototype, "neighborhood", {
-  get() {
-    const rooms: Room[] = [this];
-    return rooms.concat(this.neighbors);
-  }
-});
+// Object.defineProperty(Room.prototype, "neighborhood", {
+//   get() {
+//     const rooms: Room[] = [this];
+//     return rooms.concat(this.neighbors);
+//   }
+// });
 
 // RoomPosition
 
@@ -52,21 +52,21 @@ Object.defineProperty(RoomPosition.prototype, "isVisible", {
   configurable: true
 });
 
-Object.defineProperty(RoomPosition.prototype, "neighbors", {
+Object.defineProperty(RoomPosition.prototype, "adjacentPositions", {
   get() {
-    const adjPos: RoomPosition[] = [];
+    const adjPositions: RoomPosition[] = [];
     for (const dx of [-1, 0, 1]) {
       for (const dy of [-1, 0, 1]) {
         if (!(dx === 0 && dy === 0)) {
           const x = this.x + dx;
           const y = this.y + dy;
           if (0 < x && x < 49 && 0 < y && y < 49) {
-            adjPos.push(new RoomPosition(x, y, this.roomName));
+            adjPositions.push(new RoomPosition(x, y, this.roomName));
           }
         }
       }
     }
-    return adjPos;
+    return adjPositions;
   }
 });
 
@@ -102,12 +102,12 @@ RoomPosition.prototype.hasStructure = function (structureType: StructureConstant
   return false;
 };
 
-RoomPosition.prototype.availableNeighbors = function (ignoreCreeps = false): RoomPosition[] {
-  return _.filter(this.neighbors, pos => pos.isWalkable(ignoreCreeps));
+RoomPosition.prototype.availableAdjacentPositions = function (ignoreCreeps = false): RoomPosition[] {
+  return _.filter(this.adjacentPositions, pos => pos.isWalkable(ignoreCreeps));
 };
 
-RoomPosition.prototype.availableBuilds = function (ignoreRoads = true, ignoreRamparts = true): RoomPosition[] {
-  return _.filter(this.neighbors, pos => pos.isBuildable(ignoreRoads, ignoreRamparts));
+RoomPosition.prototype.availableAdjacentBuilds = function (ignoreRoads = true, ignoreRamparts = true): RoomPosition[] {
+  return _.filter(this.adjacentPositions, pos => pos.isBuildable(ignoreRoads, ignoreRamparts));
 };
 
 RoomPosition.prototype.isBuildable = function (ignoreRoads = true, ignoreRamparts = true): boolean {

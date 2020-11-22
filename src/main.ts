@@ -5,6 +5,7 @@ import profiler from "screeps-profiler";
 
 // profiler.enable();
 global.i = new Imagination();
+global.resetMemory = false;
 
 function mainLoop() {
   global.i.imagine();
