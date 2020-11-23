@@ -16,7 +16,7 @@ export class Figment extends Creep implements Figment {
     return Traveler.travelTo(this, destination, options);
   }
 
-  public moveRandom(target: RoomPosition | null = null, dst: number | null = null): number {
+  public moveRandom(target: RoomPosition | undefined = undefined, dst: number | undefined = undefined): number {
     let randomDir = _.random(1, 8);
     if (target && dst) {
       let direction = 0;
@@ -233,8 +233,8 @@ export class Figment extends Creep implements Figment {
   public addNeuron(
     type: string,
     ref = "",
-    pos: RoomPosition | null = null,
-    targetOptions: Record<string, unknown> | null = null
+    pos: RoomPosition | undefined = undefined,
+    targetOptions: Record<string, unknown> | undefined = undefined
   ): void {
     if (!pos) {
       // Default will be position of the figment

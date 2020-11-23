@@ -15,6 +15,15 @@ interface Coord {
   y: number;
 }
 
+interface CortexRoomObjects {
+  enemyCreeps: Creep[];
+  myCreeps: Creep[];
+  structures: Structure[];
+  constructionSites: ConstructionSite[];
+  resources: Resource[];
+  sources: Source[];
+}
+
 interface EnergyStructure extends Structure {
   energy: number;
   energyCapacity: number;
@@ -46,6 +55,15 @@ interface FigmentBodySpec {
 interface FigmentCountAdjustment {
   type: string;
   delta: number;
+}
+
+interface HippocampusBaseRoom {
+  roomName: string;
+  showStats: boolean;
+  showBuildVisuals: boolean;
+  showMetaVisuals: boolean;
+  showEnemyVisuals: boolean;
+  showMapVisuals: boolean;
 }
 
 interface HealQueuePayload {
@@ -92,19 +110,11 @@ interface PathfinderReturn {
   incomplete: boolean;
 }
 
-// interface Room {
-//   neighbors: Room[];
-//   neighborNames: string[];
-//   neighborhood: Room[];
-// }
-
 interface RoomPosition {
   availableAdjacentPositions(ignoreCreeps?: boolean): RoomPosition[];
   availableAdjacentBuilds(ignoreRoads?: boolean, ignoreRamparts?: boolean): RoomPosition[];
-  // availableToMove: boolean;
   adjacentPositions: RoomPosition[];
   hasStructure(structure: StructureConstant): boolean;
-  // hasAdjacentKeeper: boolean;
   isWalkable(ignoreCreeps: boolean): boolean;
   isBuildable(ignoreRaods?: boolean, ignoreRamparts?: boolean): boolean;
   isVisible: boolean;

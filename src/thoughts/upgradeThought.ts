@@ -5,16 +5,48 @@ import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class UpgradeThought extends FigmentThought {
-  private controller: StructureController | undefined = undefined;
-  private container: StructureContainer | null = null;
-  private storage: StructureStorage | null = null;
-  private link: StructureLink | null = null;
+  private controllerId: Id<StructureController> | undefined = undefined;
+  private containerId: Id<StructureContainer> | undefined = undefined;
+  private storageId: Id<StructureStorage> | undefined = undefined;
+  private linkId: Id<StructureLink> | undefined = undefined;
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
     this.figments[FigmentThoughtType.UPGRADE] = [];
   }
 
-  private getNextWithdrawTarget(): StoreStructure | null {
+  public get controller(): StructureController | null {
+    if (this.controllerId) {
+      return Game.getObjectById(this.controllerId);
+    }
+    this.containerId = undefined;
+    return null;
+  }
+
+  public get container(): StructureContainer | null {
+    if (this.containerId) {
+      return Game.getObjectById(this.containerId);
+    }
+    this.containerId = undefined;
+    return null;
+  }
+
+  public get link(): StructureLink | null {
+    if (this.linkId) {
+      return Game.getObjectById(this.linkId);
+    }
+    this.linkId = undefined;
+    return null;
+  }
+
+  public get storage(): StructureStorage | null {
+    if (this.storageId) {
+      return Game.getObjectById(this.storageId);
+    }
+    this.storageId = undefined;
+    return null;
+  }
+
+  private getNextWithdrawTarget(): StoreStructure | undefined {
     if (this.link) {
       return this.link;
     } else if (this.container) {
@@ -26,7 +58,7 @@ export class UpgradeThought extends FigmentThought {
     if (room) {
       return this.idea.hippocampus.getNextAvailableSpawn(room.name);
     }
-    return null;
+    return undefined;
   }
 
   public ponder(): void {
@@ -34,31 +66,29 @@ export class UpgradeThought extends FigmentThought {
     if (!room) {
       return;
     }
-    this.controller = room.controller;
-    if (!this.container) {
-      if (this.controller && this.controller.my) {
-        if (this.idea.hippocampus.controllerContainers.length) {
-          this.container = this.idea.hippocampus.controllerContainers[0];
-        }
+    // TODO: refactor this for neighborhood
+    if (!this.controller) {
+      const controller = room.controller;
+      if (controller) {
+        this.controllerId = controller.id;
       }
-    } else {
-      this.container = Game.getObjectById(this.container.id);
+    }
+    if (!this.container) {
+      if (this.idea.hippocampus.controllerContainers.length) {
+        this.containerId = this.idea.hippocampus.controllerContainers[0].id;
+      }
     }
     if (!this.storage) {
       if (room.storage) {
-        this.storage = room.storage;
+        this.storageId = room.storage.id;
       }
-    } else {
-      this.storage = Game.getObjectById(this.storage.id);
     }
     if (!this.link) {
       if (this.controller && this.controller.my) {
         if (this.idea.hippocampus.controllerLinks.length > 0) {
-          this.link = this.idea.hippocampus.controllerLinks[0];
+          this.linkId = this.idea.hippocampus.controllerLinks[0].id;
         }
       }
-    } else {
-      this.link = Game.getObjectById(this.link.id);
     }
     super.ponder();
   }

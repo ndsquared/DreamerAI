@@ -1,4 +1,6 @@
 import { Figment } from "figments/figment";
+import { FigmentThought } from "thoughts/figmentThought";
+import { IdeaType } from "ideas/idea";
 import { Imagination } from "imagination";
 import { getReconRoomData } from "utils/misc";
 
@@ -9,8 +11,7 @@ export class Cerebellum {
     imagination: {
       version: 0,
       genesis: {},
-      metabolic: {},
-      territory: {}
+      metabolic: {}
     },
     stats: {
       time: 0,
@@ -66,7 +67,7 @@ export class Cerebellum {
     return true;
   }
 
-  private forget() {
+  public forget(): void {
     if (!Memory.version) {
       Memory.version = 0;
     }
@@ -80,8 +81,7 @@ export class Cerebellum {
       Memory.imagination = {
         version: Memory.version,
         genesis: {},
-        metabolic: {},
-        territory: {}
+        metabolic: {}
       };
       Memory.creeps = {};
       delete Memory.flags;
@@ -118,21 +118,13 @@ export class Cerebellum {
         };
       }
       // Initialize territory
-      if (!this.memory.imagination.territory[roomName]) {
-        this.memory.imagination.territory[roomName] = {
-          rooms: {}
-        };
+      if (!this.memory.rooms) {
+        this.memory.rooms = {};
         // Seed spawn room
         const room = Game.rooms[roomName];
         if (room) {
           this.memory.rooms[roomName] = getReconRoomData(room.name, room.name);
         }
-      }
-      try {
-        this.hippocampus[roomName].remember();
-      } catch (error) {
-        console.log(`${roomName} hippocampus could not remember`);
-        console.log(error);
       }
     }
     // Clean up figment memory
@@ -178,14 +170,14 @@ export class Cerebellum {
     // Assign figments to thoughts
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
-      const figment = new Figment(creep.id);
+      const figment = new Figment(creep.id, this.imagination);
       if (figment.spawning) {
         continue;
       }
       const roomName = figment.memory.roomName;
       const thoughtType = figment.memory.thoughtType;
       const thoughtInstance = figment.memory.thoughtInstance;
-      const idea = this.ideas[roomName];
+      const idea = this.imagination.ideas[roomName];
       if (!idea) {
         continue;
       }
@@ -193,9 +185,22 @@ export class Cerebellum {
       if (!thoughtTypeObj) {
         continue;
       }
-      const thought = thoughtTypeObj[thoughtInstance];
+      const thought = thoughtTypeObj[thoughtInstance] as FigmentThought;
       if (thought) {
         thought.addFigment(figment);
+      }
+    }
+    this.pruneIO();
+  }
+  private pruneIO(): void {
+    for (const input in this.memoryIO.metabolism.inputs) {
+      if (!Game.getObjectById(input)) {
+        delete this.memoryIO.metabolism.inputs[input];
+      }
+    }
+    for (const output in this.memoryIO.metabolism.outputs) {
+      if (!Game.getObjectById(output)) {
+        delete this.memoryIO.metabolism.outputs[output];
       }
     }
   }

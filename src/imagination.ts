@@ -15,17 +15,19 @@ export class Imagination implements IBrain {
     this.username = getUsername();
     this.ideas = {};
     this.hippocampus = new Hippocampus(this);
-    this.forget();
-    this.fantasize();
   }
 
   private fantasize() {
+    // TODO: need to handle this loop better
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
-      // TODO: need to handle multiple spawns better
       if (!this.ideas[spawn.room.name]) {
         this.ideas[spawn.room.name] = {};
-        this.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(spawn, this, IdeaType.TABULA_RASA);
+        this.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(
+          spawn.room.name,
+          this,
+          IdeaType.TABULA_RASA
+        );
         this.hippocampus.addBaseRoomName(spawn.room.name);
       }
     }
@@ -37,13 +39,29 @@ export class Imagination implements IBrain {
       console.log(`Not enough CPU in bucket to run! | Bucket: ${Game.cpu.bucket}`);
       return;
     }
+
     // Pre-core
-    this.meditate();
+    this.fantasize();
+    try {
+      this.hippocampus.meditate();
+    } catch (error) {
+      console.log(`hippocampus could not meditate`);
+      console.log(error);
+    }
+
     // Core
     this.ponder();
     this.think();
     this.reflect();
+
     // Post-core
+    try {
+      // Display stats/visuals
+      this.hippocampus.contemplate();
+    } catch (error) {
+      console.log(`hippocampus could not contemplate`);
+      console.log(error);
+    }
   }
 
   public ponder(): void {
@@ -79,13 +97,6 @@ export class Imagination implements IBrain {
           console.log(`${roomName}:${ideaName} idea error while reflecting`);
           console.log(error);
         }
-      }
-      try {
-        // Display stats/visuals
-        this.hippocampus.contemplate();
-      } catch (error) {
-        console.log(`${roomName} hippocampus could not contemplate`);
-        console.log(error);
       }
     }
   }

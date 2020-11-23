@@ -5,38 +5,49 @@ import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 
 export class HarvestThought extends FigmentThought {
-  private source: Source | null;
   private sourceId: Id<Source>;
   private sourcePos: RoomPosition;
-  private container: StructureContainer | null = null;
-  private link: StructureLink | null = null;
+  private containerId: Id<StructureContainer> | undefined = undefined;
+  private linkId: Id<StructureLink> | undefined = undefined;
   public constructor(idea: Idea, type: FigmentThoughtType, source: Source) {
     super(idea, type, source.id);
-    this.source = source;
     this.sourceId = source.id;
     this.sourcePos = source.pos;
     this.figments[FigmentThoughtType.HARVEST] = [];
   }
 
-  public ponder(): void {
-    this.source = Game.getObjectById(this.sourceId);
-    if (!this.source) {
-      return;
+  public get source(): Source | null {
+    return Game.getObjectById(this.sourceId);
+  }
+
+  public get container(): StructureContainer | null {
+    if (this.containerId) {
+      return Game.getObjectById(this.containerId);
     }
-    if (!this.container) {
+    this.containerId = undefined;
+    return null;
+  }
+
+  public get link(): StructureLink | null {
+    if (this.linkId) {
+      return Game.getObjectById(this.linkId);
+    }
+    this.linkId = undefined;
+    return null;
+  }
+
+  public ponder(): void {
+    // TODO: Need to refactor this for proper neighborhood
+    if (!this.containerId) {
       if (this.idea.hippocampus.sourceContainers[this.sourceId].length > 0) {
-        this.container = this.idea.hippocampus.sourceContainers[this.sourceId][0];
+        this.containerId = this.idea.hippocampus.sourceContainers[this.sourceId][0].id;
       }
-    } else {
-      this.container = Game.getObjectById(this.container.id);
     }
 
-    if (!this.link) {
+    if (!this.linkId) {
       if (this.idea.hippocampus.sourceLinks[this.sourceId].length > 0) {
-        this.link = this.idea.hippocampus.sourceLinks[this.sourceId][0];
+        this.linkId = this.idea.hippocampus.sourceLinks[this.sourceId][0].id;
       }
-    } else {
-      this.link = Game.getObjectById(this.link.id);
     }
   }
 
@@ -62,7 +73,7 @@ export class HarvestThought extends FigmentThought {
       }
     }
 
-    let targetOptions = null;
+    let targetOptions;
     if (!this.link) {
       targetOptions = {
         ignoreFigmentCapacity: true
@@ -91,7 +102,6 @@ export class HarvestThought extends FigmentThought {
       return false;
     }
     // TODO: could also calculate TTL and length of path to optimize replacements
-    this.source = Game.getObjectById(this.sourceId);
     if (this.source) {
       const totalWorkParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(WORK));
       const availablePos = this.source.pos.availableAdjacentPositions(true);

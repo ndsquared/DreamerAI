@@ -62,12 +62,12 @@ export abstract class BuildThought extends Thought {
     return positions;
   }
 
-  public getNextPivotPosStandard(startPos: RoomPosition, deltaMod: number): RoomPosition | null {
+  public getNextPivotPosStandard(startPos: RoomPosition, deltaMod: number): RoomPosition | undefined {
     const deltas = this.standardDeltas();
     return this.getNextPivotPos(startPos, deltas, deltaMod);
   }
 
-  public getNextPivotPos(startPos: RoomPosition, deltas: Coord[], deltaMod: number): RoomPosition | null {
+  public getNextPivotPos(startPos: RoomPosition, deltas: Coord[], deltaMod: number): RoomPosition | undefined {
     const visited: { [pos: string]: boolean } = {};
     const pivotQueue: RoomPosition[] = [startPos];
     visited[startPos.toString()] = true;
@@ -93,7 +93,7 @@ export abstract class BuildThought extends Thought {
         return currentPos;
       }
     }
-    return null;
+    return undefined;
   }
 
   public canBuildAtPivotPos(pivotPos: RoomPosition, deltas: Coord[]): boolean {

@@ -39,14 +39,14 @@ export class TowerThought extends BuildThought {
     if (enemy) {
       tower.attack(enemy);
     } else {
-      const healTarget = this.idea.hippocampus.getNextHealTarget();
+      const healTarget = this.idea.hippocampus.getNextHealTarget(tower.room.name);
       if (healTarget) {
         tower.heal(healTarget);
       } else {
         if (this.idea.hippocampus.inEcoMode()) {
           return;
         }
-        const repairTarget = this.idea.hippocampus.getNextRepairTarget();
+        const repairTarget = this.idea.hippocampus.getNextRepairTarget(tower.room.name);
         if (repairTarget) {
           tower.repair(repairTarget);
         }

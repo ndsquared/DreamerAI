@@ -6,8 +6,8 @@ import { NeuronType } from "neurons/neurons";
 import { PathFindWithRoad } from "utils/misc";
 
 export class TransferThought extends FigmentThought {
-  private container: StructureContainer | null = null;
-  private storage: StructureStorage | null = null;
+  private containerId: Id<StructureContainer> | undefined = undefined;
+  private storageId: Id<StructureStorage> | undefined = undefined;
   private transferPriority: StructureConstant[] = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER];
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
@@ -15,14 +15,30 @@ export class TransferThought extends FigmentThought {
     this.figments[FigmentThoughtType.TOWER_FILLER] = [];
   }
 
-  private getNextWithdrawTarget(): StoreStructure | null {
+  public get container(): StructureContainer | null {
+    if (this.containerId) {
+      return Game.getObjectById(this.containerId);
+    }
+    this.containerId = undefined;
+    return null;
+  }
+
+  public get storage(): StructureStorage | null {
+    if (this.storageId) {
+      return Game.getObjectById(this.storageId);
+    }
+    this.storageId = undefined;
+    return null;
+  }
+
+  private getNextWithdrawTarget(): StoreStructure | undefined {
     if (this.storage && this.storage.store.getUsedCapacity() > 0) {
       return this.storage;
     } else if (this.container && this.container.store.getUsedCapacity() > 0) {
       return this.container;
     }
 
-    return null;
+    return undefined;
   }
 
   private getNextTransferTarget(figment: Figment): StoreStructure {
@@ -51,21 +67,17 @@ export class TransferThought extends FigmentThought {
     if (!room) {
       return;
     }
+    // TODO: Need to refactor for neighborhood proper
     if (!this.container) {
       if (this.idea.hippocampus.spawnContainers.length) {
-        this.container = this.idea.hippocampus.spawnContainers[0];
+        this.containerId = this.idea.hippocampus.spawnContainers[0].id;
       }
-    } else {
-      this.container = Game.getObjectById(this.container.id);
     }
     if (!this.storage) {
       if (room.storage) {
-        this.storage = room.storage;
+        this.storageId = room.storage.id;
       }
-    } else {
-      this.storage = Game.getObjectById(this.storage.id);
     }
-    super.ponder();
   }
 
   public handleFigment(figment: Figment): void {

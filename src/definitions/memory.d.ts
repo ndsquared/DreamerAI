@@ -96,7 +96,7 @@ interface InterneuronTargetOptions {
 interface RoomMemory {
   avoid: boolean;
   roomType: string;
-  // Need to identify which neighborhood a room is apart of
+  // TODO: Need to identify which neighborhood a room is apart of
   roomDistance: number;
   expansionScore?: number;
   attackScore?: number;
