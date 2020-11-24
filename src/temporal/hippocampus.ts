@@ -27,11 +27,10 @@ export class Hippocampus implements Temporal {
       if (room) {
         this.getRoomObjects(room);
         const baseRoomName = this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName];
-        if (baseRoomName) {
-          this.processRoomObjects(roomName, baseRoomName);
-        }
+        this.processRoomObjects(roomName, baseRoomName);
       }
       // process spatial stuff
+      this.cortex.spatial.processRoom(roomName);
     }
   }
 
@@ -47,7 +46,9 @@ export class Hippocampus implements Temporal {
       resources: room.find(FIND_DROPPED_RESOURCES),
       sources: room.find(FIND_SOURCES),
       containers: [],
-      links: []
+      links: [],
+      enemyCreeps: [],
+      enemyStructures: []
     };
   }
 
@@ -66,6 +67,9 @@ export class Hippocampus implements Temporal {
     for (const creep of this.roomObjects[roomName].creeps) {
       if (creep.my) {
         this.territory.myCreeps.push(creep);
+        if (!baseRoomName) {
+          continue;
+        }
         if (creep.hits < creep.hitsMax) {
           this.cortex.metabolism.healQueue[baseRoomName].queue({
             figment: creep,
@@ -74,6 +78,10 @@ export class Hippocampus implements Temporal {
         }
       } else {
         this.territory.enemyCreeps.push(creep);
+        this.roomObjects[roomName].enemyCreeps.push(creep);
+        if (!baseRoomName) {
+          continue;
+        }
         this.cortex.metabolism.enemyQueue[baseRoomName].queue({
           enemyObject: creep,
           priority: creep.hits
@@ -111,8 +119,12 @@ export class Hippocampus implements Temporal {
           }
         } else if (structure.owner && !structure.my) {
           // Enemy Structures
-          this.territory.enemyStructures.push(structure);
           if (!isInvulnerableStructure(structure)) {
+            this.territory.enemyStructures.push(structure);
+            this.roomObjects[roomName].enemyStructures.push(structure);
+            if (!baseRoomName) {
+              continue;
+            }
             this.cortex.metabolism.enemyQueue[baseRoomName].queue({
               enemyObject: structure,
               priority: structure.hits
@@ -134,6 +146,9 @@ export class Hippocampus implements Temporal {
   private processDroppedResources(roomName: string, baseRoomName: string): void {
     for (const resource of this.roomObjects[roomName].resources) {
       this.territory.resources.push(resource);
+      if (!baseRoomName) {
+        continue;
+      }
       this.cortex.metabolism.addOutput(baseRoomName, resource, resource.amount);
     }
   }

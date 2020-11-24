@@ -144,14 +144,26 @@ export function getNeighborRoomNames(originRoomName: string): string[] {
   return adjRoomNames;
 }
 
-export function getReconRoomData(srcRoom: string, dstRoom: string): RoomMemory {
+function getRoomDistances(dstRoom: string): Record<string, number> {
+  const roomDistances: Record<string, number> = {};
+  for (const spawnName in Game.spawns) {
+    const spawn = Game.spawns[spawnName];
+    if (roomDistances[spawn.room.name]) {
+      continue;
+    }
+    const roomDistance = Traveler.routeDistance(spawn.room.name, dstRoom);
+    roomDistances[spawn.room.name] = roomDistance ? roomDistance : 1000;
+  }
+  return roomDistances;
+}
+
+export function getReconRoomData(dstRoom: string): RoomMemory {
   const avoid = false;
   const roomType = getRoomType(dstRoom);
-  const roomDistance = Traveler.routeDistance(srcRoom, dstRoom);
   return {
     avoid,
     roomType,
-    roomDistance: roomDistance ? roomDistance : 1000
+    roomDistance: getRoomDistances(dstRoom)
   };
 }
 

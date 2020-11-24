@@ -153,7 +153,7 @@ export class Cerebellum implements Temporal {
         // Seed spawn room
         const room = Game.rooms[roomName];
         if (room) {
-          this.memory.rooms[roomName] = getReconRoomData(room.name, room.name);
+          this.memory.rooms[roomName] = getReconRoomData(room.name);
         }
       }
     }

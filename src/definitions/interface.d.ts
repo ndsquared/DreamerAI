@@ -23,6 +23,8 @@ interface HippocampusRoomObjects {
   sources: Source[];
   containers: StructureContainer[];
   links: StructureLink[];
+  enemyCreeps: Creep[];
+  enemyStructures: Structure[];
 }
 
 interface EnergyStructure extends Structure {

@@ -1,8 +1,8 @@
 /*
 This module is responsible for managing room data and memory
 */
+import { RoomType, getNeighborRoomNames, getReconRoomData, getRoomType } from "utils/misc";
 import { Cortex } from "./cortex";
-import { RoomType } from "utils/misc";
 
 export class Spatial implements Temporal {
   public cortex: Cortex;
@@ -12,7 +12,6 @@ export class Spatial implements Temporal {
   public highwayRoomNames: string[] = [];
   public crossroadRoomNames: string[] = [];
   public unknownRoomNames: string[] = [];
-  public neighborhoodRoomNames: string[] = [];
   public sourceKeeperRoomNames: string[] = [];
 
   public constructor(cortex: Cortex) {
@@ -26,10 +25,11 @@ export class Spatial implements Temporal {
     throw new Error("Method not implemented.");
   }
 
-  public processRoomName(roomName: string, roomMemory: RoomMemory): void {
+  public processRoom(roomName: string): void {
     const room = Game.rooms[roomName];
+    const roomMemory = this.cortex.memory.rooms[roomName];
     if (room) {
-      this.scoreRoom(room);
+      this.scoreRoom(room, roomMemory);
     }
     switch (roomMemory.roomType) {
       case RoomType.ROOM_CENTER:
@@ -48,58 +48,34 @@ export class Spatial implements Temporal {
         this.unknownRoomNames.push(roomName);
         break;
       case RoomType.ROOM_STANDARD:
-        if (roomMemory.roomDistance < this.neighborhoodThreshold) {
-          this.neighborhoodRoomNames.push(roomName);
-          if (room) {
-            this.enemyCreeps = this.enemyCreeps.concat(this.roomObjects[roomName][FIND_HOSTILE_CREEPS]);
-            this.myCreeps = this.myCreeps.concat(this.roomObjects[roomName][FIND_MY_CREEPS]);
-            this.structures = this.structures.concat(this.roomObjects[roomName][FIND_STRUCTURES]);
-            this.constructionSites = this.constructionSites.concat(this.roomObjects[roomName][FIND_CONSTRUCTION_SITES]);
-            this.droppedResources = this.droppedResources.concat(this.roomObjects[roomName][FIND_DROPPED_RESOURCES]);
-            this.sources = this.sources.concat(this.roomObjects[roomName][FIND_SOURCES]);
-          }
-        } else {
-          this.standardRoomNames.push(roomName);
-        }
+        this.standardRoomNames.push(roomName);
         break;
     }
   }
 
-  private scoreRoom(room: Room): void {
-    const hostiles = this.roomObjects[room.name][FIND_HOSTILE_CREEPS];
-    const hostileStructures: Structure[] = [];
-    for (const s of this.roomObjects[room.name][FIND_STRUCTURES]) {
-      if (s instanceof OwnedStructure) {
-        if (!s.my && !isInvulnerableStructure(s)) {
-          hostileStructures.push(s);
-        }
-      }
+  private scoreRoom(room: Room, roomMemory: RoomMemory): void {
+    if (roomMemory.roomType !== RoomType.ROOM_STANDARD) {
+      return;
     }
-    if (
-      hostiles.length &&
-      this.memoryTerritory.rooms[room.name].roomDistance < this.neighborhoodThreshold &&
-      this.memoryTerritory.rooms[room.name].roomType === RoomType.ROOM_STANDARD
-    ) {
-      this.memoryTerritory.rooms[room.name].defendScore = hostiles.length;
+    const enemyCreeps = this.cortex.hippocampus.roomObjects[room.name].enemyCreeps;
+    const enemyStructures = this.cortex.hippocampus.roomObjects[room.name].enemyStructures;
+    if (enemyCreeps.length) {
+      roomMemory.defendScore = enemyCreeps.length;
     } else {
-      delete this.memoryTerritory.rooms[room.name].defendScore;
+      delete roomMemory.defendScore;
     }
-    if (hostileStructures.length && this.memoryTerritory.rooms[room.name].roomType !== RoomType.ROOM_SOURCE_KEEPER) {
-      this.memoryTerritory.rooms[room.name].attackScore = hostileStructures.length;
+    if (enemyStructures.length) {
+      roomMemory.attackScore = enemyStructures.length;
     } else {
-      delete this.memoryTerritory.rooms[room.name].attackScore;
+      delete roomMemory.attackScore;
     }
-    if (
-      !this.memoryTerritory.rooms[room.name].expansionScore &&
-      this.memoryTerritory.rooms[room.name].roomDistance > this.neighborhoodThreshold * 2 &&
-      this.memoryTerritory.rooms[room.name].roomDistance < this.neighborhoodThreshold * 3 &&
-      this.memoryTerritory.rooms[room.name].roomType === RoomType.ROOM_STANDARD
-    ) {
+    if (!roomMemory.expansionScore) {
       let expandScore = 0;
       const terrainScore = this.getTerrainScore(room.name);
+      const sources = this.cortex.hippocampus.roomObjects[room.name].sources;
       expandScore += terrainScore;
-      expandScore += this.roomObjects[room.name][FIND_SOURCES].length * 10;
-      this.memoryTerritory.rooms[room.name].expansionScore = expandScore;
+      expandScore += sources.length * 10;
+      roomMemory.expansionScore = expandScore;
     }
   }
 
@@ -148,14 +124,14 @@ export class Spatial implements Temporal {
   }
 
   private populateReconRoomNames(): void {
-    const visitedRoomNames = Object.keys(this.memoryTerritory.rooms);
+    const visitedRoomNames = Object.keys(this.cortex.memory.rooms);
     for (const visitedRoomName of visitedRoomNames) {
       const neighborRoomNames = getNeighborRoomNames(visitedRoomName);
       for (const neighborRoomName of neighborRoomNames) {
-        if (!this.memoryTerritory.rooms[neighborRoomName]) {
+        if (!this.cortex.memory.rooms[neighborRoomName]) {
           const roomType = getRoomType(neighborRoomName);
           if (roomType !== RoomType.ROOM_STANDARD) {
-            this.memoryTerritory.rooms[neighborRoomName] = getReconRoomData(this.spawnRoom.name, neighborRoomName);
+            this.cortex.memory.rooms[neighborRoomName] = getReconRoomData(neighborRoomName);
           } else if (!this.reconRoomNames.includes(neighborRoomName)) {
             this.reconRoomNames.push(neighborRoomName);
           }
@@ -165,8 +141,8 @@ export class Spatial implements Temporal {
   }
 
   public addReconRoomData(room: Room): void {
-    if (!this.memoryTerritory.rooms[room.name]) {
-      this.memoryTerritory.rooms[room.name] = getReconRoomData(this.spawnRoom.name, room.name);
+    if (!this.cortex.memory.rooms[room.name]) {
+      this.cortex.memory.rooms[room.name] = getReconRoomData(room.name);
     }
   }
 }

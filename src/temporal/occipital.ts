@@ -184,9 +184,8 @@ export class Occipital implements Temporal {
         const tTableAnchor = new RoomPosition(12, 16, room.name);
         const tTableData: string[][] = [["Type", "Count"]];
         tTableData.push(["Territory", Object.keys(this.cortex.memory.rooms).length.toString()]);
-        tTableData.push(["Recon", this.reconRoomNames.length.toString()]);
-        tTableData.push(["Neighborhood", this.neighborhoodRoomNames.length.toString()]);
-        tTableData.push(["SourceKeeper", this.sourceKeeperRoomNames.length.toString()]);
+        tTableData.push(["Recon", this.cortex.spatial.reconRoomNames.length.toString()]);
+        tTableData.push(["Neighborhood", this.cortex.getNeighborhoodRoomNames(baseRoomName).length.toString()]);
         const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
         tTable.renderTable();
 
@@ -234,13 +233,13 @@ export class Occipital implements Temporal {
       }
       if (this.showMapVisuals) {
         const mapTerritoryPayloads: MapTerritoryPayload[] = [
-          { roomNames: this.standardRoomNames, text: "T", color: getColor("yellow") },
-          { roomNames: this.neighborhoodRoomNames, text: "N", color: getColor("blue") },
-          { roomNames: this.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
-          { roomNames: this.centerRoomNames, text: "C", color: getColor("purple") },
-          { roomNames: this.highwayRoomNames, text: "H", color: getColor("indigo") },
-          { roomNames: this.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
-          { roomNames: this.unknownRoomNames, text: "U", color: getColor("pink") }
+          { roomNames: this.cortex.spatial.standardRoomNames, text: "T", color: getColor("yellow") },
+          { roomNames: this.cortex.getNeighborhoodRoomNames(baseRoomName), text: "N", color: getColor("blue") },
+          { roomNames: this.cortex.spatial.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
+          { roomNames: this.cortex.spatial.centerRoomNames, text: "C", color: getColor("purple") },
+          { roomNames: this.cortex.spatial.highwayRoomNames, text: "H", color: getColor("indigo") },
+          { roomNames: this.cortex.spatial.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
+          { roomNames: this.cortex.spatial.unknownRoomNames, text: "U", color: getColor("pink") }
         ];
         for (const mapTerritoryPayload of mapTerritoryPayloads) {
           for (const roomName of mapTerritoryPayload.roomNames) {
@@ -248,7 +247,7 @@ export class Occipital implements Temporal {
           }
         }
         // Recon targets
-        for (const reconRoomName of this.reconRoomNames) {
+        for (const reconRoomName of this.cortex.spatial.reconRoomNames) {
           const nextScoutPos = new RoomPosition(25, 25, reconRoomName);
           Game.map.visual.circle(nextScoutPos, { fill: getColor("red") });
           Game.map.visual.text(`S`, nextScoutPos);
