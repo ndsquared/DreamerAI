@@ -16,8 +16,8 @@ export class DefenseThought extends FigmentThought {
     if (!room) {
       return;
     }
-    const enemyTarget = this.idea.hippocampus.getNextEnemyTarget(room.name);
-    const healTarget = this.idea.hippocampus.getNextHealTarget(room.name);
+    const enemyTarget = this.idea.cortex.getNextEnemyTarget(room.name);
+    const healTarget = this.idea.cortex.getNextHealTarget(room.name);
     if (enemyTarget) {
       console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
       figment.addNeuron(NeuronType.RANGED_ATTACK, enemyTarget.id, enemyTarget.pos);

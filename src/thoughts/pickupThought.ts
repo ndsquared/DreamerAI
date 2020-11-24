@@ -17,15 +17,15 @@ export class PickupThought extends FigmentThought {
       return;
     }
     if (figment.store.getUsedCapacity() === 0) {
-      const target = this.idea.hippocampus.metabolizeOutput(figment);
+      const target = this.idea.metabolism.metabolizeOutput(figment);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     } else {
-      const target = this.idea.hippocampus.metabolizeInput(figment);
-      const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+      const target = this.idea.metabolism.metabolizeInput(figment);
+      const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       } else if (!figment.pos.inRangeTo(baseOriginPos, 3)) {

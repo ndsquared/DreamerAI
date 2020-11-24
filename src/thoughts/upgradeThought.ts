@@ -56,7 +56,7 @@ export class UpgradeThought extends FigmentThought {
     }
     const room = this.idea.room;
     if (room) {
-      return this.idea.hippocampus.getNextAvailableSpawn(room.name);
+      return this.idea.cortex.getNextAvailableSpawn(room.name);
     }
     return undefined;
   }
@@ -74,8 +74,8 @@ export class UpgradeThought extends FigmentThought {
       }
     }
     if (!this.container) {
-      if (this.idea.hippocampus.controllerContainers.length) {
-        this.containerId = this.idea.hippocampus.controllerContainers[0].id;
+      if (this.idea.baseRoomObjects.controllerContainers.length) {
+        this.containerId = this.idea.baseRoomObjects.controllerContainers[0].id;
       }
     }
     if (!this.storage) {
@@ -85,8 +85,8 @@ export class UpgradeThought extends FigmentThought {
     }
     if (!this.link) {
       if (this.controller && this.controller.my) {
-        if (this.idea.hippocampus.controllerLinks.length > 0) {
-          this.linkId = this.idea.hippocampus.controllerLinks[0].id;
+        if (this.idea.baseRoomObjects.controllerLinks.length > 0) {
+          this.linkId = this.idea.baseRoomObjects.controllerLinks[0].id;
         }
       }
     }

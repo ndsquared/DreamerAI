@@ -18,15 +18,17 @@ export class RoadThought extends BuildThought {
       return;
     }
 
-    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+    const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
     // Build roads around spawn
     const roadDeltas: Coord[] = this.cardinalDirections();
     const roadPositions: RoomPosition[] = this.getPositionsFromDelta(baseOriginPos, roadDeltas);
     creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false, false);
 
     // Build roads to all containers
-    for (const container of this.idea.hippocampus.containers) {
-      this.buildRoadToPosition(creationIdea, baseOriginPos, container.pos, false);
+    for (const containers of Object.values(this.idea.neighborhood.sourceContainers)) {
+      for (const container of containers) {
+        this.buildRoadToPosition(creationIdea, baseOriginPos, container.pos, false);
+      }
     }
   }
 

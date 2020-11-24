@@ -9,6 +9,7 @@ import { Imagination } from "imagination";
 import { Metabolism } from "./metabolism";
 import { Occipital } from "./occipital";
 import { Spatial } from "./spatial";
+import { getReconRoomData } from "utils/misc";
 
 export class Cortex implements Temporal {
   public baseRooms: { [name: string]: CortexBaseRoom } = {};
@@ -190,5 +191,18 @@ export class Cortex implements Temporal {
 
   public getBaseOriginPos(roomName: string): RoomPosition {
     return this.baseRooms[roomName].baseOriginPos;
+  }
+
+  public getNextReconRoomName(): string | undefined {
+    if (this.spatial.reconRoomNames.length === 0) {
+      this.spatial.populateReconRoomNames();
+    }
+    return this.spatial.reconRoomNames.shift();
+  }
+
+  public addReconRoomData(room: Room): void {
+    if (!this.memory.rooms[room.name]) {
+      this.memory.rooms[room.name] = getReconRoomData(room.name);
+    }
   }
 }

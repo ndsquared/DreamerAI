@@ -37,16 +37,15 @@ export class HarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
-    // TODO: Need to refactor this for proper neighborhood
     if (!this.containerId) {
-      if (this.idea.hippocampus.sourceContainers[this.sourceId].length > 0) {
-        this.containerId = this.idea.hippocampus.sourceContainers[this.sourceId][0].id;
+      if (this.idea.neighborhood.sourceContainers[this.sourceId].length > 0) {
+        this.containerId = this.idea.neighborhood.sourceContainers[this.sourceId][0].id;
       }
     }
 
     if (!this.linkId) {
-      if (this.idea.hippocampus.sourceLinks[this.sourceId].length > 0) {
-        this.linkId = this.idea.hippocampus.sourceLinks[this.sourceId][0].id;
+      if (this.idea.baseRoomObjects.sourceLinks[this.sourceId].length > 0) {
+        this.linkId = this.idea.baseRoomObjects.sourceLinks[this.sourceId][0].id;
       }
     }
   }

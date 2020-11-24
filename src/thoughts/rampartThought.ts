@@ -17,7 +17,7 @@ export class RampartThought extends BuildThought {
     if (!room) {
       return;
     }
-    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+    const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
     // Protect spawn
     creationIdea.addBuild(baseOriginPos, STRUCTURE_RAMPART, 3, false, false);
 
@@ -29,16 +29,15 @@ export class RampartThought extends BuildThought {
     }
 
     // Protect containers
-    // TODO: Optimize so this only runs on containers in spawn room
-    const containerPos = _.map(this.idea.hippocampus.containers, c => c.pos);
+    const containerPos = _.map(this.idea.roomObjects.containers, c => c.pos);
     creationIdea.addBuilds(containerPos, STRUCTURE_RAMPART, 7, false, false, false);
 
     // Protect links
-    const linkPos = _.map(this.idea.hippocampus.links, l => l.pos);
+    const linkPos = _.map(this.idea.roomObjects.links, l => l.pos);
     creationIdea.addBuilds(linkPos, STRUCTURE_RAMPART, 7, false, false, false);
 
     // Protect towers
-    const towerPos = _.map(this.idea.hippocampus.towers, t => t.pos);
+    const towerPos = _.map(this.idea.baseRoomObjects.towers, t => t.pos);
     creationIdea.addBuilds(towerPos, STRUCTURE_RAMPART, 5, false, false, false);
 
     // Protect base

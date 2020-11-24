@@ -14,9 +14,9 @@ export class ContainerThought extends BuildThought {
     if (!room) {
       return;
     }
-    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+    const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
     if (!room.storage) {
-      if (this.idea.hippocampus.spawnContainers.length === 0) {
+      if (this.idea.baseRoomObjects.spawnContainers.length === 0) {
         // Build container next to spawn
         const containerPositions = this.getPositionsStandard(baseOriginPos);
         creationIdea.addBuilds(containerPositions, STRUCTURE_CONTAINER, 4, true, false);
@@ -26,7 +26,7 @@ export class ContainerThought extends BuildThought {
     // Build container next to controller
     const controller = room.controller;
     if (controller && controller.my) {
-      if (this.idea.hippocampus.controllerContainers.length === 0) {
+      if (this.idea.baseRoomObjects.controllerContainers.length === 0) {
         const buildPositions = controller.pos.availableAdjacentBuilds();
         const priority = PathFindWithRoad(baseOriginPos, controller.pos).cost;
         creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
@@ -34,8 +34,8 @@ export class ContainerThought extends BuildThought {
     }
 
     // Build container next to all the sources in the neighborhood
-    for (const source of this.idea.hippocampus.sources) {
-      if (this.idea.hippocampus.sourceContainers[source.id].length === 0) {
+    for (const source of this.idea.neighborhood.sources) {
+      if (this.idea.neighborhood.sourceContainers[source.id].length === 0) {
         const buildPositions = source.pos.availableAdjacentBuilds();
         const priority = PathFindWithRoad(baseOriginPos, source.pos).cost;
         creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);

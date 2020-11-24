@@ -45,13 +45,13 @@ export class TransferThought extends FigmentThought {
     let targets: StoreStructure[] = [];
     for (const structureConstant of this.transferPriority) {
       if (structureConstant === STRUCTURE_EXTENSION) {
-        const extensions = _.filter(this.idea.hippocampus.extensions, e => e.hasEnergyCapacity);
+        const extensions = _.filter(this.idea.baseRoomObjects.extensions, e => e.hasEnergyCapacity);
         targets = targets.concat(extensions);
       } else if (structureConstant === STRUCTURE_SPAWN) {
-        const spawns = _.filter(this.idea.hippocampus.spawns, s => s.hasEnergyCapacity);
+        const spawns = _.filter(this.idea.baseRoomObjects.spawns, s => s.hasEnergyCapacity);
         targets = targets.concat(spawns);
       } else if (structureConstant === STRUCTURE_TOWER) {
-        const towers = _.filter(this.idea.hippocampus.towers, t => t.energy < 501);
+        const towers = _.filter(this.idea.baseRoomObjects.towers, t => t.energy < 501);
         targets = targets.concat(towers);
       }
       if (targets.length) {
@@ -69,8 +69,8 @@ export class TransferThought extends FigmentThought {
     }
     // TODO: Need to refactor for neighborhood proper
     if (!this.container) {
-      if (this.idea.hippocampus.spawnContainers.length) {
-        this.containerId = this.idea.hippocampus.spawnContainers[0].id;
+      if (this.idea.baseRoomObjects.spawnContainers.length) {
+        this.containerId = this.idea.baseRoomObjects.spawnContainers[0].id;
       }
     }
     if (!this.storage) {
@@ -90,7 +90,7 @@ export class TransferThought extends FigmentThought {
     }
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.getNextWithdrawTarget();
-      const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+      const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
       if (target) {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
       } else {
@@ -102,7 +102,7 @@ export class TransferThought extends FigmentThought {
       }
     } else {
       const target = this.getNextTransferTarget(figment);
-      const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+      const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
       if (target) {
         figment.addNeuron(NeuronType.TRANSFER, target.id, target.pos);
       } else {
@@ -128,7 +128,7 @@ export class TransferThought extends FigmentThought {
       }
       return this.figments[figmentType].length < 1;
     } else if (figmentType === FigmentThoughtType.TOWER_FILLER) {
-      if (this.idea.hippocampus.towers.length === 0) {
+      if (this.idea.baseRoomObjects.towers.length === 0) {
         return false;
       }
       return this.figments[figmentType].length < 1;

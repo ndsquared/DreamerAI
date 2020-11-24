@@ -1,5 +1,6 @@
 import { Cortex } from "temporal/cortex";
 import { Imagination } from "imagination";
+import { Metabolism } from "temporal/metabolism";
 import { Thought } from "thoughts/thought";
 
 export interface ThoughtMapping {
@@ -32,6 +33,10 @@ export abstract class Idea implements IBrain {
     return this.imagination.cortex;
   }
 
+  public get metabolism(): Metabolism {
+    return this.imagination.cortex.metabolism;
+  }
+
   public get room(): Room | undefined {
     return Game.rooms[this.roomName];
   }
@@ -44,8 +49,20 @@ export abstract class Idea implements IBrain {
     return this.cortex.hippocampus.figmentPreferences[this.roomName];
   }
 
+  public get territory(): TerritoryObjects {
+    return this.cortex.hippocampus.territory;
+  }
+
   public get neighborhood(): NeighborhoodObjects {
     return this.cortex.hippocampus.neighborhood[this.roomName];
+  }
+
+  public get baseRoomObjects(): BaseRoomObjects {
+    return this.cortex.hippocampus.baseRoomObjects[this.roomName];
+  }
+
+  public get roomObjects(): HippocampusRoomObjects {
+    return this.cortex.hippocampus.roomObjects[this.roomName];
   }
 
   public get rcl(): number {

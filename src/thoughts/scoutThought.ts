@@ -13,7 +13,7 @@ export class ScoutThought extends FigmentThought {
 
   public ponder(): void {
     if (!this.targetRoomName) {
-      this.targetRoomName = this.idea.hippocampus.getNextReconRoomName();
+      this.targetRoomName = this.idea.cortex.getNextReconRoomName();
     } else {
       const targetPos = new RoomPosition(25, 25, this.targetRoomName);
       Game.map.visual.circle(targetPos, { fill: getColor("green") });
@@ -26,7 +26,7 @@ export class ScoutThought extends FigmentThought {
     if (figment.room.name === this.targetRoomName) {
       const room = Game.rooms[figment.room.name];
       if (room) {
-        this.idea.hippocampus.addReconRoomData(room);
+        this.idea.cortex.addReconRoomData(room);
       } else {
         console.log(`scout ${figment.name} unable to add recon data for ${figment.room.name}`);
       }

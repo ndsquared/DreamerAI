@@ -16,7 +16,7 @@ export class AttackThought extends FigmentThought {
     if (!room) {
       return;
     }
-    const enemyTarget = this.idea.hippocampus.getNextEnemyTarget(room.name);
+    const enemyTarget = this.idea.cortex.getNextEnemyTarget(room.name);
     if (enemyTarget) {
       console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
       figment.addNeuron(NeuronType.ATTACK, enemyTarget.id, enemyTarget.pos);

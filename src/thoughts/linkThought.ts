@@ -9,7 +9,7 @@ export class LinkThought extends BuildThought {
   }
 
   public buildPlan(creationIdea: CreationIdea): void {
-    if (this.idea.hippocampus.links.length >= CONTROLLER_STRUCTURES[STRUCTURE_LINK][this.idea.rcl]) {
+    if (this.idea.roomObjects.links.length >= CONTROLLER_STRUCTURES[STRUCTURE_LINK][this.idea.rcl]) {
       // console.log("At max links for RCL");
       return;
     }
@@ -17,11 +17,11 @@ export class LinkThought extends BuildThought {
     if (!room) {
       return;
     }
-    if (this.idea.hippocampus.links.length < 1) {
+    if (this.idea.roomObjects.links.length < 1) {
       // Build link at controller
       const controller = room.controller;
       if (controller && controller.my) {
-        if (this.idea.hippocampus.controllerLinks.length === 0) {
+        if (this.idea.baseRoomObjects.controllerLinks.length === 0) {
           const adjPositions = controller.pos.availableAdjacentPositions(true);
           for (const adjPos of adjPositions) {
             const linkPos = adjPos.availableAdjacentBuilds(false);
@@ -32,11 +32,11 @@ export class LinkThought extends BuildThought {
           }
         }
       }
-    } else if (this.idea.hippocampus.links.length < 3) {
+    } else if (this.idea.roomObjects.links.length < 3) {
       // Build links at sources
       // TODO: Optimize so this only called on sources in spawn room
-      for (const source of this.idea.hippocampus.sources) {
-        if (this.idea.hippocampus.sourceLinks[source.id].length === 0) {
+      for (const source of this.idea.roomObjects.sources) {
+        if (this.idea.baseRoomObjects.sourceLinks[source.id].length === 0) {
           const adjPositions = source.pos.availableAdjacentPositions(true);
           for (const adjPos of adjPositions) {
             const linkPos = adjPos.availableAdjacentBuilds(false);
@@ -51,13 +51,13 @@ export class LinkThought extends BuildThought {
   }
 
   public think(): void {
-    for (const outputLink of this.idea.hippocampus.outputLinks) {
+    for (const outputLink of this.idea.baseRoomObjects.outputLinks) {
       this.runOutputLink(outputLink);
     }
   }
 
   private runOutputLink(link: StructureLink): void {
-    for (const inputLink of this.idea.hippocampus.inputLinks) {
+    for (const inputLink of this.idea.baseRoomObjects.inputLinks) {
       const result = link.transferEnergy(inputLink);
       if (result === OK) {
         break;

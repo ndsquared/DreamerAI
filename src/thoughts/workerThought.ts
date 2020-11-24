@@ -17,8 +17,8 @@ export class WorkerThought extends FigmentThought {
       return;
     }
     if (figment.store.getUsedCapacity() > 0) {
-      const repairTarget = this.idea.hippocampus.getNextRepairTarget(room.name);
-      const buildTarget = this.idea.hippocampus.getNextConstructionSite(room.name);
+      const repairTarget = this.idea.cortex.getNextRepairTarget(room.name);
+      const buildTarget = this.idea.cortex.getNextConstructionSite(room.name);
       const controller = room.controller;
       if (
         repairTarget &&
@@ -35,7 +35,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
       }
     } else {
-      const target = this.idea.hippocampus.metabolizeClosestResourceOrStructure(figment);
+      const target = this.idea.metabolism.metabolizeClosestResourceOrStructure(figment);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {

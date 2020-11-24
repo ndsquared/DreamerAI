@@ -16,7 +16,7 @@ export class StorageThought extends BuildThought {
     if (room.storage) {
       return;
     }
-    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
+    const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
     const pivotPos = this.getNextPivotPosStandard(baseOriginPos, 3);
 
     if (pivotPos) {

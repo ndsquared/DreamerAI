@@ -13,8 +13,8 @@ export class ExtensionThought extends BuildThought {
     if (!room) {
       return;
     }
-    const baseOriginPos = this.idea.hippocampus.getBaseOriginPos(room.name);
-    if (this.idea.hippocampus.extensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][this.idea.rcl]) {
+    const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
+    if (this.idea.baseRoomObjects.extensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][this.idea.rcl]) {
       // console.log("At max extensions for RCL");
       return;
     }

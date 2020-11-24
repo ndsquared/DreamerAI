@@ -116,14 +116,7 @@ export class Spatial implements Temporal {
     return score;
   }
 
-  public getNextReconRoomName(): string | undefined {
-    if (this.reconRoomNames.length === 0) {
-      this.populateReconRoomNames();
-    }
-    return this.reconRoomNames.shift();
-  }
-
-  private populateReconRoomNames(): void {
+  public populateReconRoomNames(): void {
     const visitedRoomNames = Object.keys(this.cortex.memory.rooms);
     for (const visitedRoomName of visitedRoomNames) {
       const neighborRoomNames = getNeighborRoomNames(visitedRoomName);
@@ -137,12 +130,6 @@ export class Spatial implements Temporal {
           }
         }
       }
-    }
-  }
-
-  public addReconRoomData(room: Room): void {
-    if (!this.cortex.memory.rooms[room.name]) {
-      this.cortex.memory.rooms[room.name] = getReconRoomData(room.name);
     }
   }
 }
