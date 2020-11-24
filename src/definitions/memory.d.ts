@@ -60,6 +60,15 @@ interface MetabolismIO {
   };
 }
 
+interface NeighborhoodMemory {
+  neighborhoodRoomNames: {
+    [name: string]: string[];
+  };
+  roomsInNeighborhoods: {
+    [name: string]: string;
+  };
+}
+
 interface ImaginationMemory {
   version: number;
   genesis: {
@@ -68,6 +77,7 @@ interface ImaginationMemory {
   metabolic: {
     [name: string]: MetabolicMemory;
   };
+  neighborhoods: NeighborhoodMemory;
 }
 
 interface Interneuron {

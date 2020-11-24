@@ -176,12 +176,11 @@ export class Cortex implements Temporal {
   }
 
   public getNeighborhoodRoomNames(roomName: string): string[] {
-    // TODO: Implement
-    return [];
+    return this.cerebellum.memory.imagination.neighborhoods.neighborhoodRoomNames[roomName];
   }
 
   public getNextAvailableSpawn(roomName: string): StructureSpawn | undefined {
-    for (const spawn of this.hippocampus.spawns[roomName]) {
+    for (const spawn of this.hippocampus.baseRoomObjects[roomName].spawns) {
       if (!spawn.spawning) {
         return spawn;
       }
@@ -190,7 +189,6 @@ export class Cortex implements Temporal {
   }
 
   public getBaseOriginPos(roomName: string): RoomPosition {
-    // TODO: Implement this for real
     return this.baseRooms[roomName].baseOriginPos;
   }
 }

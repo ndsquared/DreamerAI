@@ -9,12 +9,17 @@ import { getReconRoomData } from "utils/misc";
 
 export class Cerebellum implements Temporal {
   private cortex: Cortex;
+  // TODO: need to DRY memory declarations up
   public memory: Memory = {
     version: 0,
     imagination: {
       version: 0,
       genesis: {},
-      metabolic: {}
+      metabolic: {},
+      neighborhoods: {
+        neighborhoodRoomNames: {},
+        roomsInNeighborhoods: {}
+      }
     },
     stats: {
       time: 0,
@@ -112,7 +117,11 @@ export class Cerebellum implements Temporal {
       Memory.imagination = {
         version: Memory.version,
         genesis: {},
-        metabolic: {}
+        metabolic: {},
+        neighborhoods: {
+          neighborhoodRoomNames: {},
+          roomsInNeighborhoods: {}
+        }
       };
       Memory.creeps = {};
       Memory.rooms = {};

@@ -21,6 +21,8 @@ interface HippocampusRoomObjects {
   constructionSites: ConstructionSite[];
   resources: Resource[];
   sources: Source[];
+  containers: StructureContainer[];
+  links: StructureLink[];
 }
 
 interface EnergyStructure extends Structure {
@@ -68,12 +70,13 @@ interface TerritoryObjects {
   enemyCreeps: Creep[];
   enemyStructures: Structure[];
   myCreeps: Creep[];
+  resources: Resource[];
 }
 
 interface NeighborhoodObjects {
   sources: Source[];
   sourceContainers: { [name: string]: StructureContainer[] };
-  // energyWithdrawStructures: EnergyWithdrawStructure[];
+  energyWithdrawStructures: Structure[];
 }
 
 interface BaseRoomObjects {
@@ -85,8 +88,10 @@ interface BaseRoomObjects {
   sourceLinks: { [name: string]: StructureLink[] };
   controllerLinks: StructureLink[];
   extensions: StructureExtension[];
-  spawns: { [name: string]: StructureSpawn[] };
+  towers: StructureTower[];
+  spawns: StructureSpawn[];
   storage: StructureStorage | null;
+  controller: StructureController | null;
 }
 
 interface HealQueuePayload {
