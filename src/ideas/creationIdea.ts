@@ -35,7 +35,7 @@ export class CreationIdea extends Idea {
   }
 
   public ponder(): void {
-    if (this.hippocampus.buildQueue.length === 0) {
+    if (this.cortex.metabolism.buildQueue[this.roomName].length === 0) {
       if (this.rateLimitBuildPlanning && Game.time % this.rateLimitBuildInterval === 0) {
         this.rateLimitBuildPlanning = false;
         for (const thoughtName in this.thoughts) {
@@ -61,7 +61,7 @@ export class CreationIdea extends Idea {
   }
 
   public canBuild(): boolean {
-    if (this.hippocampus.constructionSiteQueue.length) {
+    if (this.cortex.metabolism.constructionSiteQueue[this.roomName].length) {
       return false;
     }
     return true;
@@ -69,21 +69,21 @@ export class CreationIdea extends Idea {
 
   // TODO: need some better handling of build results
   private processBuildQueue(): void {
-    if (this.hippocampus.buildQueue.length > 0) {
+    if (this.cortex.metabolism.buildQueue[this.roomName].length > 0) {
       this.rateLimitBuildPlanning = true;
-      let nextBuild = this.hippocampus.buildQueue.peek();
+      let nextBuild = this.cortex.metabolism.buildQueue[this.roomName].peek();
       let buildResult: number;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
-          nextBuild = this.hippocampus.buildQueue.dequeue();
+          nextBuild = this.cortex.metabolism.buildQueue[this.roomName].dequeue();
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {
-          this.hippocampus.buildQueue.dequeue();
+          this.cortex.metabolism.buildQueue[this.roomName].dequeue();
         } else {
           console.log(`Build result for ${nextBuild.structure} at ${nextBuild.pos.toString()} is ${buildResult}`);
           if (buildResult === ERR_INVALID_TARGET) {
-            this.hippocampus.buildQueue.dequeue();
+            this.cortex.metabolism.buildQueue[this.roomName].dequeue();
           }
         }
       }
@@ -133,6 +133,6 @@ export class CreationIdea extends Idea {
       }
       rv.text(text, pos);
     }
-    this.hippocampus.buildQueue.queue(buildPayload);
+    this.cortex.metabolism.buildQueue[this.roomName].queue(buildPayload);
   }
 }

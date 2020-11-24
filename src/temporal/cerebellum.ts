@@ -1,11 +1,14 @@
+/*
+This module is responsible for long-term memory management
+*/
+import { Cortex } from "./cortex";
 import { Figment } from "figments/figment";
 import { FigmentThought } from "thoughts/figmentThought";
 import { IdeaType } from "ideas/idea";
-import { Imagination } from "imagination";
 import { getReconRoomData } from "utils/misc";
 
-export class Cerebellum {
-  private imagination: Imagination;
+export class Cerebellum implements Temporal {
+  private cortex: Cortex;
   public memory: Memory = {
     version: 0,
     imagination: {
@@ -26,8 +29,36 @@ export class Cerebellum {
     flags: {}
   };
 
-  public constructor(imagination: Imagination) {
-    this.imagination = imagination;
+  public constructor(cortex: Cortex) {
+    this.cortex = cortex;
+  }
+
+  public meditate(): void {
+    this.forget();
+    this.initializeMemory();
+    this.pruneFigments();
+    this.assignFigments();
+    this.pruneIO();
+  }
+
+  public contemplate(): void {
+    // Post-tick memory would go here
+  }
+
+  public getMemory(): void {
+    this.memory = Memory;
+  }
+
+  public setMemory(): void {
+    RawMemory.set(JSON.stringify(this.memory));
+  }
+
+  public genesisMemory(roomName: string): GenesisMemory {
+    return this.memory.imagination.genesis[roomName];
+  }
+
+  public metabolicMemory(roomName: string): MetabolicMemory {
+    return this.memory.imagination.metabolic[roomName];
   }
 
   /*
@@ -84,26 +115,16 @@ export class Cerebellum {
         metabolic: {}
       };
       Memory.creeps = {};
+      Memory.rooms = {};
       delete Memory.flags;
-      delete Memory.rooms;
       delete Memory.spawns;
       delete Memory.powerCreeps;
-      if (Memory.stats) {
-        delete Memory.stats;
-      }
+      delete Memory.stats;
     }
   }
 
-  public getMemory(): void {
-    this.memory = Memory;
-  }
-
-  public setMemory(): void {
-    RawMemory.set(JSON.stringify(this.memory));
-  }
-
-  public meditate(): void {
-    for (const roomName in this.imagination.ideas) {
+  public initializeMemory(): void {
+    for (const roomName in this.cortex.baseRooms) {
       // Reset figment count
       this.memory.imagination.genesis[roomName] = {
         figmentCount: {}
@@ -127,7 +148,8 @@ export class Cerebellum {
         }
       }
     }
-    // Clean up figment memory
+  }
+  public pruneFigments(): void {
     for (const name in this.memory.creeps) {
       const roomName = this.memory.creeps[name].roomName;
       const figmentType = this.memory.creeps[name].figmentType;
@@ -146,8 +168,45 @@ export class Cerebellum {
         console.log(`${orphanedCreep.name} committed suduko!`);
       }
     }
-    // Clean up metabolism memory
-    for (const roomName in this.imagination.ideas) {
+  }
+  public assignFigments(): void {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      const figment = new Figment(creep.id, this.cortex.imagination);
+      if (figment.spawning) {
+        continue;
+      }
+      const roomName = figment.memory.roomName;
+      const thoughtType = figment.memory.thoughtType;
+      const thoughtInstance = figment.memory.thoughtInstance;
+      const idea = this.cortex.imagination.ideas[roomName];
+      if (!idea) {
+        continue;
+      }
+      const thoughtTypeObj = idea[IdeaType.GENESIS].thoughts[thoughtType];
+      if (!thoughtTypeObj) {
+        continue;
+      }
+      const thought = thoughtTypeObj[thoughtInstance] as FigmentThought;
+      if (thought) {
+        thought.addFigment(figment);
+      }
+    }
+  }
+  private pruneIO(): void {
+    for (const baseRoomName in this.memory.imagination.metabolic) {
+      for (const input in this.memory.imagination.metabolic[baseRoomName].metabolism.inputs) {
+        if (!Game.getObjectById(input)) {
+          delete this.memory.imagination.metabolic[baseRoomName].metabolism.inputs;
+        }
+      }
+      for (const output in this.memory.imagination.metabolic[baseRoomName].metabolism.outputs) {
+        if (!Game.getObjectById(output)) {
+          delete this.memory.imagination.metabolic[baseRoomName].metabolism.outputs;
+        }
+      }
+    }
+    for (const roomName in this.cortex.imagination.ideas) {
       if (this.memory.imagination.metabolic[roomName].metabolism.inputs) {
         for (const ref in this.memory.imagination.metabolic[roomName].metabolism.inputs) {
           for (const name in this.memory.imagination.metabolic[roomName].metabolism.inputs[ref]) {
@@ -165,42 +224,6 @@ export class Cerebellum {
             }
           }
         }
-      }
-    }
-    // Assign figments to thoughts
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name];
-      const figment = new Figment(creep.id, this.imagination);
-      if (figment.spawning) {
-        continue;
-      }
-      const roomName = figment.memory.roomName;
-      const thoughtType = figment.memory.thoughtType;
-      const thoughtInstance = figment.memory.thoughtInstance;
-      const idea = this.imagination.ideas[roomName];
-      if (!idea) {
-        continue;
-      }
-      const thoughtTypeObj = idea[IdeaType.GENESIS].thoughts[thoughtType];
-      if (!thoughtTypeObj) {
-        continue;
-      }
-      const thought = thoughtTypeObj[thoughtInstance] as FigmentThought;
-      if (thought) {
-        thought.addFigment(figment);
-      }
-    }
-    this.pruneIO();
-  }
-  private pruneIO(): void {
-    for (const input in this.memoryIO.metabolism.inputs) {
-      if (!Game.getObjectById(input)) {
-        delete this.memoryIO.metabolism.inputs[input];
-      }
-    }
-    for (const output in this.memoryIO.metabolism.outputs) {
-      if (!Game.getObjectById(output)) {
-        delete this.memoryIO.metabolism.outputs[output];
       }
     }
   }

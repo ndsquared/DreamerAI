@@ -5,38 +5,6 @@ import { isEnergyStructure, isStoreStructure } from "utils/misc";
 
 // Room
 
-// Object.defineProperty(Room.prototype, "neighbors", {
-//   get() {
-//     const adjRooms: Room[] = [];
-
-//     const exits = Game.map.describeExits(this.name);
-//     if (exits) {
-//       for (const roomName of Object.values(exits)) {
-//         if (roomName) {
-//           const room = Game.rooms[roomName];
-//           if (room) {
-//             adjRooms.push(room);
-//           }
-//         }
-//       }
-//     }
-//     return adjRooms;
-//   }
-// });
-
-// Object.defineProperty(Room.prototype, "neighborNames", {
-//   get() {
-//     return getNeighborRoomNames(this.name);
-//   }
-// });
-
-// Object.defineProperty(Room.prototype, "neighborhood", {
-//   get() {
-//     const rooms: Room[] = [this];
-//     return rooms.concat(this.neighbors);
-//   }
-// });
-
 // RoomPosition
 
 Object.defineProperty(RoomPosition.prototype, "isEdge", {

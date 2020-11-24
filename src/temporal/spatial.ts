@@ -1,6 +1,11 @@
+/*
+This module is responsible for managing room data and memory
+*/
+import { Cortex } from "./cortex";
 import { RoomType } from "utils/misc";
 
-export class Spatial {
+export class Spatial implements Temporal {
+  public cortex: Cortex;
   public reconRoomNames: string[] = [];
   public standardRoomNames: string[] = [];
   public centerRoomNames: string[] = [];
@@ -9,6 +14,17 @@ export class Spatial {
   public unknownRoomNames: string[] = [];
   public neighborhoodRoomNames: string[] = [];
   public sourceKeeperRoomNames: string[] = [];
+
+  public constructor(cortex: Cortex) {
+    this.cortex = cortex;
+  }
+
+  public meditate(): void {
+    throw new Error("Method not implemented.");
+  }
+  public contemplate(): void {
+    throw new Error("Method not implemented.");
+  }
 
   public processRoomName(roomName: string, roomMemory: RoomMemory): void {
     const room = Game.rooms[roomName];

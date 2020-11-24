@@ -1,72 +1,106 @@
+/*
+This module is responsible for managing any priority queues
+*/
+import { Cortex } from "./cortex";
 import PriorityQueue from "ts-priority-queue";
 
-export class Metabolism {
+export class Metabolism implements Temporal {
+  private cortex: Cortex;
   private ecoStorageThreshold = 20000;
   public repairThreshold = 20000;
   // Neutral
 
   // Owned
-  public healQueue: PriorityQueue<HealQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.priority - b.priority;
-    }
-  });
-  public constructionSiteQueue: PriorityQueue<ConstructionSite> = new PriorityQueue({
-    comparator(a, b) {
-      // Higher priority is dequeued first
-      return b.progress - a.progress;
-    }
-  });
-  public repairQueue: PriorityQueue<Structure> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.hits - b.hits;
-    }
-  });
-  public inputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.priority - b.priority;
-    }
-  });
-  public outputQueue: PriorityQueue<MetabolicQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Higher priority is dequeued first
-      return b.priority - a.priority;
-    }
-  });
-  public buildQueue: PriorityQueue<BuildQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.priority - b.priority;
-    }
-  });
-  public spawnQueue: PriorityQueue<SpawnQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Higher priority is dequeued first
-      return b.priority - a.priority;
-    }
-  });
+  public healQueue: { [name: string]: PriorityQueue<HealQueuePayload> } = {};
+  public constructionSiteQueue: { [name: string]: PriorityQueue<ConstructionSite> } = {};
+  public repairQueue: { [name: string]: PriorityQueue<Structure> } = {};
+  public inputQueue: { [name: string]: PriorityQueue<MetabolicQueuePayload> } = {};
+  public outputQueue: { [name: string]: PriorityQueue<MetabolicQueuePayload> } = {};
+  public buildQueue: { [name: string]: PriorityQueue<BuildQueuePayload> } = {};
+  public spawnQueue: { [name: string]: PriorityQueue<SpawnQueuePayload> } = {};
 
   // Enemy
-  public enemyQueue: PriorityQueue<EnemyQueuePayload> = new PriorityQueue({
-    comparator(a, b) {
-      // Lower priority is dequeued first
-      return a.priority - b.priority;
-    }
-  });
+  public enemyQueue: { [name: string]: PriorityQueue<EnemyQueuePayload> } = {};
 
-  public forget(): void {
-    this.healQueue.clear();
-    this.constructionSiteQueue.clear();
-    this.repairQueue.clear();
-    this.inputQueue.clear();
-    this.outputQueue.clear();
-    this.enemyQueue.clear();
+  public constructor(cortex: Cortex) {
+    this.cortex = cortex;
   }
 
-  public inEcoMode(): boolean {
+  public meditate(): void {
+    this.forget();
+  }
+  public contemplate(): void {
+    // Post metabolism shenanigans
+  }
+
+  public addMetabolismQueues(roomName: string): void {
+    // Neutral
+
+    // Owned
+    this.healQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Lower priority is dequeued first
+        return a.priority - b.priority;
+      }
+    });
+    this.constructionSiteQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Higher priority is dequeued first
+        return b.progress - a.progress;
+      }
+    });
+    this.repairQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Lower priority is dequeued first
+        return a.hits - b.hits;
+      }
+    });
+    this.inputQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Lower priority is dequeued first
+        return a.priority - b.priority;
+      }
+    });
+    this.outputQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Higher priority is dequeued first
+        return b.priority - a.priority;
+      }
+    });
+    this.buildQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Lower priority is dequeued first
+        return a.priority - b.priority;
+      }
+    });
+    this.spawnQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Higher priority is dequeued first
+        return b.priority - a.priority;
+      }
+    });
+
+    // Enemy
+    this.enemyQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Lower priority is dequeued first
+        return a.priority - b.priority;
+      }
+    });
+  }
+
+  public forget(): void {
+    for (const baseRoomName in this.cortex.baseRooms) {
+      this.healQueue[baseRoomName].clear();
+      this.constructionSiteQueue[baseRoomName].clear();
+      this.repairQueue[baseRoomName].clear();
+      this.inputQueue[baseRoomName].clear();
+      this.outputQueue[baseRoomName].clear();
+      this.enemyQueue[baseRoomName].clear();
+    }
+  }
+
+  public inEcoMode(roomName: string): boolean {
     if (this.storage && this.storage.store.getUsedCapacity(RESOURCE_ENERGY) < this.ecoStorageThreshold) {
       return true;
     }

@@ -15,9 +15,8 @@ interface Coord {
   y: number;
 }
 
-interface CortexRoomObjects {
-  enemyCreeps: Creep[];
-  myCreeps: Creep[];
+interface HippocampusRoomObjects {
+  creeps: Creep[];
   structures: Structure[];
   constructionSites: ConstructionSite[];
   resources: Resource[];
@@ -57,13 +56,37 @@ interface FigmentCountAdjustment {
   delta: number;
 }
 
-interface HippocampusBaseRoom {
-  roomName: string;
+interface CortexBaseRoom {
+  baseOriginPos: RoomPosition;
   showStats: boolean;
   showBuildVisuals: boolean;
   showMetaVisuals: boolean;
   showEnemyVisuals: boolean;
-  showMapVisuals: boolean;
+}
+
+interface TerritoryObjects {
+  enemyCreeps: Creep[];
+  enemyStructures: Structure[];
+  myCreeps: Creep[];
+}
+
+interface NeighborhoodObjects {
+  sources: Source[];
+  sourceContainers: { [name: string]: StructureContainer[] };
+  // energyWithdrawStructures: EnergyWithdrawStructure[];
+}
+
+interface BaseRoomObjects {
+  spawnContainers: StructureContainer[];
+  controllerContainers: StructureContainer[];
+  towerEnemies: Creep[];
+  inputLinks: StructureLink[];
+  outputLinks: StructureLink[];
+  sourceLinks: { [name: string]: StructureLink[] };
+  controllerLinks: StructureLink[];
+  extensions: StructureExtension[];
+  spawns: { [name: string]: StructureSpawn[] };
+  storage: StructureStorage | null;
 }
 
 interface HealQueuePayload {
@@ -145,6 +168,20 @@ interface Structure {
 interface ClosestTarget {
   resourceType?: ResourceConstant;
   minCapacity?: number;
+}
+
+interface FigmentPreference {
+  priority: number;
+  needed: boolean;
+}
+
+interface FigmentPreferences {
+  [type: string]: FigmentPreference;
+}
+
+interface Temporal {
+  meditate(): void;
+  contemplate(): void;
 }
 
 interface TravelToReturnData {

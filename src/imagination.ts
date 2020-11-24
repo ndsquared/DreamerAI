@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Idea, IdeaType } from "ideas/idea";
-import { Hippocampus } from "temporal/hippocampus";
+import { Cortex } from "temporal/cortex";
 import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
 import { getUsername } from "utils/misc";
 import profiler from "screeps-profiler";
@@ -8,13 +8,13 @@ import profiler from "screeps-profiler";
 export class Imagination implements IBrain {
   public username: string;
   public ideas: { [name: string]: { [name: string]: Idea } };
-  public hippocampus: Hippocampus;
+  public cortex: Cortex;
 
   public constructor() {
     console.log("Global reset...");
     this.username = getUsername();
     this.ideas = {};
-    this.hippocampus = new Hippocampus(this);
+    this.cortex = new Cortex(this);
   }
 
   private fantasize() {
@@ -28,7 +28,7 @@ export class Imagination implements IBrain {
           this,
           IdeaType.TABULA_RASA
         );
-        this.hippocampus.addBaseRoomName(spawn.room.name);
+        this.cortex.addBaseRoomName(spawn);
       }
     }
   }
@@ -43,7 +43,7 @@ export class Imagination implements IBrain {
     // Pre-core
     this.fantasize();
     try {
-      this.hippocampus.meditate();
+      this.cortex.meditate();
     } catch (error) {
       console.log(`hippocampus could not meditate`);
       console.log(error);
@@ -57,7 +57,7 @@ export class Imagination implements IBrain {
     // Post-core
     try {
       // Display stats/visuals
-      this.hippocampus.contemplate();
+      this.cortex.contemplate();
     } catch (error) {
       console.log(`hippocampus could not contemplate`);
       console.log(error);
@@ -99,6 +99,10 @@ export class Imagination implements IBrain {
         }
       }
     }
+  }
+
+  public v(roomName: string, visual: string): string {
+    return this.cortex.toggleVisuals(roomName, visual);
   }
 }
 

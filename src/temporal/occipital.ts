@@ -1,12 +1,25 @@
-import { Hippocampus } from "./hippocampus";
+/*
+This module is reponsible for visualizations and stats
+*/
+import { BarGraph, Table } from "utils/visuals";
+import { Cortex } from "./cortex";
+import { getColor } from "utils/colors";
 
-export class Occipital {
-  public hippocampus: Hippocampus;
+export class Occipital implements Temporal {
+  public cortex: Cortex;
+  private showMapVisuals = false;
   private generatedPixel = false;
   private consoleStatus: string[] = [];
 
-  public constructor(hippocampus: Hippocampus) {
-    this.hippocampus = hippocampus;
+  public constructor(cortex: Cortex) {
+    this.cortex = cortex;
+  }
+  public meditate(): void {
+    this.initialStatus();
+  }
+  public contemplate(): void {
+    this.visualize();
+    this.endingStatus();
   }
   public addStatus(status: string): void {
     this.consoleStatus.push(status);
@@ -42,219 +55,213 @@ export class Occipital {
     console.log(status);
   }
 
-  public rall(roomName: string): void {
+  public rall(roomName: string): string {
+    if (!this.cortex.baseRooms[roomName]) {
+      return `Could not toggle all stats/visuals for ${roomName}`;
+    }
     this.rstats(roomName);
     this.rbuild(roomName);
     this.rmeta(roomName);
     this.renemy(roomName);
-    this.rmap(roomName);
+    this.rmap();
+    return `Successfully toggled all stats/visuals for ${roomName}`;
   }
 
   public rstats(roomName: string): string {
-    if (!this.hippocampus[roomName]) {
+    if (!this.cortex.baseRooms[roomName]) {
       return `Could not toggle stats for ${roomName}`;
     }
-    this.hippocampus[roomName].showStats = !this.hippocampus[roomName].showStats;
+    this.cortex.baseRooms[roomName].showStats = !this.cortex.baseRooms[roomName].showStats;
     return `Successfully toggled stats for ${roomName}`;
   }
 
   public rbuild(roomName: string): string {
-    if (!this.hippocampus[roomName]) {
+    if (!this.cortex.baseRooms[roomName]) {
       return `Could not toggle build visuals for ${roomName}`;
     }
-    this.hippocampus[roomName].showBuildVisuals = !this.hippocampus[roomName].showBuildVisuals;
+    this.cortex.baseRooms[roomName].showBuildVisuals = !this.cortex.baseRooms[roomName].showBuildVisuals;
     return `Successfully toggled build visuals for ${roomName}`;
   }
 
   public rmeta(roomName: string): string {
-    if (!this.hippocampus[roomName]) {
+    if (!this.cortex.baseRooms[roomName]) {
       return `Could not toggle metabolic visuals for ${roomName}`;
     }
-    this.hippocampus[roomName].showMetaVisuals = !this.hippocampus[roomName].showMetaVisuals;
+    this.cortex.baseRooms[roomName].showMetaVisuals = !this.cortex.baseRooms[roomName].showMetaVisuals;
     return `Successfully toggled metabolic visuals for ${roomName}`;
   }
 
   public renemy(roomName: string): string {
-    if (!this.hippocampus[roomName]) {
+    if (!this.cortex.baseRooms[roomName]) {
       return `Could not toggle enemy visuals for ${roomName}`;
     }
-    this.hippocampus[roomName].showEnemyVisuals = !this.hippocampus[roomName].showEnemyVisuals;
+    this.cortex.baseRooms[roomName].showEnemyVisuals = !this.cortex.baseRooms[roomName].showEnemyVisuals;
     return `Successfully toggled enemy visuals for ${roomName}`;
   }
 
-  public rmap(roomName: string): string {
-    if (!this.hippocampus[roomName]) {
-      return `Could not toggle map visuals for ${roomName}`;
-    }
-    this.hippocampus[roomName].showMapVisuals = !this.hippocampus[roomName].showMapVisuals;
-    return `Successfully toggled map visuals for ${roomName}`;
+  public rmap(): string {
+    this.showMapVisuals = !this.showMapVisuals;
+    return `Successfully toggled map visuals`;
   }
 
   public visualize(): void {
-    // Enemy visuals
-    if (this.showEnemyVisuals) {
-      if (this.enemyQueue.length > 0) {
-        const nextEnemy = this.enemyQueue.peek().enemyObject;
-        const rv = new RoomVisual(nextEnemy.pos.roomName);
-        rv.circle(nextEnemy.pos, { fill: getColor("indigo"), radius: 0.5 });
-        rv.text(nextEnemy.hits.toString(), nextEnemy.pos);
+    for (const baseRoomName in this.cortex.baseRooms) {
+      const baseRoom = this.cortex.baseRooms[baseRoomName];
+      // Enemy visuals
+      if (baseRoom.showEnemyVisuals) {
+        const nextEnemy = this.cortex.getNextEnemyTarget(baseRoomName);
+        if (nextEnemy) {
+          const rv = new RoomVisual(nextEnemy.pos.roomName);
+          rv.circle(nextEnemy.pos, { fill: getColor("indigo"), radius: 0.5 });
+          rv.text(nextEnemy.hits.toString(), nextEnemy.pos);
+        }
+        const nextHeal = this.cortex.getNextHealTarget(baseRoomName);
+        if (nextHeal) {
+          const rv = new RoomVisual(nextHeal.pos.roomName);
+          rv.circle(nextHeal.pos, { fill: getColor("light-green"), radius: 0.5 });
+          rv.text(nextHeal.hits.toString(), nextHeal.pos);
+        }
       }
-      if (this.healQueue.length > 0) {
-        const nextHeal = this.healQueue.peek().figment;
-        const rv = new RoomVisual(nextHeal.pos.roomName);
-        rv.circle(nextHeal.pos, { fill: getColor("light-green"), radius: 0.5 });
-        rv.text(nextHeal.hits.toString(), nextHeal.pos);
+      // Build visuals
+      if (baseRoom.showBuildVisuals) {
+        const nextBuild = this.cortex.getNextBuildTarget(baseRoomName);
+        if (nextBuild) {
+          const rv = new RoomVisual(nextBuild.pos.roomName);
+          rv.circle(nextBuild.pos, { fill: getColor("light-blue"), radius: 0.5 });
+          rv.text(nextBuild.structureType, nextBuild.pos);
+        }
+        const nextRepair = this.cortex.getNextRepairTarget(baseRoomName);
+        if (nextRepair) {
+          const rv = new RoomVisual(nextRepair.pos.roomName);
+          rv.circle(nextRepair.pos, { fill: getColor("indigo"), radius: 0.5 });
+          rv.text(nextRepair.hits.toString(), nextRepair.pos);
+        }
       }
-    }
-    // Build visuals
-    if (this.showBuildVisuals) {
-      if (this.buildQueue.length > 0) {
-        const nextBuild = this.buildQueue.peek();
-        const rv = new RoomVisual(nextBuild.pos.roomName);
-        rv.circle(nextBuild.pos, { fill: getColor("light-blue"), radius: 0.5 });
-        rv.text(nextBuild.structure, nextBuild.pos);
+      if (baseRoom.showMetaVisuals) {
+        const input = this.cortex.getNextInput(baseRoomName);
+        if (input) {
+          const rv = new RoomVisual(input.pos.roomName);
+          const pos = new RoomPosition(input.pos.x, input.pos.y, input.pos.roomName);
+          rv.circle(pos, { fill: getColor("green"), radius: 0.5 });
+          rv.text(input.priority.toString(), pos);
+        }
+        const output = this.cortex.getNextOutput(baseRoomName);
+        if (output) {
+          const rv = new RoomVisual(output.pos.roomName);
+          const pos = new RoomPosition(output.pos.x, output.pos.y, output.pos.roomName);
+          rv.circle(pos, { fill: getColor("red"), radius: 0.5 });
+          rv.text(output.priority.toString(), pos);
+        }
       }
-      if (this.repairQueue.length > 0) {
-        const nextRepair = this.repairQueue.peek();
-        const rv = new RoomVisual(nextRepair.pos.roomName);
-        rv.circle(nextRepair.pos, { fill: getColor("indigo"), radius: 0.5 });
-        rv.text(nextRepair.hits.toString(), nextRepair.pos);
-      }
-    }
-    if (this.showMetaVisuals) {
-      if (this.inputQueue.length > 0) {
-        const input = this.inputQueue.peek();
-        const rv = new RoomVisual(input.pos.roomName);
-        const pos = new RoomPosition(input.pos.x, input.pos.y, input.pos.roomName);
-        rv.circle(pos, { fill: getColor("green"), radius: 0.5 });
-        rv.text(input.priority.toString(), pos);
-      }
-      if (this.outputQueue.length > 0) {
-        const output = this.outputQueue.peek();
-        const rv = new RoomVisual(output.pos.roomName);
-        const pos = new RoomPosition(output.pos.x, output.pos.y, output.pos.roomName);
-        rv.circle(pos, { fill: getColor("red"), radius: 0.5 });
-        rv.text(output.priority.toString(), pos);
-      }
-    }
-    // Stats
-    const spawn = this.spawn;
-    if (this.showStats && spawn) {
-      // General Stats
-      const data: BarGraphData[] = [];
-      const controller = spawn.room.controller;
-      if (controller) {
+      // Stats
+      const room = Game.rooms[baseRoomName];
+      if (baseRoom.showStats && room) {
+        // General Stats
+        const data: BarGraphData[] = [];
+        const controller = room.controller;
+        if (controller) {
+          data.push({
+            label: `RCL ${controller.level}`,
+            current: controller.progress,
+            max: controller.progressTotal
+          });
+        }
         data.push({
-          label: `RCL ${controller.level}`,
-          current: controller.progress,
-          max: controller.progressTotal
+          label: `GCL ${Game.gcl.level}`,
+          current: Game.gcl.progress,
+          max: Game.gcl.progressTotal
         });
-      }
-      data.push({
-        label: `GCL ${Game.gcl.level}`,
-        current: Game.gcl.progress,
-        max: Game.gcl.progressTotal
-      });
-      data.push({
-        label: `Bucket`,
-        current: Game.cpu.bucket,
-        max: 10000
-      });
-      const anchor = new RoomPosition(1, 1, spawn.room.name);
-      const barGraph = new BarGraph("General Stats", anchor, data);
-      barGraph.renderGraph();
+        data.push({
+          label: `Bucket`,
+          current: Game.cpu.bucket,
+          max: 10000
+        });
+        const anchor = new RoomPosition(1, 1, room.name);
+        const barGraph = new BarGraph("General Stats", anchor, data);
+        barGraph.renderGraph();
 
-      // Territory
-      const tTableAnchor = new RoomPosition(12, 16, spawn.room.name);
-      const tTableData: string[][] = [["Type", "Count"]];
-      tTableData.push(["Territory", Object.keys(this.memoryTerritory.rooms).length.toString()]);
-      tTableData.push(["Recon", this.reconRoomNames.length.toString()]);
-      tTableData.push(["Neighborhood", this.neighborhoodRoomNames.length.toString()]);
-      tTableData.push(["SourceKeeper", this.sourceKeeperRoomNames.length.toString()]);
-      const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
-      tTable.renderTable();
+        // Territory
+        const tTableAnchor = new RoomPosition(12, 16, room.name);
+        const tTableData: string[][] = [["Type", "Count"]];
+        tTableData.push(["Territory", Object.keys(this.cortex.memory.rooms).length.toString()]);
+        tTableData.push(["Recon", this.reconRoomNames.length.toString()]);
+        tTableData.push(["Neighborhood", this.neighborhoodRoomNames.length.toString()]);
+        tTableData.push(["SourceKeeper", this.sourceKeeperRoomNames.length.toString()]);
+        const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
+        tTable.renderTable();
 
-      // Queues
-      const qTableAnchor = new RoomPosition(12, 1, spawn.room.name);
-      const qTableData: string[][] = [["Queue", "Count"]];
-      qTableData.push(["Spawn", this.spawnQueue.length.toString()]);
-      qTableData.push(["Build", this.buildQueue.length.toString()]);
-      qTableData.push(["Construct", this.constructionSiteQueue.length.toString()]);
-      qTableData.push(["Repair", this.repairQueue.length.toString()]);
-      qTableData.push(["Input", this.inputQueue.length.toString()]);
-      qTableData.push(["Output", this.outputQueue.length.toString()]);
-      qTableData.push(["Enemy", this.enemyQueue.length.toString()]);
-      qTableData.push(["Heal", this.healQueue.length.toString()]);
-      const tableQueue = new Table("Queue Counts", qTableAnchor, qTableData);
-      tableQueue.renderTable();
+        // Queues
+        const qTableAnchor = new RoomPosition(12, 1, room.name);
+        const qTableData: string[][] = [["Queue", "Count"]];
+        qTableData.push(["Spawn", this.cortex.metabolism.spawnQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Build", this.cortex.metabolism.buildQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Construct", this.cortex.metabolism.constructionSiteQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Repair", this.cortex.metabolism.repairQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Input", this.cortex.metabolism.inputQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Output", this.cortex.metabolism.outputQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Enemy", this.cortex.metabolism.enemyQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Heal", this.cortex.metabolism.healQueue[baseRoomName].length.toString()]);
+        const tableQueue = new Table("Queue Counts", qTableAnchor, qTableData);
+        tableQueue.renderTable();
 
-      // Figment Stats
-      const figmentTableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
-      let total = 0;
-      for (const figmentType in this.memoryGen.figmentCount) {
-        const figmentCount = this.memoryGen.figmentCount[figmentType];
-        total += figmentCount;
-        let priority = -1;
-        if (this.queuePriorities[figmentType] !== undefined) {
-          priority = this.queuePriorities[figmentType];
+        // Figment Stats
+        const figmentTableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
+        let total = 0;
+        for (const figmentType in this.cortex.memory.imagination.genesis[baseRoomName].figmentCount) {
+          const figmentCount = this.cortex.memory.imagination.genesis[baseRoomName].figmentCount[figmentType];
+          total += figmentCount;
+          let priority = -1;
+          let needed = false;
+          const figmentPrefs = this.cortex.getFigmentPreferences(baseRoomName);
+          if (figmentPrefs) {
+            priority = figmentPrefs[figmentType].priority;
+            needed = figmentPrefs[figmentType].needed;
+          }
+          figmentTableData.push([figmentType, figmentCount.toString(), priority.toString(), String(needed)]);
         }
-        let needed = false;
-        if (this.figmentNeeded[figmentType] !== undefined) {
-          needed = this.figmentNeeded[figmentType];
-        }
-        figmentTableData.push([figmentType, figmentCount.toString(), priority.toString(), String(needed)]);
-      }
-      figmentTableData.push(["TOTAL", total.toString(), "", ""]);
+        figmentTableData.push(["TOTAL", total.toString(), "", ""]);
 
-      const figmentTableAnchor = new RoomPosition(25, 1, spawn.room.name);
-      let title = "Figment Stats";
+        const figmentTableAnchor = new RoomPosition(25, 1, room.name);
+        let title = "Figment Stats";
 
-      if (spawn.spawning) {
-        const figment = new Figment(Game.creeps[spawn.spawning.name].id);
-        const remainingTicks = spawn.spawning.remainingTime;
-        title += ` (Spawning: ${figment.memory.figmentType} in ${remainingTicks})`;
-      } else {
-        let nextSpawn: SpawnQueuePayload | null = null;
-        if (this.spawnQueue.length > 0) {
-          nextSpawn = this.spawnQueue.peek();
-        }
+        const nextSpawn = this.cortex.getNextSpawn(baseRoomName);
         if (nextSpawn) {
           title += ` (Next Spawn: ${nextSpawn.figmentType})`;
         }
-      }
 
-      const figmentTable = new Table(title, figmentTableAnchor, figmentTableData);
-      figmentTable.renderTable();
-    }
-    if (this.showMapVisuals) {
-      const mapTerritoryPayloads: MapTerritoryPayload[] = [
-        { roomNames: this.standardRoomNames, text: "T", color: getColor("yellow") },
-        { roomNames: this.neighborhoodRoomNames, text: "N", color: getColor("blue") },
-        { roomNames: this.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
-        { roomNames: this.centerRoomNames, text: "C", color: getColor("purple") },
-        { roomNames: this.highwayRoomNames, text: "H", color: getColor("indigo") },
-        { roomNames: this.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
-        { roomNames: this.unknownRoomNames, text: "U", color: getColor("pink") }
-      ];
-      for (const mapTerritoryPayload of mapTerritoryPayloads) {
-        for (const roomName of mapTerritoryPayload.roomNames) {
-          this.mapTerritoryVisual(roomName, mapTerritoryPayload.text, mapTerritoryPayload.color);
-        }
+        const figmentTable = new Table(title, figmentTableAnchor, figmentTableData);
+        figmentTable.renderTable();
       }
-      // Recon targets
-      for (const reconRoomName of this.reconRoomNames) {
-        const nextScoutPos = new RoomPosition(25, 25, reconRoomName);
-        Game.map.visual.circle(nextScoutPos, { fill: getColor("red") });
-        Game.map.visual.text(`S`, nextScoutPos);
+      if (this.showMapVisuals) {
+        const mapTerritoryPayloads: MapTerritoryPayload[] = [
+          { roomNames: this.standardRoomNames, text: "T", color: getColor("yellow") },
+          { roomNames: this.neighborhoodRoomNames, text: "N", color: getColor("blue") },
+          { roomNames: this.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
+          { roomNames: this.centerRoomNames, text: "C", color: getColor("purple") },
+          { roomNames: this.highwayRoomNames, text: "H", color: getColor("indigo") },
+          { roomNames: this.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
+          { roomNames: this.unknownRoomNames, text: "U", color: getColor("pink") }
+        ];
+        for (const mapTerritoryPayload of mapTerritoryPayloads) {
+          for (const roomName of mapTerritoryPayload.roomNames) {
+            this.mapTerritoryVisual(roomName, mapTerritoryPayload.text, mapTerritoryPayload.color);
+          }
+        }
+        // Recon targets
+        for (const reconRoomName of this.reconRoomNames) {
+          const nextScoutPos = new RoomPosition(25, 25, reconRoomName);
+          Game.map.visual.circle(nextScoutPos, { fill: getColor("red") });
+          Game.map.visual.text(`S`, nextScoutPos);
+        }
       }
     }
   }
 
   private mapTerritoryVisual(roomName: string, text: string, color: string): void {
     const identifierPos = new RoomPosition(1, 1, roomName);
-    const roomData = this.memoryTerritory.rooms[roomName];
+    const roomData = this.cortex.memory.rooms[roomName];
     Game.map.visual.rect(identifierPos, 48, 48, { fill: color, opacity: 0.2 });
-    Game.map.visual.text(`${text}-${roomData.roomDistance}`, identifierPos, { align: "left" });
+    Game.map.visual.text(`${text}-${roomData.roomDistance[roomName]}`, identifierPos, { align: "left" });
     if (roomData.expansionScore) {
       const pos = new RoomPosition(10, 10, roomName);
       Game.map.visual.circle(pos, { fill: getColor("cyan"), radius: 5 });

@@ -1,114 +1,160 @@
-import { Cerebellum } from "./cerebellum";
+/*
+This module is responsible for short-term memory management
+*/
 import { Cortex } from "./cortex";
-import { Imagination } from "imagination";
-import { Metabolism } from "./metabolism";
-import { Occipital } from "./occipital";
-import { Spatial } from "./spatial";
+import { isInvulnerableStructure } from "utils/misc";
 
-export class Hippocampus {
-  private baseRooms: HippocampusBaseRoom[] = [];
-  private imagination: Imagination;
-  // Long-term memory
-  private cerebellum: Cerebellum;
-  // Short-term memory
-  private cortex: Cortex;
-  // Queues
-  private metabolism: Metabolism;
-  // Room data
-  private spatial: Spatial;
-  // Visuals/stats
-  private occipital: Occipital;
+export class Hippocampus implements Temporal {
+  public figmentPreferences: { [name: string]: FigmentPreferences } = {};
+  public roomObjects: { [name: string]: HippocampusRoomObjects } = {};
+  public cortex: Cortex;
 
-  public constructor(imagination: Imagination) {
-    this.imagination = imagination;
-    this.cerebellum = new Cerebellum(imagination);
-    this.metabolism = new Metabolism();
-    this.cortex = new Cortex(this.metabolism);
-    this.spatial = new Spatial();
-    this.occipital = new Occipital(this);
+  public constructor(cortex: Cortex) {
+    this.cortex = cortex;
   }
 
   public meditate(): void {
-    this.forget();
-    this.cerebellum.meditate();
-    this.remember();
-  }
-
-  public addBaseRoomName(roomName: string): void {
-    this.baseRooms.push({
-      roomName,
-      showStats: false,
-      showBuildVisuals: false,
-      showMetaVisuals: false,
-      showEnemyVisuals: false,
-      showMapVisuals: false
-    });
-  }
-
-  public forget(): void {
-    this.cerebellum.forget();
-    this.metabolism.forget();
-  }
-
-  public remember(): void {
-    this.cortex = new Cortex(this.metabolism);
-    for (const roomName in this.cerebellum.memory.rooms) {
+    for (const roomName in this.cortex.memory.rooms) {
       const room = Game.rooms[roomName];
       if (room) {
-        this.cortex.getRoomObjects(room);
+        this.getRoomObjects(room);
+        this.processRoomObjects(roomName);
       }
-      const roomMemory = this.cerebellum.memory.rooms[roomName];
-      this.spatial.processRoomName(roomName, roomMemory);
+      // process spatial stuff
     }
-    this.cortex.remember();
   }
 
   public contemplate(): void {
-    this.occipital.visualize();
+    // contemplating...
   }
 
-  public getNextEnemyTarget(roomName: string): Creep | Structure | null {
-    if (this.enemyQueue.length === 0) {
-      return null;
+  public getRoomObjects(room: Room): void {
+    this.roomObjects[room.name] = {
+      creeps: room.find(FIND_CREEPS),
+      structures: room.find(FIND_STRUCTURES),
+      constructionSites: room.find(FIND_CONSTRUCTION_SITES),
+      resources: room.find(FIND_DROPPED_RESOURCES),
+      sources: room.find(FIND_SOURCES)
+    };
+  }
+
+  public processRoomObjects(roomName: string, baseRoomName: string): void {
+    // Process neutral
+    this.processStructures(roomName, baseRoomName);
+    this.processConstructionSites(roomName, baseRoomName);
+    this.processDroppedResources(roomName, baseRoomName);
+    this.processCreeps(roomName, baseRoomName);
+    // Process special cases
+    this.processSpecial(roomName, baseRoomName);
+  }
+
+  private processCreeps(roomName: string, baseRoomName: string): void {
+    for (const creep of this.roomObjects[roomName].creeps) {
+      if (creep.my) {
+        if (creep.hits < creep.hitsMax) {
+          this.metabolism.healQueue[baseRoomName].queue({
+            figment: creep,
+            priority: creep.hits
+          });
+        }
+      } else {
+        this.metabolism.enemyQueue[baseRoomName].queue({
+          enemyObject: creep,
+          priority: creep.hits
+        });
+        if (creep.getActiveBodyparts(ATTACK) > 2 || creep.getActiveBodyparts(RANGED_ATTACK) > 2 || creep.hits < 1500) {
+          this.towerEnemies.push(creep);
+        }
+      }
     }
-
-    return this.enemyQueue.peek().enemyObject;
   }
 
-  public getNextHealTarget(roomName: string): Creep | null {
-    if (this.healQueue.length === 0) {
-      return null;
+  private processStructures(roomName: string, baseRoomName: string): void {
+    for (const structure of this.roomObjects[roomName].structures) {
+      if (structure instanceof StructureContainer) {
+        this.containers.push(structure);
+      } else if (structure instanceof OwnedStructure) {
+        if (structure.hits < this.metabolism.repairThreshold && structure.hits < structure.hitsMax) {
+          this.metabolism.repairQueue[baseRoomName].queue(structure);
+        }
+        if (structure.my) {
+          // Owned Structures
+          this.myStructures.push(structure);
+          this.metabolism.addEnergyWithdrawStructure(structure);
+          if (structure instanceof StructureLink) {
+            this.links.push(structure);
+          } else if (structure instanceof StructureStorage) {
+            this.storage = structure;
+            this.metabolism.addInput(structure, structure.store.getUsedCapacity());
+          } else if (structure instanceof StructureSpawn) {
+            this.spawns.push(structure);
+            this.metabolism.addInput(structure, structure.store.getUsedCapacity(RESOURCE_ENERGY));
+          } else if (structure instanceof StructureTower) {
+            this.towers.push(structure);
+          } else if (structure instanceof StructureExtension) {
+            this.extensions.push(structure);
+          }
+        } else if (structure.owner && !structure.my) {
+          // Enemy Structures
+          this.enemyStructures.push(structure);
+          if (!isInvulnerableStructure(structure)) {
+            this.metabolism.enemyQueue[baseRoomName].queue({
+              enemyObject: structure,
+              priority: structure.hits
+            });
+          }
+        }
+      }
     }
-
-    return this.healQueue.peek().figment;
   }
 
-  public getNextConstructionSite(roomName: string): ConstructionSite | null {
-    if (this.constructionSiteQueue.length === 0) {
-      return null;
+  private processConstructionSites(roomName: string, baseRoomName: string): void {
+    for (const cSite of this.roomObjects[roomName].constructionSites) {
+      if (cSite.my) {
+        this.metabolism.constructionSiteQueue[baseRoomName].queue(cSite);
+      }
     }
-    return this.constructionSiteQueue.peek();
   }
 
-  public getNextRepairTarget(roomName: string): Structure | null {
-    if (this.repairQueue.length === 0) {
-      return null;
+  private processDroppedResources(roomName: string, baseRoomName: string): void {
+    for (const resource of this.roomObjects[roomName].resources) {
+      this.metabolism.addOutput(resource, resource.amount);
     }
-    return this.repairQueue.peek();
   }
 
-  public getNeighborhoodRoomNames(roomName: string): string[] {
-    // TODO: Implement
-    return [];
-  }
-
-  public getNextAvailableSpawn(roomName: string): StructureSpawn | undefined {
-    // TODO: Implement this for real
-    return undefined;
-  }
-
-  public getBaseOriginPos(roomName: string): RoomPosition {
-    // TODO: Implement this for real
-    return new RoomPosition(25, 25, roomName);
+  private processSpecial(roomName: string, baseRoomName: string): void {
+    for (const source of this.roomObjects[roomName].sources) {
+      const sourceContainers = _.filter(this.containers, c => c.pos.inRangeTo(source.pos, 1));
+      for (const sourceContainer of sourceContainers) {
+        this.metabolism.addOutput(sourceContainer, sourceContainer.store.getUsedCapacity());
+      }
+      this.sourceContainers[source.id] = sourceContainers;
+      const sourceLinks = _.filter(this.links, l => l.pos.inRangeTo(source.pos, 2));
+      for (const sourceLink of sourceLinks) {
+        this.outputLinks.push(sourceLink);
+      }
+      this.sourceLinks[source.id] = sourceLinks;
+    }
+    const controller = this.spawnRoom.controller;
+    if (controller) {
+      const controllerContainers = _.filter(this.containers, c => c.pos.inRangeTo(controller.pos, 1));
+      for (const controllerContainer of controllerContainers) {
+        this.metabolism.addInput(controllerContainer, controllerContainer.store.getUsedCapacity());
+      }
+      this.controllerContainers = controllerContainers;
+      const controllerLinks = _.filter(this.links, l => l.pos.inRangeTo(controller.pos, 2));
+      for (const controllerLink of controllerLinks) {
+        this.inputLinks.push(controllerLink);
+      }
+      this.controllerLinks = controllerLinks;
+    }
+    const spawn = this.spawn;
+    if (spawn) {
+      const spawnContainers = _.filter(this.containers, c => c.pos.inRangeTo(spawn.pos, 1));
+      for (const spawnContainer of spawnContainers) {
+        this.metabolism.addInput(spawnContainer, spawnContainer.store.getUsedCapacity());
+      }
+      this.spawnContainers = spawnContainers;
+    }
   }
 }

@@ -1,180 +1,196 @@
-import { EnergyWithdrawStructure } from "definitions/types";
+/* eslint-disable no-underscore-dangle */
+/*
+This module is the main abtraction for getting room object data
+*/
+
+import { Cerebellum } from "./cerebellum";
+import { Hippocampus } from "./hippocampus";
+import { Imagination } from "imagination";
 import { Metabolism } from "./metabolism";
-import { isInvulnerableStructure } from "utils/misc";
+import { Occipital } from "./occipital";
+import { Spatial } from "./spatial";
 
-export class Cortex {
-  public queuePriorities: { [type: string]: number } = {};
-  public figmentNeeded: { [type: string]: boolean } = {};
-  public roomObjects: { [name: string]: CortexRoomObjects } = {};
-  public metabolism: Metabolism;
+export class Cortex implements Temporal {
+  public baseRooms: { [name: string]: CortexBaseRoom } = {};
+  public _imagination: Imagination;
+  // Long-term memory
+  private _cerebellum: Cerebellum;
+  // Short-term memory
+  private _hippocampus: Hippocampus;
+  // Queues
+  private _metabolism: Metabolism;
+  // Room data
+  private _spatial: Spatial;
+  // Visuals/stats
+  private _occipital: Occipital;
 
-  public constructor(metabolism: Metabolism) {
-    this.metabolism = metabolism;
+  public constructor(imagination: Imagination) {
+    this._imagination = imagination;
+    this._cerebellum = new Cerebellum(this);
+    this._metabolism = new Metabolism(this);
+    this._hippocampus = new Hippocampus(this);
+    this._spatial = new Spatial(this);
+    this._occipital = new Occipital(this);
   }
 
-  /* ********** Arrays ********** */
+  public get memory(): Memory {
+    return this._cerebellum.memory;
+  }
 
-  // Neutral
-  public containers: StructureContainer[] = [];
-  public spawnContainers: StructureContainer[] = [];
-  public sourceContainers: { [name: string]: StructureContainer[] } = {};
-  public controllerContainers: StructureContainer[] = [];
+  public get imagination(): Imagination {
+    return this._imagination;
+  }
 
-  // Owned
-  public myStructures: Structure[] = [];
-  public energyWithdrawStructures: EnergyWithdrawStructure[] = [];
-  public towers: StructureTower[] = [];
-  public links: StructureLink[] = [];
-  public inputLinks: StructureLink[] = [];
-  public outputLinks: StructureLink[] = [];
-  public sourceLinks: { [name: string]: StructureLink[] } = {};
-  public controllerLinks: StructureLink[] = [];
-  public extensions: StructureExtension[] = [];
-  public spawns: StructureSpawn[] = [];
-  public storage: StructureStorage | null = null;
+  public get metabolism(): Metabolism {
+    return this._metabolism;
+  }
 
-  // Enemy
-  // TODO: turn this into a queue??
-  public towerEnemies: Creep[] = [];
-  public enemyStructures: Structure[] = [];
+  public get cerebellum(): Cerebellum {
+    return this._cerebellum;
+  }
 
-  public getRoomObjects(room: Room): void {
-    this.roomObjects[room.name] = {
-      enemyCreeps: room.find(FIND_HOSTILE_CREEPS),
-      myCreeps: room.find(FIND_MY_CREEPS),
-      structures: room.find(FIND_STRUCTURES),
-      constructionSites: room.find(FIND_CONSTRUCTION_SITES),
-      resources: room.find(FIND_DROPPED_RESOURCES),
-      sources: room.find(FIND_SOURCES)
+  public get hippocampus(): Hippocampus {
+    return this._hippocampus;
+  }
+
+  public get spatial(): Spatial {
+    return this._spatial;
+  }
+
+  public get occipital(): Occipital {
+    return this._occipital;
+  }
+
+  public meditate(): void {
+    // Reset short-term memory ever tick
+    this._hippocampus = new Hippocampus(this);
+    // Occipital should be first to meditate
+    this.occipital.meditate();
+    this.cerebellum.meditate();
+    this.hippocampus.meditate();
+    this.metabolism.meditate();
+    this.spatial.meditate();
+  }
+
+  public addBaseRoomName(spawn: StructureSpawn): void {
+    // TODO: need to calculate distance for all known rooms in memory
+    this.baseRooms[spawn.room.name] = {
+      baseOriginPos: spawn.pos,
+      showStats: false,
+      showBuildVisuals: false,
+      showMetaVisuals: false,
+      showEnemyVisuals: false
     };
+
+    this._metabolism.addMetabolismQueues(spawn.room.name);
   }
 
-  public remember(): void {
-    // Process neutral
-    this.processStructures();
-    this.processConstructionSites();
-    this.processDroppedResources();
-    // Process owned
-    this.processMyCreeps();
-    // Process enemy
-    this.processEnemyCreeps();
-    // Process special cases
-    this.processSpecial();
+  public contemplate(): void {
+    this.cerebellum.contemplate();
+    this.hippocampus.contemplate();
+    this.metabolism.contemplate();
+    this.spatial.contemplate();
+    // Occipital should be last to contemplate
+    this.occipital.contemplate();
   }
 
-  private processEnemyCreeps(): void {
-    for (const enemyCreep of this.enemyCreeps) {
-      this.metabolism.enemyQueue.queue({
-        enemyObject: enemyCreep,
-        priority: enemyCreep.hits
-      });
-      if (
-        enemyCreep.getActiveBodyparts(ATTACK) > 2 ||
-        enemyCreep.getActiveBodyparts(RANGED_ATTACK) > 2 ||
-        enemyCreep.hits < 1500
-      ) {
-        this.towerEnemies.push(enemyCreep);
-      }
-    }
-  }
-
-  private processMyCreeps(): void {
-    for (const myCreep of this.myCreeps) {
-      if (myCreep.hits < myCreep.hitsMax) {
-        this.metabolism.healQueue.queue({
-          figment: myCreep,
-          priority: myCreep.hits
-        });
-      }
+  public toggleVisuals(roomName: string, visual: string): string {
+    switch (visual) {
+      case "all":
+        return this.occipital.rall(roomName);
+      case "stats":
+        return this.occipital.rstats(roomName);
+      case "build":
+        return this.occipital.rbuild(roomName);
+      case "meta":
+        return this.occipital.rmeta(roomName);
+      case "enemy":
+        return this.occipital.renemy(roomName);
+      case "map":
+        return this.occipital.rmap();
+      default:
+        return `Visual does not exist: ${visual}`;
     }
   }
 
-  private processStructures(): void {
-    for (const structure of this.structures) {
-      if (structure instanceof StructureContainer) {
-        this.containers.push(structure);
-      } else if (structure instanceof OwnedStructure) {
-        if (structure.hits < this.metabolism.repairThreshold && structure.hits < structure.hitsMax) {
-          this.metabolism.repairQueue.queue(structure);
-        }
-        if (structure.my) {
-          // Owned Structures
-          this.myStructures.push(structure);
-          this.metabolism.addEnergyWithdrawStructure(structure);
-          if (structure instanceof StructureLink) {
-            this.links.push(structure);
-          } else if (structure instanceof StructureStorage) {
-            this.storage = structure;
-            this.metabolism.addInput(structure, structure.store.getUsedCapacity());
-          } else if (structure instanceof StructureSpawn) {
-            this.spawns.push(structure);
-            this.metabolism.addInput(structure, structure.store.getUsedCapacity(RESOURCE_ENERGY));
-          } else if (structure instanceof StructureTower) {
-            this.towers.push(structure);
-          } else if (structure instanceof StructureExtension) {
-            this.extensions.push(structure);
-          }
-        } else if (structure.owner && !structure.my) {
-          // Enemy Structures
-          this.enemyStructures.push(structure);
-          if (!isInvulnerableStructure(structure)) {
-            this.metabolism.enemyQueue.queue({
-              enemyObject: structure,
-              priority: structure.hits
-            });
-          }
-        }
-      }
-    }
+  public getFigmentPreferences(roomName: string): FigmentPreferences | null {
+    return this._hippocampus.figmentPreferences[roomName];
   }
 
-  private processConstructionSites(): void {
-    for (const cSite of this.constructionSites) {
-      if (cSite.my) {
-        this.metabolism.constructionSiteQueue.queue(cSite);
-      }
+  public getNextSpawn(roomName: string): SpawnQueuePayload | null {
+    if (this.metabolism.spawnQueue[roomName].length === 0) {
+      return null;
     }
+    return this.metabolism.spawnQueue[roomName].peek();
   }
 
-  private processDroppedResources(): void {
-    for (const resource of this.droppedResources) {
-      this.metabolism.addOutput(resource, resource.amount);
+  public getNextBuildTarget(roomName: string): ConstructionSite | null {
+    if (this.metabolism.constructionSiteQueue[roomName].length === 0) {
+      return null;
     }
+    return this.metabolism.constructionSiteQueue[roomName].peek();
   }
 
-  private processSpecial(): void {
-    for (const source of this.sources) {
-      const sourceContainers = _.filter(this.containers, c => c.pos.inRangeTo(source.pos, 1));
-      for (const sourceContainer of sourceContainers) {
-        this.metabolism.addOutput(sourceContainer, sourceContainer.store.getUsedCapacity());
-      }
-      this.sourceContainers[source.id] = sourceContainers;
-      const sourceLinks = _.filter(this.links, l => l.pos.inRangeTo(source.pos, 2));
-      for (const sourceLink of sourceLinks) {
-        this.outputLinks.push(sourceLink);
-      }
-      this.sourceLinks[source.id] = sourceLinks;
+  public getNextEnemyTarget(roomName: string): Creep | Structure | null {
+    if (this.metabolism.enemyQueue[roomName].length === 0) {
+      return null;
     }
-    const controller = this.spawnRoom.controller;
-    if (controller) {
-      const controllerContainers = _.filter(this.containers, c => c.pos.inRangeTo(controller.pos, 1));
-      for (const controllerContainer of controllerContainers) {
-        this.metabolism.addInput(controllerContainer, controllerContainer.store.getUsedCapacity());
-      }
-      this.controllerContainers = controllerContainers;
-      const controllerLinks = _.filter(this.links, l => l.pos.inRangeTo(controller.pos, 2));
-      for (const controllerLink of controllerLinks) {
-        this.inputLinks.push(controllerLink);
-      }
-      this.controllerLinks = controllerLinks;
+
+    return this.metabolism.enemyQueue[roomName].peek().enemyObject;
+  }
+
+  public getNextHealTarget(roomName: string): Creep | null {
+    if (this.metabolism.healQueue[roomName].length === 0) {
+      return null;
     }
-    const spawn = this.spawn;
-    if (spawn) {
-      const spawnContainers = _.filter(this.containers, c => c.pos.inRangeTo(spawn.pos, 1));
-      for (const spawnContainer of spawnContainers) {
-        this.metabolism.addInput(spawnContainer, spawnContainer.store.getUsedCapacity());
-      }
-      this.spawnContainers = spawnContainers;
+
+    return this.metabolism.healQueue[roomName].peek().figment;
+  }
+
+  public getNextConstructionSite(roomName: string): ConstructionSite | null {
+    if (this.metabolism.constructionSiteQueue[roomName].length === 0) {
+      return null;
     }
+    return this.metabolism.constructionSiteQueue[roomName].peek();
+  }
+
+  public getNextRepairTarget(roomName: string): Structure | null {
+    if (this.metabolism.repairQueue[roomName].length === 0) {
+      return null;
+    }
+    return this.metabolism.repairQueue[roomName].peek();
+  }
+
+  public getNextInput(roomName: string): MetabolicQueuePayload | null {
+    if (this.metabolism.inputQueue[roomName].length === 0) {
+      return null;
+    }
+    return this.metabolism.inputQueue[roomName].peek();
+  }
+
+  public getNextOutput(roomName: string): MetabolicQueuePayload | null {
+    if (this.metabolism.outputQueue[roomName].length === 0) {
+      return null;
+    }
+    return this.metabolism.outputQueue[roomName].peek();
+  }
+
+  public getNeighborhoodRoomNames(roomName: string): string[] {
+    // TODO: Implement
+    return [];
+  }
+
+  public getNextAvailableSpawn(roomName: string): StructureSpawn | undefined {
+    for (const spawn of this.hippocampus.spawns[roomName]) {
+      if (!spawn.spawning) {
+        return spawn;
+      }
+    }
+    return undefined;
+  }
+
+  public getBaseOriginPos(roomName: string): RoomPosition {
+    // TODO: Implement this for real
+    return this.baseRooms[roomName].baseOriginPos;
   }
 }

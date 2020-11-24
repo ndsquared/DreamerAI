@@ -1,4 +1,4 @@
-import { Hippocampus } from "temporal/hippocampus";
+import { Cortex } from "temporal/cortex";
 import { Imagination } from "imagination";
 import { Thought } from "thoughts/thought";
 
@@ -28,12 +28,24 @@ export abstract class Idea implements IBrain {
     this.type = type;
   }
 
-  public get hippocampus(): Hippocampus {
-    return this.imagination.hippocampus;
+  public get cortex(): Cortex {
+    return this.imagination.cortex;
   }
 
   public get room(): Room | undefined {
     return Game.rooms[this.roomName];
+  }
+
+  public get figmentCount(): Record<string, number> {
+    return this.cortex.cerebellum.genesisMemory(this.roomName).figmentCount;
+  }
+
+  public get figmentPrefs(): FigmentPreferences {
+    return this.cortex.hippocampus.figmentPreferences[this.roomName];
+  }
+
+  public get neighborhood(): NeighborhoodObjects {
+    return this.cortex.hippocampus.neighborhood[this.roomName];
   }
 
   public get rcl(): number {
