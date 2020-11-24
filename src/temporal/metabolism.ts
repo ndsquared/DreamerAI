@@ -32,9 +32,6 @@ export class Metabolism implements Temporal {
   public meditate(): void {
     this.forget();
   }
-  public contemplate(): void {
-    // Post metabolism shenanigans
-  }
 
   public addMetabolismQueues(roomName: string): void {
     // Neutral

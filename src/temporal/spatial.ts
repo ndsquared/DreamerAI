@@ -4,7 +4,7 @@ This module is responsible for managing room data and memory
 import { RoomType, getNeighborRoomNames, getReconRoomData, getRoomType } from "utils/misc";
 import { Cortex } from "./cortex";
 
-export class Spatial implements Temporal {
+export class Spatial {
   public cortex: Cortex;
   public reconRoomNames: string[] = [];
   public standardRoomNames: string[] = [];
@@ -14,15 +14,14 @@ export class Spatial implements Temporal {
   public unknownRoomNames: string[] = [];
   public sourceKeeperRoomNames: string[] = [];
 
+  private neighborhoodDistanceThreshold = 5;
+
   public constructor(cortex: Cortex) {
     this.cortex = cortex;
   }
 
-  public meditate(): void {
-    throw new Error("Method not implemented.");
-  }
-  public contemplate(): void {
-    throw new Error("Method not implemented.");
+  public get neighborhoodMemory(): NeighborhoodMemory {
+    return this.cortex.memory.imagination.neighborhoods;
   }
 
   public processRoom(roomName: string): void {
@@ -49,7 +48,23 @@ export class Spatial implements Temporal {
         break;
       case RoomType.ROOM_STANDARD:
         this.standardRoomNames.push(roomName);
+        // TODO: we'll want to include other rooms types in the neighborhood in the future
+        this.addRoomToNeighborhood(roomName, roomMemory);
         break;
+    }
+  }
+
+  private addRoomToNeighborhood(roomName: string, roomMemory: RoomMemory): void {
+    const neighborhoods = this.neighborhoodMemory;
+    if (neighborhoods.roomsInNeighborhoods[roomName]) {
+      return;
+    }
+    for (const baseRoomName in roomMemory.roomDistance) {
+      const roomDistance = roomMemory.roomDistance[baseRoomName];
+      if (roomDistance < this.neighborhoodDistanceThreshold) {
+        neighborhoods.roomsInNeighborhoods[roomName] = baseRoomName;
+        neighborhoods.neighborhoodRoomNames[baseRoomName].push(roomName);
+      }
     }
   }
 
@@ -69,7 +84,7 @@ export class Spatial implements Temporal {
     } else {
       delete roomMemory.attackScore;
     }
-    if (!roomMemory.expansionScore) {
+    if (this.isViableExpansionRoom(room, roomMemory)) {
       let expandScore = 0;
       const terrainScore = this.getTerrainScore(room.name);
       const sources = this.cortex.hippocampus.roomObjects[room.name].sources;
@@ -77,6 +92,27 @@ export class Spatial implements Temporal {
       expandScore += sources.length * 10;
       roomMemory.expansionScore = expandScore;
     }
+  }
+
+  private isViableExpansionRoom(room: Room, roomMemory: RoomMemory): boolean {
+    if (roomMemory.expansionScore) {
+      return false;
+    }
+    if (!room.controller) {
+      return false;
+    }
+    if (room.controller.owner) {
+      return false;
+    }
+    // TODO: add code to contest reserved rooms in the future
+    if (room.controller.reservation) {
+      return false;
+    }
+    const neighborhoods = this.neighborhoodMemory;
+    if (neighborhoods.roomsInNeighborhoods[room.name]) {
+      return false;
+    }
+    return true;
   }
 
   private getTerrainScore(roomName: string): number {

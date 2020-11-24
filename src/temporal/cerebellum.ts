@@ -46,10 +46,6 @@ export class Cerebellum implements Temporal {
     this.pruneIO();
   }
 
-  public contemplate(): void {
-    // Post-tick memory would go here
-  }
-
   public getMemory(): void {
     this.memory = Memory;
   }

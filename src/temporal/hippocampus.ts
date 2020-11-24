@@ -2,6 +2,7 @@
 This module is responsible for short-term memory management
 */
 import { Cortex } from "./cortex";
+import { Spatial } from "./spatial";
 import { isInvulnerableStructure } from "utils/misc";
 
 export class Hippocampus implements Temporal {
@@ -16,9 +17,11 @@ export class Hippocampus implements Temporal {
   public neighborhood: { [name: string]: NeighborhoodObjects } = {};
   public baseRoomObjects: { [name: string]: BaseRoomObjects } = {};
   public cortex: Cortex;
+  public spatial: Spatial;
 
   public constructor(cortex: Cortex) {
     this.cortex = cortex;
+    this.spatial = new Spatial(cortex);
   }
 
   public meditate(): void {
@@ -30,12 +33,8 @@ export class Hippocampus implements Temporal {
         this.processRoomObjects(roomName, baseRoomName);
       }
       // process spatial stuff
-      this.cortex.spatial.processRoom(roomName);
+      this.spatial.processRoom(roomName);
     }
-  }
-
-  public contemplate(): void {
-    // contemplating...
   }
 
   public getRoomObjects(room: Room): void {

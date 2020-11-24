@@ -188,7 +188,6 @@ interface FigmentPreferences {
 
 interface Temporal {
   meditate(): void;
-  contemplate(): void;
 }
 
 interface TravelToReturnData {

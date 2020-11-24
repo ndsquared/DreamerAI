@@ -20,8 +20,6 @@ export class Cortex implements Temporal {
   private _hippocampus: Hippocampus;
   // Queues
   private _metabolism: Metabolism;
-  // Room data
-  private _spatial: Spatial;
   // Visuals/stats
   private _occipital: Occipital;
 
@@ -30,7 +28,6 @@ export class Cortex implements Temporal {
     this._cerebellum = new Cerebellum(this);
     this._metabolism = new Metabolism(this);
     this._hippocampus = new Hippocampus(this);
-    this._spatial = new Spatial(this);
     this._occipital = new Occipital(this);
   }
 
@@ -55,7 +52,7 @@ export class Cortex implements Temporal {
   }
 
   public get spatial(): Spatial {
-    return this._spatial;
+    return this._hippocampus.spatial;
   }
 
   public get occipital(): Occipital {
@@ -70,7 +67,6 @@ export class Cortex implements Temporal {
     this.cerebellum.meditate();
     this.hippocampus.meditate();
     this.metabolism.meditate();
-    this.spatial.meditate();
   }
 
   public addBaseRoomName(spawn: StructureSpawn): void {
@@ -87,10 +83,6 @@ export class Cortex implements Temporal {
   }
 
   public contemplate(): void {
-    this.cerebellum.contemplate();
-    this.hippocampus.contemplate();
-    this.metabolism.contemplate();
-    this.spatial.contemplate();
     // Occipital should be last to contemplate
     this.occipital.contemplate();
   }

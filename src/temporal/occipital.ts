@@ -231,27 +231,45 @@ export class Occipital implements Temporal {
         const figmentTable = new Table(title, figmentTableAnchor, figmentTableData);
         figmentTable.renderTable();
       }
-      if (this.showMapVisuals) {
-        const mapTerritoryPayloads: MapTerritoryPayload[] = [
-          { roomNames: this.cortex.spatial.standardRoomNames, text: "T", color: getColor("yellow") },
-          { roomNames: this.cortex.getNeighborhoodRoomNames(baseRoomName), text: "N", color: getColor("blue") },
-          { roomNames: this.cortex.spatial.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
-          { roomNames: this.cortex.spatial.centerRoomNames, text: "C", color: getColor("purple") },
-          { roomNames: this.cortex.spatial.highwayRoomNames, text: "H", color: getColor("indigo") },
-          { roomNames: this.cortex.spatial.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
-          { roomNames: this.cortex.spatial.unknownRoomNames, text: "U", color: getColor("pink") }
-        ];
-        for (const mapTerritoryPayload of mapTerritoryPayloads) {
-          for (const roomName of mapTerritoryPayload.roomNames) {
-            this.mapTerritoryVisual(roomName, mapTerritoryPayload.text, mapTerritoryPayload.color);
-          }
+    }
+    if (this.showMapVisuals) {
+      const mapTerritoryPayloads: MapTerritoryPayload[] = [
+        { roomNames: this.cortex.spatial.sourceKeeperRoomNames, text: "SK", color: getColor("red") },
+        { roomNames: this.cortex.spatial.centerRoomNames, text: "C", color: getColor("purple") },
+        { roomNames: this.cortex.spatial.highwayRoomNames, text: "H", color: getColor("indigo") },
+        { roomNames: this.cortex.spatial.crossroadRoomNames, text: "X", color: getColor("indigo", "900") },
+        { roomNames: this.cortex.spatial.unknownRoomNames, text: "U", color: getColor("pink") }
+      ];
+      const standardRoomNames: string[] = [];
+      const neighborhoodRoomNames: string[] = [];
+      for (const roomName in this.cortex.memory.rooms) {
+        const baseRoomName = this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName];
+        if (!baseRoomName) {
+          standardRoomNames.push(roomName);
+        } else {
+          neighborhoodRoomNames.push(roomName);
         }
-        // Recon targets
-        for (const reconRoomName of this.cortex.spatial.reconRoomNames) {
-          const nextScoutPos = new RoomPosition(25, 25, reconRoomName);
-          Game.map.visual.circle(nextScoutPos, { fill: getColor("red") });
-          Game.map.visual.text(`S`, nextScoutPos);
+      }
+      mapTerritoryPayloads.push({
+        roomNames: standardRoomNames,
+        text: "T",
+        color: getColor("yellow")
+      });
+      mapTerritoryPayloads.push({
+        roomNames: neighborhoodRoomNames,
+        text: "N",
+        color: getColor("blue")
+      });
+      for (const mapTerritoryPayload of mapTerritoryPayloads) {
+        for (const roomName of mapTerritoryPayload.roomNames) {
+          this.mapTerritoryVisual(roomName, mapTerritoryPayload.text, mapTerritoryPayload.color);
         }
+      }
+      // Recon targets
+      for (const reconRoomName of this.cortex.spatial.reconRoomNames) {
+        const nextScoutPos = new RoomPosition(25, 25, reconRoomName);
+        Game.map.visual.circle(nextScoutPos, { fill: getColor("red") });
+        Game.map.visual.text(`S`, nextScoutPos);
       }
     }
   }
@@ -260,7 +278,8 @@ export class Occipital implements Temporal {
     const identifierPos = new RoomPosition(1, 1, roomName);
     const roomData = this.cortex.memory.rooms[roomName];
     Game.map.visual.rect(identifierPos, 48, 48, { fill: color, opacity: 0.2 });
-    Game.map.visual.text(`${text}-${roomData.roomDistance[roomName]}`, identifierPos, { align: "left" });
+    // TODO: would be nice to have some distance indicators
+    Game.map.visual.text(`${text}`, identifierPos, { align: "left" });
     if (roomData.expansionScore) {
       const pos = new RoomPosition(10, 10, roomName);
       Game.map.visual.circle(pos, { fill: getColor("cyan"), radius: 5 });
