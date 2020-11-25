@@ -46,7 +46,7 @@ const pickupBodySpec = {
   bodyParts: [CARRY],
   ratio: [1],
   minParts: 6,
-  maxParts: 50,
+  maxParts: 40,
   ignoreCarry: false,
   roadTravel: false
 };
@@ -88,7 +88,7 @@ const transferBodySpec = {
   bodyParts: [CARRY],
   ratio: [1],
   minParts: 6,
-  maxParts: 50,
+  maxParts: 30,
   ignoreCarry: false,
   roadTravel: false
 };
