@@ -145,11 +145,11 @@ export class Cortex implements Temporal {
     return this.metabolism.spawnQueue[roomName].peek();
   }
 
-  public getNextBuildTarget(roomName: string): ConstructionSite | null {
-    if (this.metabolism.constructionSiteQueue[roomName].length === 0) {
+  public getNextBuildTarget(roomName: string): BuildQueuePayload | null {
+    if (this.metabolism.buildQueue[roomName].length === 0) {
       return null;
     }
-    return this.metabolism.constructionSiteQueue[roomName].peek();
+    return this.metabolism.buildQueue[roomName].peek();
   }
 
   public getNextEnemyTarget(roomName: string): Creep | Structure | null {

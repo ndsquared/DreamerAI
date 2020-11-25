@@ -22,7 +22,13 @@ export enum BuildThoughtType {
   STORAGE = "Storage",
   RAMPART = "Rampart",
   LINK = "Link",
-  TERMINAL = "Terminal"
+  TERMINAL = "Terminal",
+  SPAWN = "Spawn",
+  EXTRACTOR = "Extractor",
+  FACTORY = "Factory",
+  LAB = "Lab",
+  NUKER = "Nuker",
+  WALL = "Wall"
 }
 
 export abstract class Thought implements IBrain {

@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Idea, IdeaType, ThoughtMapping } from "./idea";
-import { BuildThought } from "thoughts/buildThought";
+import { BuildThought } from "thoughts/buildThoughts/buildThought";
 import { BuildThoughtType } from "thoughts/thought";
-import { ContainerThought } from "thoughts/containerThought";
-import { ExtensionThought } from "thoughts/extensionThought";
+import { ContainerThought } from "thoughts/buildThoughts/containerThought";
+import { ExtensionThought } from "thoughts/buildThoughts/extensionThought";
 import { Imagination } from "imagination";
-import { LinkThought } from "thoughts/linkThought";
-import { RampartThought } from "thoughts/rampartThought";
-import { RoadThought } from "thoughts/roadThought";
-import { StorageThought } from "thoughts/storageThought";
-import { TowerThought } from "thoughts/towerThought";
+import { LinkThought } from "thoughts/buildThoughts/linkThought";
+import { RampartThought } from "thoughts/buildThoughts/rampartThought";
+import { RoadThought } from "thoughts/buildThoughts/roadThought";
+import { SpawnThought } from "thoughts/buildThoughts/spawnThought";
+import { StorageThought } from "thoughts/buildThoughts/storageThought";
+import { TerminalThought } from "thoughts/buildThoughts/terminalThought";
+import { TowerThought } from "thoughts/buildThoughts/towerThought";
 import { getColor } from "utils/colors";
 
 export class CreationIdea extends Idea {
@@ -26,7 +28,9 @@ export class CreationIdea extends Idea {
       { name: BuildThoughtType.TOWER, thought: TowerThought },
       { name: BuildThoughtType.STORAGE, thought: StorageThought },
       { name: BuildThoughtType.RAMPART, thought: RampartThought },
-      { name: BuildThoughtType.LINK, thought: LinkThought }
+      { name: BuildThoughtType.LINK, thought: LinkThought },
+      { name: BuildThoughtType.TERMINAL, thought: TerminalThought },
+      { name: BuildThoughtType.SPAWN, thought: SpawnThought }
     ];
     for (const buildThought of buildThoughts) {
       this.thoughts[buildThought.name] = {};
@@ -42,6 +46,7 @@ export class CreationIdea extends Idea {
           for (const thoughtInstance in this.thoughts[thoughtName]) {
             const thought = this.thoughts[thoughtName][thoughtInstance];
             if (thought instanceof BuildThought) {
+              // console.log(thought.type);
               thought.buildPlan(this);
             }
           }
@@ -72,10 +77,11 @@ export class CreationIdea extends Idea {
     if (this.cortex.metabolism.buildQueue[this.roomName].length > 0) {
       this.rateLimitBuildPlanning = true;
       let nextBuild = this.cortex.metabolism.buildQueue[this.roomName].peek();
-      let buildResult: number;
+      let buildResult = -1;
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
+        console.log(buildResult);
         if (buildResult === OK) {
           nextBuild = this.cortex.metabolism.buildQueue[this.roomName].dequeue();
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {

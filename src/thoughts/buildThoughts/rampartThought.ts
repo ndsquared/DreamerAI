@@ -1,6 +1,6 @@
 import { Rectangle, getCutTiles } from "utils/minCut";
 import { BuildThought } from "./buildThought";
-import { BuildThoughtType } from "./thought";
+import { BuildThoughtType } from "../thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 
@@ -17,9 +17,11 @@ export class RampartThought extends BuildThought {
     if (!room) {
       return;
     }
-    const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
-    // Protect spawn
-    creationIdea.addBuild(baseOriginPos, STRUCTURE_RAMPART, 3, false, false);
+    const baseOriginPos = this.idea.cortex.getBaseOriginPos(this.idea.roomName);
+
+    // Protect spawns
+    const spawnPos = _.map(this.idea.baseRoomObjects.spawns, s => s.pos);
+    creationIdea.addBuilds(spawnPos, STRUCTURE_RAMPART, 3, false, false, false);
 
     // Protect controller
     const controller = room.controller;

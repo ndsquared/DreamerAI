@@ -1,9 +1,9 @@
 import { BuildThought } from "./buildThought";
-import { BuildThoughtType } from "./thought";
+import { BuildThoughtType } from "../thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 
-export class StorageThought extends BuildThought {
+export class TerminalThought extends BuildThought {
   public constructor(idea: Idea, type: BuildThoughtType, instance: string) {
     super(idea, type, instance);
   }
@@ -13,15 +13,15 @@ export class StorageThought extends BuildThought {
     if (!room) {
       return;
     }
-    if (room.storage) {
+    if (room.terminal) {
       return;
     }
     const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
     const pivotPos = this.getNextPivotPosStandard(baseOriginPos, 3);
 
     if (pivotPos) {
-      const storagePositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
-      creationIdea.addBuilds(storagePositions, STRUCTURE_STORAGE, 2, true, false);
+      const terminalPositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
+      creationIdea.addBuilds(terminalPositions, STRUCTURE_TERMINAL, 2, true, false);
     }
   }
 }

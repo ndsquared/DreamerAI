@@ -3,7 +3,7 @@ This module is responsible for long-term memory management
 */
 import { Cortex } from "./cortex";
 import { Figment } from "figments/figment";
-import { FigmentThought } from "thoughts/figmentThought";
+import { FigmentThought } from "thoughts/figmentThoughts/figmentThought";
 import { IdeaType } from "ideas/idea";
 import { getReconRoomData } from "utils/misc";
 

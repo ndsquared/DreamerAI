@@ -1,5 +1,5 @@
 import { BuildThought } from "./buildThought";
-import { BuildThoughtType } from "./thought";
+import { BuildThoughtType } from "../thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 import { PathFindWithRoad } from "utils/misc";
@@ -19,10 +19,13 @@ export class RoadThought extends BuildThought {
     }
 
     const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
-    // Build roads around spawn
-    const roadDeltas: Coord[] = this.cardinalDirections();
-    const roadPositions: RoomPosition[] = this.getPositionsFromDelta(baseOriginPos, roadDeltas);
-    creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false, false);
+    // Build roads around spawns
+    const spawnPositions = _.map(this.idea.baseRoomObjects.spawns, s => s.pos);
+    for (const spawnPos of spawnPositions) {
+      const roadDeltas: Coord[] = this.cardinalDirections();
+      const roadPositions: RoomPosition[] = this.getPositionsFromDelta(spawnPos, roadDeltas);
+      creationIdea.addBuilds(roadPositions, STRUCTURE_ROAD, 50, false, false, false);
+    }
 
     // Build roads to all containers
     for (const containers of Object.values(this.idea.neighborhood.sourceContainers)) {

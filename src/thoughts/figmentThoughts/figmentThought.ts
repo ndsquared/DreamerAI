@@ -1,4 +1,4 @@
-import { FigmentThoughtType, Thought } from "./thought";
+import { FigmentThoughtType, Thought } from "../thought";
 import { Figment } from "figments/figment";
 import { Idea } from "ideas/idea";
 import profiler from "screeps-profiler";

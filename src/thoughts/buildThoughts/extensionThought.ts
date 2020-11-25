@@ -1,5 +1,5 @@
 import { BuildThought } from "./buildThought";
-import { BuildThoughtType } from "./thought";
+import { BuildThoughtType } from "../thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { Idea } from "ideas/idea";
 

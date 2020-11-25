@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { BuildThoughtType, Thought } from "./thought";
+import { BuildThoughtType, Thought } from "../thought";
 import { CreationIdea } from "ideas/creationIdea";
 import { GetRoomPosition } from "utils/misc";
 import { Idea } from "ideas/idea";

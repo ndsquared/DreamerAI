@@ -1,6 +1,6 @@
 import { Figment } from "figments/figment";
 import { FigmentThought } from "./figmentThought";
-import { FigmentThoughtType } from "./thought";
+import { FigmentThoughtType } from "../thought";
 import { Idea } from "ideas/idea";
 import { getColor } from "utils/colors";
 

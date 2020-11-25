@@ -1,14 +1,14 @@
 import { Figment } from "figments/figment";
 import { FigmentThought } from "./figmentThought";
-import { FigmentThoughtType } from "./thought";
+import { FigmentThoughtType } from "../thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { RandomRoomPatrolPos } from "utils/misc";
 
-export class DefenseThought extends FigmentThought {
+export class AttackThought extends FigmentThought {
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
-    this.figments[FigmentThoughtType.DEFENSE] = [];
+    this.figments[FigmentThoughtType.ATTACK] = [];
   }
 
   public handleFigment(figment: Figment): boolean {
@@ -17,13 +17,9 @@ export class DefenseThought extends FigmentThought {
       return false;
     }
     const enemyTarget = this.idea.cortex.getNextEnemyTarget(room.name);
-    const healTarget = this.idea.cortex.getNextHealTarget(room.name);
     if (enemyTarget) {
       console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
-      figment.addNeuron(NeuronType.RANGED_ATTACK, enemyTarget.id, enemyTarget.pos);
-      figment.memory.inCombat = true;
-    } else if (healTarget) {
-      figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
+      figment.addNeuron(NeuronType.ATTACK, enemyTarget.id, enemyTarget.pos);
       figment.memory.inCombat = true;
     } else {
       let patrolPos = RandomRoomPatrolPos(room);
@@ -41,11 +37,10 @@ export class DefenseThought extends FigmentThought {
     return true;
   }
 
-  public figmentNeeded(figmentType: string): boolean {
+  public figmentNeeded(): boolean {
     if (this.idea.rcl < 3) {
       return false;
     }
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(RANGED_ATTACK));
-    return totalParts < 1;
+    return false;
   }
 }

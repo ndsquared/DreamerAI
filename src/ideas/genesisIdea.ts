@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Idea, IdeaType } from "./idea";
-import { AttackThought } from "thoughts/attackThought";
-import { DefenseThought } from "thoughts/defenseThought";
+import { AttackThought } from "thoughts/figmentThoughts/attackThought";
+import { DefenseThought } from "thoughts/figmentThoughts/defenseThought";
 import { Figment } from "figments/figment";
-import { FigmentThought } from "thoughts/figmentThought";
+import { FigmentThought } from "thoughts/figmentThoughts/figmentThought";
 import { FigmentThoughtType } from "thoughts/thought";
 import { GetFigmentSpec } from "figments/figmentSpec";
-import { HarvestThought } from "../thoughts/harvestThought";
+import { HarvestThought } from "thoughts/figmentThoughts/harvestThought";
 import { Imagination } from "imagination";
-import { PatrolThought } from "thoughts/patrolThought";
-import { PickupThought } from "thoughts/pickupThought";
-import { ReserveThought } from "thoughts/reserveThought";
-import { ScoutThought } from "thoughts/scoutThought";
-import { TransferThought } from "thoughts/transferThought";
-import { UpgradeThought } from "thoughts/upgradeThought";
-import { WorkerThought } from "thoughts/workerThought";
+import { PatrolThought } from "thoughts/figmentThoughts/patrolThought";
+import { PickupThought } from "thoughts/figmentThoughts/pickupThought";
+import { ReserveThought } from "thoughts/figmentThoughts/reserveThought";
+import { ScoutThought } from "thoughts/figmentThoughts/scoutThought";
+import { TransferThought } from "thoughts/figmentThoughts/transferThought";
+import { UpgradeThought } from "thoughts/figmentThoughts/upgradeThought";
+import { WorkerThought } from "thoughts/figmentThoughts/workerThought";
 
 interface ThoughtMapping {
   name: string;

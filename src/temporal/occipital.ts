@@ -130,7 +130,7 @@ export class Occipital implements Temporal {
         if (nextBuild) {
           const rv = new RoomVisual(nextBuild.pos.roomName);
           rv.circle(nextBuild.pos, { fill: getColor("light-blue"), radius: 0.5 });
-          rv.text(nextBuild.structureType, nextBuild.pos);
+          rv.text(nextBuild.structure, nextBuild.pos);
         }
         const nextRepair = this.cortex.getNextRepairTarget(baseRoomName);
         if (nextRepair) {
