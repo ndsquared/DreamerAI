@@ -4,7 +4,7 @@ const attackBodySpec = {
   bodyParts: [TOUGH, ATTACK],
   ratio: [1, 1],
   minParts: 4,
-  maxParts: 50,
+  maxParts: 30,
   ignoreCarry: false,
   roadTravel: false
 };
@@ -18,7 +18,7 @@ const defenseBodySpec = {
   bodyParts: [TOUGH, RANGED_ATTACK, HEAL],
   ratio: [1, 1, 1],
   minParts: 6,
-  maxParts: 50,
+  maxParts: 40,
   ignoreCarry: false,
   roadTravel: false
 };
@@ -102,7 +102,7 @@ const upgradeBodySpec = {
   bodyParts: [CARRY, WORK],
   ratio: [1, 3],
   minParts: 4,
-  maxParts: 50,
+  maxParts: 30,
   ignoreCarry: true,
   roadTravel: true
 };
@@ -116,7 +116,7 @@ const workerBodySpec = {
   bodyParts: [WORK, CARRY],
   ratio: [1, 1],
   minParts: 4,
-  maxParts: 50,
+  maxParts: 30,
   ignoreCarry: false,
   roadTravel: false
 };
