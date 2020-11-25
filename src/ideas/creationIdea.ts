@@ -5,6 +5,7 @@ import { BuildThought } from "thoughts/buildThoughts/buildThought";
 import { BuildThoughtType } from "thoughts/thought";
 import { ContainerThought } from "thoughts/buildThoughts/containerThought";
 import { ExtensionThought } from "thoughts/buildThoughts/extensionThought";
+import { ExtractorThought } from "thoughts/buildThoughts/extractorThought";
 import { Imagination } from "imagination";
 import { LinkThought } from "thoughts/buildThoughts/linkThought";
 import { RampartThought } from "thoughts/buildThoughts/rampartThought";
@@ -17,7 +18,6 @@ import { getColor } from "utils/colors";
 
 export class CreationIdea extends Idea {
   public buildThoughts: { [name: string]: { [instance: string]: BuildThought } } = {};
-  private rateLimitBuildPlanning = true;
   private rateLimitBuildInterval = 50;
   public constructor(roomName: string, imagination: Imagination, type: IdeaType) {
     super(roomName, imagination, type);
@@ -30,7 +30,8 @@ export class CreationIdea extends Idea {
       { name: BuildThoughtType.RAMPART, thought: RampartThought },
       { name: BuildThoughtType.LINK, thought: LinkThought },
       { name: BuildThoughtType.TERMINAL, thought: TerminalThought },
-      { name: BuildThoughtType.SPAWN, thought: SpawnThought }
+      { name: BuildThoughtType.SPAWN, thought: SpawnThought },
+      { name: BuildThoughtType.EXTRACTOR, thought: ExtractorThought }
     ];
     for (const buildThought of buildThoughts) {
       this.thoughts[buildThought.name] = {};
@@ -40,8 +41,7 @@ export class CreationIdea extends Idea {
 
   public ponder(): void {
     if (this.cortex.metabolism.buildQueue[this.roomName].length === 0) {
-      if (this.rateLimitBuildPlanning && Game.time % this.rateLimitBuildInterval === 0) {
-        this.rateLimitBuildPlanning = false;
+      if (Game.time % this.rateLimitBuildInterval === 0) {
         for (const thoughtName in this.thoughts) {
           for (const thoughtInstance in this.thoughts[thoughtName]) {
             const thought = this.thoughts[thoughtName][thoughtInstance];
@@ -75,7 +75,6 @@ export class CreationIdea extends Idea {
   // TODO: need some better handling of build results
   private processBuildQueue(): void {
     if (this.cortex.metabolism.buildQueue[this.roomName].length > 0) {
-      this.rateLimitBuildPlanning = true;
       let nextBuild = this.cortex.metabolism.buildQueue[this.roomName].peek();
       let buildResult = -1;
       const room = Game.rooms[nextBuild.pos.roomName];
