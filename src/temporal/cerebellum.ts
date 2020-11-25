@@ -39,7 +39,6 @@ export class Cerebellum implements Temporal {
   }
 
   public meditate(): void {
-    this.forget();
     this.initializeMemory();
     this.pruneFigments();
     this.assignFigments();
@@ -47,11 +46,8 @@ export class Cerebellum implements Temporal {
   }
 
   public getMemory(): void {
+    this.forget();
     this.memory = Memory;
-  }
-
-  public setMemory(): void {
-    RawMemory.set(JSON.stringify(this.memory));
   }
 
   public genesisMemory(roomName: string): GenesisMemory {

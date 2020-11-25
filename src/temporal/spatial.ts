@@ -25,7 +25,6 @@ export class Spatial {
   }
 
   public processRoom(roomName: string): void {
-    const room = Game.rooms[roomName];
     const roomMemory = this.cortex.memory.rooms[roomName];
     switch (roomMemory.roomType) {
       case RoomType.ROOM_CENTER:
@@ -49,9 +48,6 @@ export class Spatial {
         this.addRoomToNeighborhood(roomName, roomMemory);
         break;
     }
-    if (room) {
-      this.scoreRoom(room, roomMemory);
-    }
   }
 
   private addRoomToNeighborhood(roomName: string, roomMemory: RoomMemory): void {
@@ -68,7 +64,8 @@ export class Spatial {
     }
   }
 
-  private scoreRoom(room: Room, roomMemory: RoomMemory): void {
+  public scoreRoom(room: Room): void {
+    const roomMemory = this.cortex.memory.rooms[room.name];
     if (roomMemory.roomType !== RoomType.ROOM_STANDARD) {
       return;
     }

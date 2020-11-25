@@ -3,6 +3,7 @@ This module is reponsible for visualizations and stats
 */
 import { BarGraph, Table } from "utils/visuals";
 import { Cortex } from "./cortex";
+import { FigmentThoughtType } from "thoughts/thought";
 import { getColor } from "utils/colors";
 
 export class Occipital implements Temporal {
@@ -206,13 +207,17 @@ export class Occipital implements Temporal {
         // Figment Stats
         const figmentTableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
         let total = 0;
-        for (const figmentType in this.cortex.memory.imagination.genesis[baseRoomName].figmentCount) {
-          const figmentCount = this.cortex.memory.imagination.genesis[baseRoomName].figmentCount[figmentType];
+        for (const figmentType of Object.values(FigmentThoughtType)) {
+          let figmentCount = 0;
+          const figmentCountMemory = this.cortex.memory.imagination.genesis[baseRoomName].figmentCount[figmentType];
+          if (figmentCountMemory) {
+            figmentCount = this.cortex.memory.imagination.genesis[baseRoomName].figmentCount[figmentType];
+          }
           total += figmentCount;
           let priority = -1;
           let needed = false;
           const figmentPrefs = this.cortex.getFigmentPreferences(baseRoomName);
-          if (figmentPrefs) {
+          if (figmentPrefs[figmentType]) {
             priority = figmentPrefs[figmentType].priority;
             needed = figmentPrefs[figmentType].needed;
           }

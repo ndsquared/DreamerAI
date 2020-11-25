@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Idea, IdeaType } from "ideas/idea";
 import { Cortex } from "temporal/cortex";
-import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
+import { Idea } from "ideas/idea";
 import { getUsername } from "utils/misc";
 import profiler from "screeps-profiler";
 
@@ -17,22 +16,6 @@ export class Imagination implements IBrain {
     this.cortex = new Cortex(this);
   }
 
-  private fantasize() {
-    // TODO: need to handle this loop better
-    for (const spawnName in Game.spawns) {
-      const spawn = Game.spawns[spawnName];
-      if (!this.ideas[spawn.room.name]) {
-        this.ideas[spawn.room.name] = {};
-        this.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(
-          spawn.room.name,
-          this,
-          IdeaType.TABULA_RASA
-        );
-        this.cortex.addBaseRoomName(spawn);
-      }
-    }
-  }
-
   public imagine(): void {
     // CPU guard
     if (Game.cpu.bucket < 200) {
@@ -41,11 +24,11 @@ export class Imagination implements IBrain {
     }
 
     // Pre-core
-    this.fantasize();
+    this.cortex.fantasize();
     try {
       this.cortex.meditate();
     } catch (error) {
-      console.log(`hippocampus could not meditate`);
+      console.log(`cortex could not meditate`);
       console.log(error);
     }
 
@@ -59,7 +42,7 @@ export class Imagination implements IBrain {
       // Display stats/visuals
       this.cortex.contemplate();
     } catch (error) {
-      console.log(`hippocampus could not contemplate`);
+      console.log(`cortex could not contemplate`);
       console.log(error);
     }
   }

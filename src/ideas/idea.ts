@@ -45,8 +45,8 @@ export abstract class Idea implements IBrain {
     return this.cortex.cerebellum.genesisMemory(this.roomName).figmentCount;
   }
 
-  public get figmentPrefs(): FigmentPreferences {
-    return this.cortex.hippocampus.figmentPreferences[this.roomName];
+  public get figmentPrefs(): Record<string, FigmentPreference> {
+    return this.cortex.baseRooms[this.roomName].figmentPreferences;
   }
 
   public get territory(): TerritoryObjects {

@@ -62,6 +62,7 @@ interface FigmentCountAdjustment {
 
 interface CortexBaseRoom {
   baseOriginPos: RoomPosition;
+  figmentPreferences: { [type: string]: FigmentPreference };
   showStats: boolean;
   showBuildVisuals: boolean;
   showMetaVisuals: boolean;
@@ -79,6 +80,7 @@ interface NeighborhoodObjects {
   sources: Source[];
   sourceContainers: { [name: string]: StructureContainer[] };
   energyWithdrawStructures: Structure[];
+  neighborhoodCreeps: Creep[];
 }
 
 interface BaseRoomObjects {
@@ -180,10 +182,6 @@ interface ClosestTarget {
 interface FigmentPreference {
   priority: number;
   needed: boolean;
-}
-
-interface FigmentPreferences {
-  [type: string]: FigmentPreference;
 }
 
 interface Temporal {

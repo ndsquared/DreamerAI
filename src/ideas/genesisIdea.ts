@@ -111,13 +111,16 @@ export class GenesisIdea extends Idea {
   private setQueuePriorities(): void {
     const enemies = this.cortex.metabolism.enemyQueue[this.roomName].length;
     for (const figmentType of Object.values(FigmentThoughtType)) {
+      this.figmentPrefs[figmentType] = {
+        priority: 10,
+        needed: false
+      };
       switch (figmentType) {
         case FigmentThoughtType.HARVEST: {
           const count = this.getFigmentCount(figmentType);
+          const totalFigmentsInNeighborhood = this.cortex.getTotalFigmentsInNeighborhood(this.roomName);
           this.figmentPrefs[figmentType].priority = 12;
-          if (count > 1) {
-            this.figmentPrefs[figmentType].priority = 7;
-          } else if (count > 0) {
+          if (count > 0 && totalFigmentsInNeighborhood < 5) {
             this.figmentPrefs[figmentType].priority = 10;
           }
           break;
@@ -202,6 +205,7 @@ export class GenesisIdea extends Idea {
           break;
       }
       this.figmentPrefs[figmentType].needed = figmentNeeded;
+      // console.log(`${figmentType} needed: ${String(figmentNeeded)}`);
       if (figmentNeeded) {
         const payload = {
           figmentName: Figment.GetUniqueName(),

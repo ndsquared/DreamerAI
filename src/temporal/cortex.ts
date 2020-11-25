@@ -5,10 +5,12 @@ This module is the main abtraction for getting room object data
 
 import { Cerebellum } from "./cerebellum";
 import { Hippocampus } from "./hippocampus";
+import { IdeaType } from "ideas/idea";
 import { Imagination } from "imagination";
 import { Metabolism } from "./metabolism";
 import { Occipital } from "./occipital";
 import { Spatial } from "./spatial";
+import { TabulaRasaIdea } from "ideas/tabulaRasaIdea";
 import { getReconRoomData } from "utils/misc";
 
 export class Cortex implements Temporal {
@@ -59,6 +61,23 @@ export class Cortex implements Temporal {
     return this._occipital;
   }
 
+  public fantasize(): void {
+    this.cerebellum.getMemory();
+    // TODO: need to handle this loop better
+    for (const spawnName in Game.spawns) {
+      const spawn = Game.spawns[spawnName];
+      if (!this.imagination.ideas[spawn.room.name]) {
+        this.imagination.ideas[spawn.room.name] = {};
+        this.imagination.ideas[spawn.room.name][IdeaType.TABULA_RASA] = new TabulaRasaIdea(
+          spawn.room.name,
+          this.imagination,
+          IdeaType.TABULA_RASA
+        );
+        this.addBaseRoomName(spawn);
+      }
+    }
+  }
+
   public meditate(): void {
     // Reset short-term memory ever tick
     this._hippocampus = new Hippocampus(this);
@@ -70,16 +89,22 @@ export class Cortex implements Temporal {
   }
 
   public addBaseRoomName(spawn: StructureSpawn): void {
+    const roomName = spawn.room.name;
     // TODO: need to calculate distance for all known rooms in memory
-    this.baseRooms[spawn.room.name] = {
+    this.baseRooms[roomName] = {
       baseOriginPos: spawn.pos,
-      showStats: false,
-      showBuildVisuals: false,
-      showMetaVisuals: false,
-      showEnemyVisuals: false
+      figmentPreferences: {},
+      showStats: true,
+      showBuildVisuals: true,
+      showMetaVisuals: true,
+      showEnemyVisuals: true
     };
+    const neighborhoodMemory = this.memory.imagination.neighborhoods;
+    neighborhoodMemory.neighborhoodRoomNames[roomName] = [roomName];
+    neighborhoodMemory.roomsInNeighborhoods[roomName] = roomName;
+    this.memory.rooms[roomName] = getReconRoomData(roomName);
 
-    this._metabolism.addMetabolismQueues(spawn.room.name);
+    this._metabolism.addMetabolismQueues(roomName);
   }
 
   public contemplate(): void {
@@ -106,8 +131,8 @@ export class Cortex implements Temporal {
     }
   }
 
-  public getFigmentPreferences(roomName: string): FigmentPreferences | null {
-    return this._hippocampus.figmentPreferences[roomName];
+  public getFigmentPreferences(roomName: string): Record<string, FigmentPreference> {
+    return this.baseRooms[roomName].figmentPreferences;
   }
 
   public getNextSpawn(roomName: string): SpawnQueuePayload | null {
@@ -190,6 +215,10 @@ export class Cortex implements Temporal {
       this.spatial.populateReconRoomNames();
     }
     return this.spatial.reconRoomNames.shift();
+  }
+
+  public getTotalFigmentsInNeighborhood(roomName: string): number {
+    return this.hippocampus.neighborhood[roomName].neighborhoodCreeps.length;
   }
 
   public addReconRoomData(room: Room): void {
