@@ -28,7 +28,10 @@ export class ReserveThought extends FigmentThought {
     if (this.idea.rcl < 3) {
       return false;
     }
-    if (this.idea.cortex.hippocampus.roomObjects[this.instance]?.containers.length === 0) {
+    if (
+      !this.idea.cortex.hippocampus.roomObjects[this.instance] ||
+      this.idea.cortex.hippocampus.roomObjects[this.instance].containers.length === 0
+    ) {
       return false;
     }
     // TODO: Set parts lower when controller is above reserve threshold
