@@ -144,6 +144,9 @@ export function GetFigmentSpec(figmentType: string): FigmentSpec {
     case FigmentThoughtType.UPGRADE:
       spec = upgradeFigmentSpec;
       break;
+    case FigmentThoughtType.MINER:
+      spec = upgradeFigmentSpec;
+      break;
     case FigmentThoughtType.WORKER:
       spec = workerFigmentSpec;
       break;

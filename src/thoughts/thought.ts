@@ -11,7 +11,8 @@ export enum FigmentThoughtType {
   UPGRADE = "Upgrade",
   ATTACK = "Attack",
   DEFENSE = "Defense",
-  PATROL = "Patrol"
+  PATROL = "Patrol",
+  MINER = "Miner"
 }
 
 export enum BuildThoughtType {

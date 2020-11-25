@@ -35,6 +35,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.UPGRADE, controller.id, controller.pos);
       }
     } else {
+      // TODO: need to optimize this to set a min energy requirement
       const target = this.idea.metabolism.metabolizeClosestResourceOrStructure(figment);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);

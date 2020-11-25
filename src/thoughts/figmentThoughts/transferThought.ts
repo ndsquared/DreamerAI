@@ -8,7 +8,15 @@ import { PathFindWithRoad } from "utils/misc";
 export class TransferThought extends FigmentThought {
   private containerId: Id<StructureContainer> | undefined = undefined;
   private storageId: Id<StructureStorage> | undefined = undefined;
-  private transferPriority: StructureConstant[] = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER];
+  private terminalId: Id<StructureTerminal> | undefined = undefined;
+  private transferPriority: StructureConstant[] = [
+    STRUCTURE_EXTENSION,
+    STRUCTURE_SPAWN,
+    STRUCTURE_TOWER,
+    STRUCTURE_TERMINAL
+  ];
+  private terminalLowerBound = 20000;
+  private terminalUpperBound = 30000;
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
     this.figments[FigmentThoughtType.TRANSFER] = [];
@@ -31,13 +39,22 @@ export class TransferThought extends FigmentThought {
     return null;
   }
 
+  public get terminal(): StructureTerminal | null {
+    if (this.terminalId) {
+      return Game.getObjectById(this.terminalId);
+    }
+    this.terminalId = undefined;
+    return null;
+  }
+
   private getNextWithdrawTarget(): StoreStructure | undefined {
     if (this.storage && this.storage.store.getUsedCapacity() > 0) {
       return this.storage;
     } else if (this.container && this.container.store.getUsedCapacity() > 0) {
       return this.container;
+    } else if (this.terminal && this.terminal.store.getUsedCapacity() > this.terminalUpperBound) {
+      return this.terminal;
     }
-
     return undefined;
   }
 
@@ -53,6 +70,10 @@ export class TransferThought extends FigmentThought {
       } else if (structureConstant === STRUCTURE_TOWER) {
         const towers = _.filter(this.idea.baseRoomObjects.towers, t => t.energy < 501);
         targets = targets.concat(towers);
+      } else if (structureConstant === STRUCTURE_TERMINAL) {
+        if (this.terminal && this.terminal.store.getUsedCapacity() < this.terminalLowerBound) {
+          targets.push(this.terminal);
+        }
       }
       if (targets.length) {
         break;
@@ -67,7 +88,6 @@ export class TransferThought extends FigmentThought {
     if (!room) {
       return;
     }
-    // TODO: Need to refactor for neighborhood proper
     if (!this.container) {
       if (this.idea.baseRoomObjects.spawnContainers.length) {
         this.containerId = this.idea.baseRoomObjects.spawnContainers[0].id;
@@ -78,6 +98,11 @@ export class TransferThought extends FigmentThought {
         this.storageId = room.storage.id;
       }
     }
+    if (!this.terminal) {
+      if (room.terminal) {
+        this.terminalId = room.terminal.id;
+      }
+    }
   }
 
   public handleFigment(figment: Figment): boolean {
@@ -86,7 +111,7 @@ export class TransferThought extends FigmentThought {
       return false;
     }
     if (figment.memory.figmentType === FigmentThoughtType.TOWER_FILLER) {
-      this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];
+      this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TERMINAL];
     }
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.getNextWithdrawTarget();

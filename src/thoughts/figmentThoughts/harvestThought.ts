@@ -10,14 +10,14 @@ export class HarvestThought extends FigmentThought {
   private sourcePos: RoomPosition;
   private containerId: Id<StructureContainer> | undefined = undefined;
   private linkId: Id<StructureLink> | undefined = undefined;
-  private withinHarvestMinDist = true;
+  private withinMinDist = true;
   public constructor(idea: Idea, type: FigmentThoughtType, source: Source) {
     super(idea, type, source.id);
     this.sourceId = source.id;
     this.sourcePos = source.pos;
     const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
     if (pf.cost > 150) {
-      this.withinHarvestMinDist = false;
+      this.withinMinDist = false;
       console.log(`Source, ${this.sourceId}, is to far from room, ${this.idea.roomName}, to harvest`);
     }
     this.figments[FigmentThoughtType.HARVEST] = [];
@@ -95,7 +95,7 @@ export class HarvestThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    if (!this.withinHarvestMinDist) {
+    if (!this.withinMinDist) {
       return false;
     }
     const room = Game.rooms[this.sourcePos.roomName];

@@ -9,6 +9,7 @@ import { FigmentThoughtType } from "thoughts/thought";
 import { GetFigmentSpec } from "figments/figmentSpec";
 import { HarvestThought } from "thoughts/figmentThoughts/harvestThought";
 import { Imagination } from "imagination";
+import { MiningThought } from "thoughts/figmentThoughts/miningThought";
 import { PatrolThought } from "thoughts/figmentThoughts/patrolThought";
 import { PickupThought } from "thoughts/figmentThoughts/pickupThought";
 import { ReserveThought } from "thoughts/figmentThoughts/reserveThought";
@@ -53,6 +54,15 @@ export class GenesisIdea extends Idea {
           this,
           FigmentThoughtType.HARVEST,
           source
+        );
+      }
+    }
+    for (const extractor of this.baseRoomObjects.extractors) {
+      if (!this.thoughts[FigmentThoughtType.MINER][extractor.id]) {
+        this.thoughts[FigmentThoughtType.MINER][extractor.id] = new MiningThought(
+          this,
+          FigmentThoughtType.MINER,
+          extractor
         );
       }
     }
@@ -150,6 +160,9 @@ export class GenesisIdea extends Idea {
         case FigmentThoughtType.PATROL:
           this.figmentPrefs[figmentType].priority = 5;
           break;
+        case FigmentThoughtType.MINER:
+          this.figmentPrefs[figmentType].priority = 3;
+          break;
         case FigmentThoughtType.UPGRADE:
           this.figmentPrefs[figmentType].priority = 5;
           if (this.cortex.metabolism.inEcoMode(this.roomName)) {
@@ -206,8 +219,10 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentThoughtType.WORKER:
-          if (count < constructionSites + repairTargets) {
-            figmentNeeded = true;
+          if (constructionSites || repairTargets) {
+            if (count < this.cortex.getNeighborhoodRoomNames(this.roomName).length) {
+              figmentNeeded = true;
+            }
           }
           break;
         default:
