@@ -80,10 +80,10 @@ export class TransferThought extends FigmentThought {
     }
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     const room = this.idea.room;
     if (!room) {
-      return;
+      return false;
     }
     if (figment.memory.figmentType === FigmentThoughtType.TOWER_FILLER) {
       this.transferPriority = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];
@@ -113,6 +113,7 @@ export class TransferThought extends FigmentThought {
         });
       }
     }
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {

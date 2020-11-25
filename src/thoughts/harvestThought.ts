@@ -56,17 +56,17 @@ export class HarvestThought extends FigmentThought {
     }
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     if (!this.source) {
       figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
-      return;
+      return true;
     } else if (this.source.energy === 0) {
       if (figment.store.getUsedCapacity() > 0) {
         figment.addNeuron(NeuronType.DROP);
       } else if (!figment.pos.inRangeTo(this.sourcePos, 3)) {
         figment.addNeuron(NeuronType.MOVE, "", this.sourcePos);
       }
-      return;
+      return true;
     }
 
     if (this.container) {
@@ -91,6 +91,7 @@ export class HarvestThought extends FigmentThought {
     } else {
       figment.addNeuron(NeuronType.DROP);
     }
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {

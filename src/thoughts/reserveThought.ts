@@ -10,7 +10,7 @@ export class ReserveThought extends FigmentThought {
     this.figments[FigmentThoughtType.RESERVE] = [];
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     const room = Game.rooms[this.instance];
     if (room) {
       const controller = room.controller;
@@ -21,6 +21,7 @@ export class ReserveThought extends FigmentThought {
       const targetPos = new RoomPosition(25, 25, this.instance);
       figment.addNeuron(NeuronType.MOVE, "", targetPos);
     }
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {

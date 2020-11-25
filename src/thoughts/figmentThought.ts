@@ -26,13 +26,14 @@ export abstract class FigmentThought extends Thought {
   public think(): void {
     for (const figmentType in this.figments) {
       for (const figment of this.figments[figmentType]) {
+        let handled = false;
         if (figment.isDreaming) {
-          this.handleFigment(figment);
+          handled = this.handleFigment(figment);
         }
         const tookAction = figment.run();
         // If we didn't take any action this turn, try to take the next action
-        if (!tookAction) {
-          this.handleFigment(figment);
+        if (!tookAction && !handled) {
+          handled = this.handleFigment(figment);
           figment.run();
         }
       }
@@ -45,7 +46,7 @@ export abstract class FigmentThought extends Thought {
     }
   }
 
-  public abstract handleFigment(figment: Figment): void;
+  public abstract handleFigment(figment: Figment): boolean;
   public abstract figmentNeeded(figmentType: string): boolean;
 }
 

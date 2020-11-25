@@ -11,10 +11,10 @@ export class WorkerThought extends FigmentThought {
     this.figments[FigmentThoughtType.WORKER] = [];
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     const room = this.idea.room;
     if (!room) {
-      return;
+      return false;
     }
     if (figment.store.getUsedCapacity() > 0) {
       const repairTarget = this.idea.cortex.getNextRepairTarget(room.name);
@@ -42,6 +42,7 @@ export class WorkerThought extends FigmentThought {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     }
+    return true;
   }
 
   public figmentNeeded(): boolean {

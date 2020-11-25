@@ -22,7 +22,7 @@ export class ScoutThought extends FigmentThought {
   }
 
   // Figment is handled every turn
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     if (figment.room.name === this.targetRoomName) {
       const room = Game.rooms[figment.room.name];
       if (room) {
@@ -33,10 +33,11 @@ export class ScoutThought extends FigmentThought {
       this.targetRoomName = undefined;
     }
     if (!this.targetRoomName) {
-      return;
+      return false;
     }
     const targetPos = new RoomPosition(25, 25, this.targetRoomName);
     figment.travelTo(targetPos);
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {

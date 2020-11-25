@@ -91,7 +91,7 @@ export class UpgradeThought extends FigmentThought {
     super.ponder();
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     if (figment.store.getUsedCapacity() > 0) {
       if (this.controller && this.controller.my) {
         figment.addNeuron(NeuronType.UPGRADE, this.controller.id, this.controller.pos);
@@ -102,6 +102,7 @@ export class UpgradeThought extends FigmentThought {
         figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
       }
     }
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {

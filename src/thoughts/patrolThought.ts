@@ -15,7 +15,7 @@ export class PatrolThought extends FigmentThought {
   public ponder(): void {
     if (!this.targetRoomName) {
       const neighborhoodRoomNames = this.idea.cortex.getNeighborhoodRoomNames(this.idea.roomName);
-      if (this.currentIndex < neighborhoodRoomNames.length - 1) {
+      if (this.currentIndex < neighborhoodRoomNames.length) {
         this.targetRoomName = neighborhoodRoomNames[this.currentIndex];
         this.currentIndex++;
       } else {
@@ -30,15 +30,17 @@ export class PatrolThought extends FigmentThought {
   }
 
   // Figment is handled every turn
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     if (figment.room.name === this.targetRoomName) {
       this.targetRoomName = undefined;
     }
     if (!this.targetRoomName) {
-      return;
+      return false;
     }
     const targetPos = new RoomPosition(25, 25, this.targetRoomName);
     figment.travelTo(targetPos);
+    console.log("patrol is being handled");
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {

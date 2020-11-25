@@ -11,10 +11,10 @@ export class PickupThought extends FigmentThought {
     this.figments[FigmentThoughtType.PICKUP] = [];
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     const room = this.idea.room;
     if (!room) {
-      return;
+      return false;
     }
     if (figment.store.getUsedCapacity() === 0) {
       const target = this.idea.metabolism.metabolizeOutput(figment);
@@ -32,6 +32,7 @@ export class PickupThought extends FigmentThought {
         figment.addNeuron(NeuronType.MOVE, "", baseOriginPos, { moveRange: 3 });
       }
     }
+    return true;
   }
 
   public figmentNeeded(): boolean {

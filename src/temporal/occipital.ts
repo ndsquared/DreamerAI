@@ -233,6 +233,9 @@ export class Occipital implements Temporal {
         if (nextSpawn) {
           title += ` (Next Spawn: ${nextSpawn.figmentType})`;
         }
+        if (this.cortex.metabolism.inEcoMode(baseRoomName)) {
+          title += " [ECO MODE]";
+        }
 
         const figmentTable = new Table(title, figmentTableAnchor, figmentTableData);
         figmentTable.renderTable();

@@ -11,10 +11,10 @@ export class DefenseThought extends FigmentThought {
     this.figments[FigmentThoughtType.DEFENSE] = [];
   }
 
-  public handleFigment(figment: Figment): void {
+  public handleFigment(figment: Figment): boolean {
     const room = this.idea.room;
     if (!room) {
-      return;
+      return false;
     }
     const enemyTarget = this.idea.cortex.getNextEnemyTarget(room.name);
     const healTarget = this.idea.cortex.getNextHealTarget(room.name);
@@ -38,6 +38,7 @@ export class DefenseThought extends FigmentThought {
       figment.addNeuron(NeuronType.MOVE, "", patrolPos);
       figment.memory.inCombat = false;
     }
+    return true;
   }
 
   public figmentNeeded(figmentType: string): boolean {
