@@ -80,7 +80,6 @@ export class CreationIdea extends Idea {
       const room = Game.rooms[nextBuild.pos.roomName];
       if (room && this.canBuild()) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
-        console.log(buildResult);
         if (buildResult === OK) {
           nextBuild = this.cortex.metabolism.buildQueue[this.roomName].dequeue();
         } else if (buildResult === ERR_RCL_NOT_ENOUGH) {

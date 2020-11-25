@@ -52,11 +52,11 @@ export class MiningThought extends FigmentThought {
   }
 
   public handleFigment(figment: Figment): boolean {
-    if (!this.extractor) {
+    if (!this.extractor || !this.mineral) {
       figment.addNeuron(NeuronType.MOVE, "", this.extractoPos);
       return true;
     } else if (this.mineral && this.mineral.mineralAmount === 0) {
-      if (figment.store.getUsedCapacity() > 0) {
+      if (figment.store.getUsedCapacity(this.mineral.mineralType) > 0) {
         figment.addNeuron(NeuronType.DROP);
       } else if (!figment.pos.inRangeTo(this.extractoPos, 3)) {
         figment.addNeuron(NeuronType.MOVE, "", this.extractoPos);
@@ -76,8 +76,8 @@ export class MiningThought extends FigmentThought {
     const targetOptions = {
       ignoreFigmentCapacity: true
     };
-    if (figment.store.getUsedCapacity() === 0) {
-      figment.addNeuron(NeuronType.HARVEST, this.extractor.id, this.extractor.pos, targetOptions);
+    if (figment.store.getUsedCapacity(this.mineral.mineralType) === 0) {
+      figment.addNeuron(NeuronType.MINE, this.mineral.id, this.mineral.pos, targetOptions);
     } else {
       figment.addNeuron(NeuronType.DROP);
     }

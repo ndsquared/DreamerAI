@@ -10,7 +10,7 @@ export class NeuronRepair extends Neuron {
     this.interneuron.target.options.moveRandom = true;
   }
   public isValidNeuron(): boolean {
-    return this.figment.store.getUsedCapacity() > 0 && this.figment.getActiveBodyparts(WORK) > 0;
+    return this.figment.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && this.figment.getActiveBodyparts(WORK) > 0;
   }
   public isValidTarget(): boolean {
     if (!(this.target instanceof Structure)) {

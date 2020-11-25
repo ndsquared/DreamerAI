@@ -2,7 +2,6 @@ import { Figment } from "figments/figment";
 import { Neuron } from "./neuron";
 
 export class NeuronDrop extends Neuron {
-  private resourceType: ResourceConstant = RESOURCE_ENERGY;
   public constructor(figment: Figment, interneuron: Interneuron) {
     super(figment, interneuron);
   }
@@ -13,6 +12,13 @@ export class NeuronDrop extends Neuron {
     return true;
   }
   public impulse(): number {
-    return this.figment.drop(this.resourceType);
+    let result: number = OK;
+    for (const resourceType in this.figment.store) {
+      const tempResult = this.figment.drop(resourceType as ResourceConstant);
+      if (tempResult !== OK) {
+        result = tempResult;
+      }
+    }
+    return result;
   }
 }

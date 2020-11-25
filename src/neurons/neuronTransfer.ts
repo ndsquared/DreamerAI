@@ -6,7 +6,6 @@ type transferTargetType = StoreStructure | EnergyStructure;
 
 export class NeuronTransfer extends Neuron {
   public target!: transferTargetType;
-  private resourceType: ResourceConstant = RESOURCE_ENERGY;
   public constructor(figment: Figment, interneuron: Interneuron) {
     super(figment, interneuron);
   }
@@ -18,7 +17,7 @@ export class NeuronTransfer extends Neuron {
       return false;
     }
     if (isStoreStructure(this.target)) {
-      if (this.target.store.getFreeCapacity(this.resourceType) === 0) {
+      if (this.target.store.getFreeCapacity() === 0) {
         return false;
       }
     } else if (isEnergyStructure(this.target)) {
@@ -29,7 +28,16 @@ export class NeuronTransfer extends Neuron {
     return true;
   }
   public impulse(): number {
-    const result = this.figment.transfer(this.target, this.resourceType);
+    let result: number = OK;
+    for (const resourceType in this.figment.store) {
+      const resourceAmount = this.figment.store[resourceType as ResourceConstant];
+      if (resourceAmount > 0) {
+        const tempResult = this.figment.transfer(this.target, resourceType as ResourceConstant);
+        if (tempResult !== OK) {
+          result = tempResult;
+        }
+      }
+    }
     return result;
   }
 }

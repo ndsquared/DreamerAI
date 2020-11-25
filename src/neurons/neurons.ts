@@ -6,6 +6,7 @@ import { NeuronDream } from "./neuronDream";
 import { NeuronDrop } from "./neuronDrop";
 import { NeuronHarvest } from "./neuronHarvest";
 import { NeuronHeal } from "./neuronHeal";
+import { NeuronMine } from "./neuronMine";
 import { NeuronMove } from "./neuronMove";
 import { NeuronPickup } from "./neuronPickup";
 import { NeuronRangedAttack } from "./neuronRangedAttack";
@@ -33,7 +34,8 @@ export enum NeuronType {
   RANGED_ATTACK = "RANGED_ATTACK",
   HEAL = "HEAL",
   RANGED_HEAL = "RANGED_HEAL",
-  SLEEP = "Sleep"
+  SLEEP = "Sleep",
+  MINE = "Mine"
 }
 export abstract class Neurons {
   public static generateNeuron(figment: Figment, interneuron: Interneuron): Neuron {
@@ -83,6 +85,9 @@ export abstract class Neurons {
         break;
       case NeuronType.SLEEP:
         neuron = new NeuronSleep(figment, interneuron);
+        break;
+      case NeuronType.MINE:
+        neuron = new NeuronMine(figment, interneuron);
         break;
       default:
         neuron = new NeuronDream(figment, interneuron);
