@@ -32,9 +32,8 @@ export class LinkThought extends BuildThought {
           }
         }
       }
-    } else if (this.idea.roomObjects.links.length < 3) {
+    } else if (this.idea.roomObjects.links.length < 2) {
       // Build links at sources
-      // TODO: Optimize so this only called on sources in spawn room
       for (const source of this.idea.roomObjects.sources) {
         if (this.idea.baseRoomObjects.sourceLinks[source.id].length === 0) {
           const adjPositions = source.pos.availableAdjacentPositions(true);
@@ -46,6 +45,8 @@ export class LinkThought extends BuildThought {
             }
           }
         }
+        // TODO: hacky fix to only build a link at 1 source
+        break;
       }
     }
   }

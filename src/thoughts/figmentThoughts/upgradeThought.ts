@@ -47,9 +47,9 @@ export class UpgradeThought extends FigmentThought {
   }
 
   private getNextWithdrawTarget(): StoreStructure | undefined {
-    if (this.link) {
+    if (this.link && this.link.energy > 0) {
       return this.link;
-    } else if (this.container) {
+    } else if (this.container && this.container.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
       return this.container;
     } else if (this.storage) {
       return this.storage;
