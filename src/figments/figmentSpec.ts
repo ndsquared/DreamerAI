@@ -159,6 +159,9 @@ export function GetFigmentSpec(figmentType: string): FigmentSpec {
     case FigmentThoughtType.SCOUT:
       spec = scoutFigmentSpec;
       break;
+    case FigmentThoughtType.PATROL:
+      spec = scoutFigmentSpec;
+      break;
     default:
       console.log("getting default worker spec");
       spec = workerFigmentSpec;

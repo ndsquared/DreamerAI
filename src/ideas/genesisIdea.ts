@@ -9,6 +9,7 @@ import { FigmentThoughtType } from "thoughts/thought";
 import { GetFigmentSpec } from "figments/figmentSpec";
 import { HarvestThought } from "../thoughts/harvestThought";
 import { Imagination } from "imagination";
+import { PatrolThought } from "thoughts/patrolThought";
 import { PickupThought } from "thoughts/pickupThought";
 import { ReserveThought } from "thoughts/reserveThought";
 import { ScoutThought } from "thoughts/scoutThought";
@@ -36,7 +37,8 @@ export class GenesisIdea extends Idea {
       { name: FigmentThoughtType.UPGRADE, thought: UpgradeThought },
       { name: FigmentThoughtType.ATTACK, thought: AttackThought },
       { name: FigmentThoughtType.DEFENSE, thought: DefenseThought },
-      { name: FigmentThoughtType.SCOUT, thought: ScoutThought }
+      { name: FigmentThoughtType.SCOUT, thought: ScoutThought },
+      { name: FigmentThoughtType.PATROL, thought: PatrolThought }
     ];
     for (const figmentThought of figmentThoughts) {
       this.thoughts[figmentThought.name] = {};
@@ -55,6 +57,9 @@ export class GenesisIdea extends Idea {
       }
     }
     for (const roomName of this.cortex.getNeighborhoodRoomNames(this.roomName)) {
+      if (roomName === this.roomName) {
+        continue;
+      }
       const room = Game.rooms[roomName];
       if (room) {
         if (!this.thoughts[FigmentThoughtType.RESERVE][room.name]) {
@@ -140,6 +145,9 @@ export class GenesisIdea extends Idea {
           }
           break;
         case FigmentThoughtType.SCOUT:
+          this.figmentPrefs[figmentType].priority = 5;
+          break;
+        case FigmentThoughtType.PATROL:
           this.figmentPrefs[figmentType].priority = 5;
           break;
         case FigmentThoughtType.UPGRADE:

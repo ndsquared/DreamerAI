@@ -25,33 +25,36 @@ export class Hippocampus implements Temporal {
 
   public meditate(): void {
     for (const roomName in this.cortex.memory.rooms) {
-      console.log(`meditating on ${roomName}`);
       const room = Game.rooms[roomName];
       this.spatial.processRoom(roomName);
       if (room) {
         this.getRoomObjects(room);
         const baseRoomName = this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName];
         if (baseRoomName) {
-          this.neighborhood[baseRoomName] = {
-            sources: [],
-            sourceContainers: {},
-            energyWithdrawStructures: [],
-            neighborhoodCreeps: []
-          };
-          this.baseRoomObjects[baseRoomName] = {
-            spawnContainers: [],
-            controllerContainers: [],
-            towerEnemies: [],
-            inputLinks: [],
-            outputLinks: [],
-            sourceLinks: {},
-            controllerLinks: [],
-            extensions: [],
-            towers: [],
-            spawns: [],
-            storage: null,
-            controller: null
-          };
+          if (!this.neighborhood[baseRoomName]) {
+            this.neighborhood[baseRoomName] = {
+              sources: [],
+              sourceContainers: {},
+              energyWithdrawStructures: [],
+              neighborhoodCreeps: []
+            };
+          }
+          if (!this.baseRoomObjects[baseRoomName]) {
+            this.baseRoomObjects[baseRoomName] = {
+              spawnContainers: [],
+              controllerContainers: [],
+              towerEnemies: [],
+              inputLinks: [],
+              outputLinks: [],
+              sourceLinks: {},
+              controllerLinks: [],
+              extensions: [],
+              towers: [],
+              spawns: [],
+              storage: null,
+              controller: null
+            };
+          }
         }
         this.processRoomObjects(roomName, baseRoomName);
         this.spatial.scoreRoom(room);

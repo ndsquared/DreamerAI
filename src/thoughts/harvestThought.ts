@@ -3,16 +3,23 @@ import { FigmentThought } from "./figmentThought";
 import { FigmentThoughtType } from "./thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
+import { PathFindWithRoad } from "utils/misc";
 
 export class HarvestThought extends FigmentThought {
   private sourceId: Id<Source>;
   private sourcePos: RoomPosition;
   private containerId: Id<StructureContainer> | undefined = undefined;
   private linkId: Id<StructureLink> | undefined = undefined;
+  private withinHarvestMinDist = true;
   public constructor(idea: Idea, type: FigmentThoughtType, source: Source) {
     super(idea, type, source.id);
     this.sourceId = source.id;
     this.sourcePos = source.pos;
+    const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
+    if (pf.cost > 150) {
+      this.withinHarvestMinDist = false;
+      console.log(`Source, ${this.sourceId}, is to far from room, ${this.idea.roomName}, to harvest`);
+    }
     this.figments[FigmentThoughtType.HARVEST] = [];
   }
 
@@ -63,7 +70,6 @@ export class HarvestThought extends FigmentThought {
     }
 
     if (this.container) {
-      console.log("valid container");
       if (!this.container.pos.isEqualTo(figment.pos)) {
         const figments = this.container.pos.lookFor(LOOK_CREEPS);
         if (figments.length === 0) {
@@ -74,7 +80,6 @@ export class HarvestThought extends FigmentThought {
 
     let targetOptions;
     if (!this.link) {
-      console.log("could not find the link");
       targetOptions = {
         ignoreFigmentCapacity: true
       };
@@ -89,6 +94,9 @@ export class HarvestThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
+    if (!this.withinHarvestMinDist) {
+      return false;
+    }
     const room = Game.rooms[this.sourcePos.roomName];
     let controller: StructureController | undefined;
     if (room) {
