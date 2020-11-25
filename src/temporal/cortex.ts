@@ -84,8 +84,9 @@ export class Cortex implements Temporal {
     // Occipital should be first to meditate
     this.occipital.meditate();
     this.cerebellum.meditate();
-    this.hippocampus.meditate();
+    // Metabolism needs to meditate before the hippocampus
     this.metabolism.meditate();
+    this.hippocampus.meditate();
   }
 
   public addBaseRoomName(spawn: StructureSpawn): void {

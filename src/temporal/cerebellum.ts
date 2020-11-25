@@ -198,12 +198,12 @@ export class Cerebellum implements Temporal {
     for (const baseRoomName in this.memory.imagination.metabolic) {
       for (const input in this.memory.imagination.metabolic[baseRoomName].metabolism.inputs) {
         if (!Game.getObjectById(input)) {
-          delete this.memory.imagination.metabolic[baseRoomName].metabolism.inputs;
+          delete this.memory.imagination.metabolic[baseRoomName].metabolism.inputs[input];
         }
       }
       for (const output in this.memory.imagination.metabolic[baseRoomName].metabolism.outputs) {
         if (!Game.getObjectById(output)) {
-          delete this.memory.imagination.metabolic[baseRoomName].metabolism.outputs;
+          delete this.memory.imagination.metabolic[baseRoomName].metabolism.outputs[output];
         }
       }
     }
