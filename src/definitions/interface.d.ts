@@ -100,6 +100,7 @@ interface BaseRoomObjects {
   terminal: StructureTerminal | null;
   minerals: Mineral[];
   extractors: StructureExtractor[];
+  extractorContainers: { [name: string]: StructureContainer[] };
 }
 
 interface HealQueuePayload {

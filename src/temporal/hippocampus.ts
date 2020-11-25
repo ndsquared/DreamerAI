@@ -55,7 +55,8 @@ export class Hippocampus implements Temporal {
               terminal: null,
               controller: null,
               minerals: [],
-              extractors: []
+              extractors: [],
+              extractorContainers: {}
             };
           }
         }
@@ -251,5 +252,9 @@ export class Hippocampus implements Temporal {
       this.cortex.metabolism.addInput(baseRoomName, spawnContainer, spawnContainer.store.getUsedCapacity());
     }
     this.baseRoomObjects[baseRoomName].spawnContainers = spawnContainers;
+    for (const extractor of this.baseRoomObjects[baseRoomName].extractors) {
+      const extractorContainers = _.filter(this.roomObjects[roomName].containers, c => c.pos.inRangeTo(extractor, 1));
+      this.baseRoomObjects[baseRoomName].extractorContainers[extractor.id] = extractorContainers;
+    }
   }
 }

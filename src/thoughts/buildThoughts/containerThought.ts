@@ -34,8 +34,12 @@ export class ContainerThought extends BuildThought {
     }
 
     // Build container next to extractors
-    const extractorPositions = _.map(this.idea.baseRoomObjects.extractors, e => e.pos);
-    creationIdea.addBuilds(extractorPositions, STRUCTURE_CONTAINER, 5, true, false);
+    for (const extractor of this.idea.baseRoomObjects.extractors) {
+      if (this.idea.baseRoomObjects.extractorContainers[extractor.id].length === 0) {
+        const buildPositions = extractor.pos.availableAdjacentBuilds();
+        creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, 5, true, false);
+      }
+    }
 
     // Build container next to all the sources in the neighborhood
     for (const source of this.idea.neighborhood.sources) {
