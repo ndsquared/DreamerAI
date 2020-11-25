@@ -52,7 +52,10 @@ export class Hippocampus implements Temporal {
               towers: [],
               spawns: [],
               storage: null,
-              controller: null
+              terminal: null,
+              controller: null,
+              minerals: [],
+              extractors: []
             };
           }
         }
@@ -70,6 +73,7 @@ export class Hippocampus implements Temporal {
       constructionSites: room.find(FIND_CONSTRUCTION_SITES),
       resources: room.find(FIND_DROPPED_RESOURCES),
       sources: room.find(FIND_SOURCES),
+      minerals: room.find(FIND_MINERALS),
       containers: [],
       links: [],
       enemyCreeps: [],
@@ -84,6 +88,7 @@ export class Hippocampus implements Temporal {
     this.processDroppedResources(roomName, baseRoomName);
     this.processCreeps(roomName, baseRoomName);
     this.processSources(roomName, baseRoomName);
+    this.processMinerals(roomName, baseRoomName);
     // Process special cases
     this.processSpecial(roomName, baseRoomName);
   }
@@ -144,6 +149,10 @@ export class Hippocampus implements Temporal {
             this.baseRoomObjects[baseRoomName].controller = structure;
           } else if (structure instanceof StructureLink) {
             this.roomObjects[roomName].links.push(structure);
+          } else if (structure instanceof StructureExtractor) {
+            this.baseRoomObjects[baseRoomName].extractors.push(structure);
+          } else if (structure instanceof StructureTerminal) {
+            this.baseRoomObjects[baseRoomName].terminal = structure;
           }
         } else if (structure.owner && !structure.my) {
           // Enemy Structures
@@ -182,11 +191,20 @@ export class Hippocampus implements Temporal {
   }
 
   private processSources(roomName: string, baseRoomName: string): void {
+    if (!baseRoomName) {
+      return;
+    }
     for (const source of this.roomObjects[roomName].sources) {
-      if (!baseRoomName) {
-        continue;
-      }
       this.neighborhood[baseRoomName].sources.push(source);
+    }
+  }
+
+  private processMinerals(roomName: string, baseRoomName: string): void {
+    if (!baseRoomName) {
+      return;
+    }
+    for (const mineral of this.roomObjects[roomName].minerals) {
+      this.baseRoomObjects[baseRoomName].minerals.push(mineral);
     }
   }
 

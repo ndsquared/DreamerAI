@@ -21,6 +21,7 @@ interface HippocampusRoomObjects {
   constructionSites: ConstructionSite[];
   resources: Resource[];
   sources: Source[];
+  minerals: Mineral[];
   containers: StructureContainer[];
   links: StructureLink[];
   enemyCreeps: Creep[];
@@ -96,6 +97,9 @@ interface BaseRoomObjects {
   spawns: StructureSpawn[];
   storage: StructureStorage | null;
   controller: StructureController | null;
+  terminal: StructureTerminal | null;
+  minerals: Mineral[];
+  extractors: StructureExtractor[];
 }
 
 interface HealQueuePayload {
