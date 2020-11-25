@@ -101,7 +101,9 @@ export class Cortex implements Temporal {
       showEnemyVisuals: true
     };
     const neighborhoodMemory = this.memory.imagination.neighborhoods;
-    neighborhoodMemory.neighborhoodRoomNames[roomName] = [roomName];
+    if (!neighborhoodMemory.neighborhoodRoomNames[roomName]) {
+      neighborhoodMemory.neighborhoodRoomNames[roomName] = [roomName];
+    }
     neighborhoodMemory.roomsInNeighborhoods[roomName] = roomName;
     this.memory.rooms[roomName] = getReconRoomData(roomName);
 

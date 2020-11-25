@@ -25,6 +25,7 @@ export class Hippocampus implements Temporal {
 
   public meditate(): void {
     for (const roomName in this.cortex.memory.rooms) {
+      console.log(`meditating on ${roomName}`);
       const room = Game.rooms[roomName];
       this.spatial.processRoom(roomName);
       if (room) {
@@ -138,6 +139,8 @@ export class Hippocampus implements Temporal {
             this.baseRoomObjects[baseRoomName].extensions.push(structure);
           } else if (structure instanceof StructureController) {
             this.baseRoomObjects[baseRoomName].controller = structure;
+          } else if (structure instanceof StructureLink) {
+            this.roomObjects[roomName].links.push(structure);
           }
         } else if (structure.owner && !structure.my) {
           // Enemy Structures
@@ -177,6 +180,9 @@ export class Hippocampus implements Temporal {
 
   private processSources(roomName: string, baseRoomName: string): void {
     for (const source of this.roomObjects[roomName].sources) {
+      if (!baseRoomName) {
+        continue;
+      }
       this.neighborhood[baseRoomName].sources.push(source);
     }
   }

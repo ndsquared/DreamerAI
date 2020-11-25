@@ -4,11 +4,12 @@ This module is reponsible for visualizations and stats
 import { BarGraph, Table } from "utils/visuals";
 import { Cortex } from "./cortex";
 import { FigmentThoughtType } from "thoughts/thought";
+import { RoomType } from "utils/misc";
 import { getColor } from "utils/colors";
 
 export class Occipital implements Temporal {
   public cortex: Cortex;
-  private showMapVisuals = false;
+  private showMapVisuals = true;
   private generatedPixel = false;
   private consoleStatus: string[] = [];
 
@@ -248,6 +249,10 @@ export class Occipital implements Temporal {
       const standardRoomNames: string[] = [];
       const neighborhoodRoomNames: string[] = [];
       for (const roomName in this.cortex.memory.rooms) {
+        const roomMemory = this.cortex.memory.rooms[roomName];
+        if (roomMemory.roomType !== RoomType.ROOM_STANDARD) {
+          continue;
+        }
         const baseRoomName = this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName];
         if (!baseRoomName) {
           standardRoomNames.push(roomName);

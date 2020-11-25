@@ -38,13 +38,12 @@ export class HarvestThought extends FigmentThought {
 
   public ponder(): void {
     if (!this.containerId) {
-      if (this.idea.neighborhood.sourceContainers[this.sourceId].length > 0) {
+      if (this.idea.neighborhood.sourceContainers[this.sourceId]?.length > 0) {
         this.containerId = this.idea.neighborhood.sourceContainers[this.sourceId][0].id;
       }
     }
-
     if (!this.linkId) {
-      if (this.idea.baseRoomObjects.sourceLinks[this.sourceId].length > 0) {
+      if (this.idea.baseRoomObjects.sourceLinks[this.sourceId]?.length > 0) {
         this.linkId = this.idea.baseRoomObjects.sourceLinks[this.sourceId][0].id;
       }
     }
@@ -64,6 +63,7 @@ export class HarvestThought extends FigmentThought {
     }
 
     if (this.container) {
+      console.log("valid container");
       if (!this.container.pos.isEqualTo(figment.pos)) {
         const figments = this.container.pos.lookFor(LOOK_CREEPS);
         if (figments.length === 0) {
@@ -74,6 +74,7 @@ export class HarvestThought extends FigmentThought {
 
     let targetOptions;
     if (!this.link) {
+      console.log("could not find the link");
       targetOptions = {
         ignoreFigmentCapacity: true
       };

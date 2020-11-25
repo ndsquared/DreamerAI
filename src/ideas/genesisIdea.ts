@@ -122,6 +122,8 @@ export class GenesisIdea extends Idea {
           this.figmentPrefs[figmentType].priority = 12;
           if (count > 0 && totalFigmentsInNeighborhood < 5) {
             this.figmentPrefs[figmentType].priority = 10;
+          } else if (count > 5 && totalFigmentsInNeighborhood < 15) {
+            this.figmentPrefs[figmentType].priority = 3;
           }
           break;
         }

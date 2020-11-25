@@ -66,11 +66,9 @@ export class UpgradeThought extends FigmentThought {
     if (!room) {
       return;
     }
-    // TODO: refactor this for neighborhood
     if (!this.controller) {
-      const controller = room.controller;
-      if (controller) {
-        this.controllerId = controller.id;
+      if (this.idea.baseRoomObjects.controller) {
+        this.controllerId = this.idea.baseRoomObjects.controller.id;
       }
     }
     if (!this.container) {
