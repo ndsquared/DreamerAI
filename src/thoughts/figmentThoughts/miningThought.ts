@@ -46,7 +46,13 @@ export class MiningThought extends FigmentThought {
   public ponder(): void {
     if (!this.containerId) {
       if (this.idea.baseRoomObjects.extractorContainers[this.extractorId]?.length > 0) {
-        this.containerId = this.idea.neighborhood.sourceContainers[this.extractorId][0].id;
+        this.containerId = this.idea.baseRoomObjects.extractorContainers[this.extractorId][0].id;
+      }
+    }
+    if (!this.mineralId) {
+      const lookMinerals = this.extractoPos.lookFor(LOOK_MINERALS);
+      if (lookMinerals.length) {
+        this.mineralId = lookMinerals[0].id;
       }
     }
   }
@@ -73,14 +79,9 @@ export class MiningThought extends FigmentThought {
       }
     }
 
-    const targetOptions = {
-      ignoreFigmentCapacity: true
-    };
-    if (figment.store.getUsedCapacity(this.mineral.mineralType) === 0) {
-      figment.addNeuron(NeuronType.MINE, this.mineral.id, this.mineral.pos, targetOptions);
-    } else {
-      figment.addNeuron(NeuronType.DROP);
-    }
+    figment.addNeuron(NeuronType.MINE, this.mineral.id, this.mineral.pos);
+    figment.addNeuron(NeuronType.DROP);
+    figment.addNeuron(NeuronType.SLEEP, "", undefined, { sleepTicks: 4 });
     return true;
   }
 

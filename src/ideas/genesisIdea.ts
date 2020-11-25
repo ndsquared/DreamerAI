@@ -29,6 +29,7 @@ export class GenesisIdea extends Idea {
     super(roomName, imagination, type);
 
     this.thoughts[FigmentThoughtType.HARVEST] = {};
+    this.thoughts[FigmentThoughtType.MINER] = {};
     this.thoughts[FigmentThoughtType.RESERVE] = {};
 
     const figmentThoughts: ThoughtMapping[] = [

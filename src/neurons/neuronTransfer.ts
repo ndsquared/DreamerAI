@@ -17,8 +17,10 @@ export class NeuronTransfer extends Neuron {
       return false;
     }
     if (isStoreStructure(this.target)) {
-      if (this.target.store.getFreeCapacity() === 0) {
-        return false;
+      for (const resourceType in this.figment.store) {
+        if (this.target.store.getFreeCapacity(resourceType as ResourceConstant) === 0) {
+          return false;
+        }
       }
     } else if (isEnergyStructure(this.target)) {
       if (this.target.energy === this.target.energyCapacity) {
@@ -29,12 +31,21 @@ export class NeuronTransfer extends Neuron {
   }
   public impulse(): number {
     let result: number = OK;
-    for (const resourceType in this.figment.store) {
-      const resourceAmount = this.figment.store[resourceType as ResourceConstant];
-      if (resourceAmount > 0) {
-        const tempResult = this.figment.transfer(this.target, resourceType as ResourceConstant);
-        if (tempResult !== OK) {
-          result = tempResult;
+    if (isEnergyStructure(this.target)) {
+      const tempResult = this.figment.transfer(this.target, RESOURCE_ENERGY);
+      // console.log(`transfer -> ${RESOURCE_ENERGY}: ${tempResult}`);
+      if (tempResult !== OK) {
+        result = tempResult;
+      }
+    } else {
+      for (const resourceType in this.figment.store) {
+        const resourceAmount = this.figment.store[resourceType as ResourceConstant];
+        if (resourceAmount > 0) {
+          const tempResult = this.figment.transfer(this.target, resourceType as ResourceConstant);
+          // console.log(`transfer -> ${resourceType}: ${tempResult}`);
+          if (tempResult !== OK) {
+            result = tempResult;
+          }
         }
       }
     }

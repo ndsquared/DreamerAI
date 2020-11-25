@@ -17,8 +17,10 @@ export class NeuronWithDraw extends Neuron {
       return false;
     }
     if (isStoreStructure(this.target)) {
-      if (this.target.store.getUsedCapacity() === 0) {
-        return false;
+      for (const resourceType in this.target.store) {
+        if (this.target.store.getUsedCapacity(resourceType as ResourceConstant) === 0) {
+          return false;
+        }
       }
     } else if (isEnergyStructure(this.target)) {
       if (this.target.energy === 0) {
@@ -31,12 +33,14 @@ export class NeuronWithDraw extends Neuron {
     let result: number = OK;
     if (isEnergyStructure(this.target)) {
       const tempResult = this.figment.withdraw(this.target, RESOURCE_ENERGY);
+      // console.log(`withdraw -> ${RESOURCE_ENERGY}: ${tempResult}`);
       if (tempResult !== OK) {
         result = tempResult;
       }
     } else {
       for (const resourceType in this.target.store) {
         const tempResult = this.figment.withdraw(this.target, resourceType as ResourceConstant);
+        // console.log(`withdraw -> ${resourceType}: ${tempResult}`);
         if (tempResult !== OK) {
           result = tempResult;
         }
