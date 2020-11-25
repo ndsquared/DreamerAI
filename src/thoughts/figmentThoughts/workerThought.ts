@@ -36,11 +36,11 @@ export class WorkerThought extends FigmentThought {
       }
     } else {
       // TODO: need to optimize this to set a min energy requirement
-      const target = this.idea.metabolism.metabolizeClosestResourceOrStructure(figment);
+      const target = this.idea.metabolism.metabolizeClosestResourceOrStructure(figment, RESOURCE_ENERGY);
       if (target instanceof Resource) {
         figment.addNeuron(NeuronType.PICKUP, target.id, target.pos);
       } else if (target && isStoreStructure(target)) {
-        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
+        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { resourceType: RESOURCE_ENERGY });
       }
     }
     return true;

@@ -79,9 +79,9 @@ export class MiningThought extends FigmentThought {
       }
     }
 
-    figment.addNeuron(NeuronType.MINE, this.mineral.id, this.mineral.pos);
+    figment.addNeuron(NeuronType.MINE, this.mineral.id, this.mineral.pos, { oneShot: true });
     figment.addNeuron(NeuronType.DROP);
-    figment.addNeuron(NeuronType.SLEEP, "", undefined, { sleepTicks: 4 });
+    figment.addNeuron(NeuronType.SLEEP, "", undefined, { sleepTicks: 5 });
     return true;
   }
 

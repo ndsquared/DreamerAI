@@ -193,7 +193,10 @@ export class Metabolism implements Temporal {
     return Game.getObjectById(output.id);
   }
 
-  public metabolizeClosestResourceOrStructure(figment: Figment): EnergyWithdrawStructure | Resource | null {
+  public metabolizeClosestResourceOrStructure(
+    figment: Figment,
+    resourceType: ResourceConstant
+  ): EnergyWithdrawStructure | Resource | null {
     const baseRoomName = figment.memory.roomName;
     let targets: ResourceOrEnergyWithdrawStructure[] = [];
     const energyWithdrawStructures = this.cortex.hippocampus.neighborhood[baseRoomName]
@@ -203,7 +206,7 @@ export class Metabolism implements Temporal {
       return null;
     }
     targets = targets.concat(energyWithdrawStructures);
-    targets = targets.concat(resources);
+    targets = targets.concat(_.filter(resources, r => r.resourceType === resourceType));
     const target = _.first(_.sortBy(targets, r => PathFindWithRoad(figment.pos, r.pos).cost));
     // TODO: adjust priorities for inputs/outpus
     return target;

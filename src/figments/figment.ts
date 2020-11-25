@@ -249,7 +249,8 @@ export class Figment extends Creep implements Figment {
       moveRandom: false,
       movingTarget: false,
       sleepTicks: -1,
-      resourceType: RESOURCE_ENERGY
+      resourceType: RESOURCE_ENERGY,
+      oneShot: false
     };
     let options = defaultTargetOptions;
     if (targetOptions) {

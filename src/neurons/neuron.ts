@@ -53,6 +53,9 @@ export abstract class Neuron {
       this.moveFigmentOffRoad(this.figment, this.targetPos, true);
     }
     const impulseResult = this.impulse();
+    if (impulseResult === OK && this.interneuron.target.options.oneShot) {
+      this.figment.removeNeuron();
+    }
     if (impulseResult === ERR_NOT_IN_RANGE || this.interneuron.target.options.movingTarget) {
       if (this.interneuron.target.options.movingTarget) {
         this.figment.travelTo(this.targetPos, { showVisuals: true });

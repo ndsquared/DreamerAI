@@ -6,6 +6,7 @@ type withdrawTargetType = StoreStructure | EnergyStructure;
 
 export class NeuronWithDraw extends Neuron {
   public target!: withdrawTargetType;
+  public resourceType: ResourceConstant | null = null;
   public constructor(figment: Figment, interneuron: Interneuron) {
     super(figment, interneuron);
   }
@@ -17,9 +18,15 @@ export class NeuronWithDraw extends Neuron {
       return false;
     }
     if (isStoreStructure(this.target)) {
-      for (const resourceType in this.target.store) {
-        if (this.target.store.getUsedCapacity(resourceType as ResourceConstant) === 0) {
+      if (this.resourceType) {
+        if (this.target.store.getUsedCapacity(this.resourceType) === 0) {
           return false;
+        }
+      } else {
+        for (const resourceType in this.target.store) {
+          if (this.target.store.getUsedCapacity(resourceType as ResourceConstant) === 0) {
+            return false;
+          }
         }
       }
     } else if (isEnergyStructure(this.target)) {
@@ -30,6 +37,9 @@ export class NeuronWithDraw extends Neuron {
     return true;
   }
   public impulse(): number {
+    if (this.resourceType) {
+      return this.figment.withdraw(this.target, this.resourceType);
+    }
     let result: number = OK;
     if (isEnergyStructure(this.target)) {
       const tempResult = this.figment.withdraw(this.target, RESOURCE_ENERGY);

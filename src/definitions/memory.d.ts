@@ -102,6 +102,7 @@ interface InterneuronTargetOptions {
   movingTarget: boolean;
   sleepTicks: number;
   resourceType: ResourceConstant;
+  oneShot: boolean;
 }
 
 interface RoomMemory {
