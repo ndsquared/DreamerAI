@@ -215,7 +215,6 @@ export class GenesisIdea extends Idea {
           break;
       }
       this.figmentPrefs[figmentType].needed = figmentNeeded;
-      // console.log(`${figmentType} needed: ${String(figmentNeeded)}`);
       if (figmentNeeded) {
         const payload = {
           figmentName: Figment.GetUniqueName(),
@@ -239,8 +238,19 @@ export class GenesisIdea extends Idea {
     if (!spawn) {
       return;
     }
-    if (this.cortex.metabolism.spawnQueue[this.roomName].length > 0) {
-      const nextSpawn = this.cortex.metabolism.spawnQueue[this.roomName].peek();
+    const currentSpawnTypes: string[] = [];
+    const spawns = this.baseRoomObjects.spawns;
+    for (const s of spawns) {
+      if (s.spawning) {
+        const figment = Game.creeps[s.spawning.name];
+        currentSpawnTypes.push(figment.memory.figmentType);
+      }
+    }
+    while (this.cortex.metabolism.spawnQueue[this.roomName].length > 0) {
+      const nextSpawn = this.cortex.metabolism.spawnQueue[this.roomName].dequeue();
+      if (currentSpawnTypes.includes(nextSpawn.figmentType)) {
+        continue;
+      }
       let energyAvailable = room.energyCapacityAvailable;
       if (this.inEmergency()) {
         energyAvailable = room.energyAvailable;
@@ -263,7 +273,6 @@ export class GenesisIdea extends Idea {
           inCombat: false
         };
         spawn.spawnCreep(body, nextSpawn.figmentName, { memory });
-        this.cortex.metabolism.spawnQueue[this.roomName].dequeue();
       }
     }
   }
