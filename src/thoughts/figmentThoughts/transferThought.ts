@@ -117,7 +117,10 @@ export class TransferThought extends FigmentThought {
       const target = this.getNextWithdrawTarget();
       const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
       if (target) {
-        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { minCapacity: true });
+        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, {
+          minCapacity: true,
+          resourceType: RESOURCE_ENERGY
+        });
       } else {
         figment.addNeuron(NeuronType.SLEEP, "", baseOriginPos, {
           sleepTicks: 10,

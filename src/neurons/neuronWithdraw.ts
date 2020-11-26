@@ -9,6 +9,9 @@ export class NeuronWithDraw extends Neuron {
   public resourceType: ResourceConstant | null = null;
   public constructor(figment: Figment, interneuron: Interneuron) {
     super(figment, interneuron);
+    if (this.interneuron.target.options.resourceType) {
+      this.resourceType = this.interneuron.target.options.resourceType;
+    }
   }
   public isValidNeuron(): boolean {
     return this.figment.store.getFreeCapacity() > 0 && this.figment.getActiveBodyparts(CARRY) > 0;

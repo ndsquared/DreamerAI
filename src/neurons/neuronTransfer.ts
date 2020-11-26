@@ -18,7 +18,9 @@ export class NeuronTransfer extends Neuron {
     }
     if (isStoreStructure(this.target)) {
       for (const resourceType in this.figment.store) {
-        if (this.target.store.getFreeCapacity(resourceType as ResourceConstant) === 0) {
+        const freeCap = this.target.store.getFreeCapacity(resourceType as ResourceConstant);
+        // console.log(`${this.target.id} <- ${resourceType}: ${freeCap}`);
+        if (!freeCap) {
           return false;
         }
       }

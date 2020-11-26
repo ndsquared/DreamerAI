@@ -99,7 +99,7 @@ export class UpgradeThought extends FigmentThought {
     } else {
       const target = this.getNextWithdrawTarget();
       if (target) {
-        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos);
+        figment.addNeuron(NeuronType.WITHDRAW, target.id, target.pos, { resourceType: RESOURCE_ENERGY });
       }
     }
     return true;
