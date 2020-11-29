@@ -240,7 +240,7 @@ export class GenesisIdea extends Idea {
           break;
       }
       this.figmentPrefs[figmentType].needed = figmentNeeded;
-      if (figmentNeeded) {
+      if (figmentNeeded && this.figmentPrefs[figmentType].priority > 0) {
         const payload = {
           figmentName: Figment.GetUniqueName(),
           figmentSpec: GetFigmentSpec(figmentType),
