@@ -163,6 +163,9 @@ export class GenesisIdea extends Idea {
           break;
         case FigmentThoughtType.MINER:
           this.figmentPrefs[figmentType].priority = 3;
+          if (this.cortex.metabolism.inEcoMode(this.roomName)) {
+            this.figmentPrefs[figmentType].priority = 0;
+          }
           break;
         case FigmentThoughtType.UPGRADE:
           this.figmentPrefs[figmentType].priority = 5;
@@ -186,6 +189,9 @@ export class GenesisIdea extends Idea {
           this.figmentPrefs[figmentType].priority = 1;
           if (enemies > 0) {
             this.figmentPrefs[figmentType].priority = 14;
+          }
+          if (this.cortex.metabolism.inEcoMode(this.roomName)) {
+            this.figmentPrefs[figmentType].priority = 0;
           }
           break;
         case FigmentThoughtType.RESERVE:
