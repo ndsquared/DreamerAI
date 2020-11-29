@@ -271,8 +271,16 @@ export class GenesisIdea extends Idea {
         currentSpawnTypes.push(figment.memory.figmentType);
       }
     }
+    let currentPriority: number | null = null;
     while (this.cortex.metabolism.spawnQueue[this.roomName].length > 0) {
-      const nextSpawn = this.cortex.metabolism.spawnQueue[this.roomName].dequeue();
+      const nextSpawn = this.cortex.metabolism.spawnQueue[this.roomName].peek();
+      if (currentPriority === null) {
+        currentPriority = nextSpawn.priority;
+      }
+      if (nextSpawn.priority < currentPriority) {
+        return;
+      }
+      this.metabolism.nextSpawn[this.roomName] = this.cortex.metabolism.spawnQueue[this.roomName].dequeue();
       if (currentSpawnTypes.includes(nextSpawn.figmentType)) {
         continue;
       }

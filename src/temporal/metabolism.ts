@@ -11,6 +11,7 @@ export class Metabolism implements Temporal {
   private cortex: Cortex;
   private ecoStorageThreshold = 20000;
   public repairThreshold = 20000;
+  public nextSpawn: { [name: string]: SpawnQueuePayload } = {};
   // Neutral
 
   // Owned

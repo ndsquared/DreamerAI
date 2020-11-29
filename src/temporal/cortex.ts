@@ -139,10 +139,10 @@ export class Cortex implements Temporal {
   }
 
   public getNextSpawn(roomName: string): SpawnQueuePayload | null {
-    if (this.metabolism.spawnQueue[roomName].length === 0) {
+    if (!this.metabolism.nextSpawn[roomName]) {
       return null;
     }
-    return this.metabolism.spawnQueue[roomName].peek();
+    return this.metabolism.nextSpawn[roomName];
   }
 
   public getNextBuildTarget(roomName: string): BuildQueuePayload | null {
