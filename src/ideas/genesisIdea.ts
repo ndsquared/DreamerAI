@@ -206,6 +206,9 @@ export class GenesisIdea extends Idea {
     const constructionSites = this.cortex.metabolism.constructionSiteQueue[this.roomName].length ? 1 : 0;
     const repairTargets = this.cortex.metabolism.repairQueue[this.roomName].length ? 1 : 0;
     for (const figmentType in thought.figments) {
+      if (this.figmentPrefs[figmentType].needed) {
+        continue;
+      }
       let figmentNeeded = false;
       const count = this.getFigmentCount(figmentType);
       switch (figmentType) {
