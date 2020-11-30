@@ -28,12 +28,13 @@ export class NeuronWithDraw extends Neuron {
         }
       } else {
         for (const resourceType in this.target.store) {
-          // console.log(`checking ${resourceType}`);
+          // console.log(`checking ${resourceType} for ${this.target.id}`);
           if (this.target.store.getUsedCapacity(resourceType as ResourceConstant) > 0) {
-            // console.log(`found ${resourceType}`);
+            // console.log(`found ${resourceType} for ${this.target.id}`);
             return true;
           }
         }
+        return false;
       }
     } else if (isEnergyStructure(this.target)) {
       if (this.target.energy === 0) {
