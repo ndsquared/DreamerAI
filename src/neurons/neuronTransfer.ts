@@ -6,8 +6,12 @@ type transferTargetType = StoreStructure | EnergyStructure;
 
 export class NeuronTransfer extends Neuron {
   public target!: transferTargetType;
+  public resourceType: ResourceConstant | null = null;
   public constructor(figment: Figment, interneuron: Interneuron) {
     super(figment, interneuron);
+    if (this.interneuron.target.options.resourceType) {
+      this.resourceType = this.interneuron.target.options.resourceType;
+    }
   }
   public isValidNeuron(): boolean {
     return this.figment.store.getUsedCapacity() > 0;
@@ -17,11 +21,16 @@ export class NeuronTransfer extends Neuron {
       return false;
     }
     if (isStoreStructure(this.target)) {
-      for (const resourceType in this.figment.store) {
-        const freeCap = this.target.store.getFreeCapacity(resourceType as ResourceConstant);
-        // console.log(`${this.target.id} <- ${resourceType}: ${freeCap}`);
-        if (!freeCap) {
+      if (this.resourceType) {
+        if (this.figment.store.getUsedCapacity(this.resourceType) === 0) {
           return false;
+        }
+      } else {
+        for (const resourceType in this.figment.store) {
+          const freeCap = this.target.store.getFreeCapacity(resourceType as ResourceConstant);
+          if (!freeCap) {
+            return false;
+          }
         }
       }
     } else if (isEnergyStructure(this.target)) {
@@ -32,10 +41,12 @@ export class NeuronTransfer extends Neuron {
     return true;
   }
   public impulse(): number {
+    if (this.resourceType) {
+      return this.figment.transfer(this.target, this.resourceType);
+    }
     let result: number = OK;
     if (isEnergyStructure(this.target)) {
       const tempResult = this.figment.transfer(this.target, RESOURCE_ENERGY);
-      // console.log(`transfer -> ${RESOURCE_ENERGY}: ${tempResult}`);
       if (tempResult !== OK) {
         result = tempResult;
       }
@@ -44,7 +55,6 @@ export class NeuronTransfer extends Neuron {
         const resourceAmount = this.figment.store[resourceType as ResourceConstant];
         if (resourceAmount > 0) {
           const tempResult = this.figment.transfer(this.target, resourceType as ResourceConstant);
-          // console.log(`transfer -> ${resourceType}: ${tempResult}`);
           if (tempResult !== OK) {
             result = tempResult;
           }
