@@ -196,9 +196,6 @@ export class GenesisIdea extends Idea {
           break;
         case FigmentThoughtType.RESERVE:
           this.figmentPrefs[figmentType].priority = 1;
-          if (this.cortex.metabolism.inEcoMode(this.roomName)) {
-            this.figmentPrefs[figmentType].priority = 0;
-          }
           break;
         default:
           console.log(`hitting default for set queue priorities`);
