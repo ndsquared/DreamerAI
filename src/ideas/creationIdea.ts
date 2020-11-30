@@ -65,20 +65,20 @@ export class CreationIdea extends Idea {
     super.reflect();
   }
 
-  public canBuild(): boolean {
-    if (this.cortex.metabolism.constructionSiteQueue[this.roomName].length) {
-      return false;
-    }
-    return true;
-  }
-
   // TODO: need some better handling of build results
   private processBuildQueue(): void {
     if (this.cortex.metabolism.buildQueue[this.roomName].length > 0) {
       let nextBuild = this.cortex.metabolism.buildQueue[this.roomName].peek();
       let buildResult = -1;
       const room = Game.rooms[nextBuild.pos.roomName];
-      if (room && this.canBuild()) {
+      let constructionSite: ConstructionSite | null = null;
+      if (this.cortex.metabolism.constructionSiteQueue[this.roomName].length) {
+        constructionSite = this.cortex.metabolism.constructionSiteQueue[this.roomName].peek();
+        if (constructionSite.pos.isEqualTo(nextBuild.pos)) {
+          this.cortex.metabolism.buildQueue[this.roomName].dequeue();
+        }
+      }
+      if (room && constructionSite === null) {
         buildResult = room.createConstructionSite(nextBuild.pos, nextBuild.structure);
         if (buildResult === OK) {
           nextBuild = this.cortex.metabolism.buildQueue[this.roomName].dequeue();

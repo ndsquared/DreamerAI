@@ -27,13 +27,12 @@ export class NeuronTransfer extends Neuron {
         }
       } else {
         for (const resourceType in this.figment.store) {
-          // console.log(`checking ${resourceType}`);
           const freeCap = this.target.store.getFreeCapacity(resourceType as ResourceConstant);
           if (freeCap) {
-            // console.log(`able to transfer ${resourceType}`);
             return true;
           }
         }
+        return false;
       }
     } else if (isEnergyStructure(this.target)) {
       if (this.target.energy === this.target.energyCapacity) {
