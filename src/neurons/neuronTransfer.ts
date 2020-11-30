@@ -22,14 +22,16 @@ export class NeuronTransfer extends Neuron {
     }
     if (isStoreStructure(this.target)) {
       if (this.resourceType) {
-        if (this.figment.store.getUsedCapacity(this.resourceType) === 0) {
+        if (this.target.store.getFreeCapacity(this.resourceType) === 0) {
           return false;
         }
       } else {
         for (const resourceType in this.figment.store) {
+          // console.log(`checking ${resourceType}`);
           const freeCap = this.target.store.getFreeCapacity(resourceType as ResourceConstant);
-          if (!freeCap) {
-            return false;
+          if (freeCap) {
+            // console.log(`able to transfer ${resourceType}`);
+            return true;
           }
         }
       }

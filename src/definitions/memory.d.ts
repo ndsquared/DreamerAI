@@ -101,7 +101,7 @@ interface InterneuronTargetOptions {
   moveRandom: boolean;
   movingTarget: boolean;
   sleepTicks: number;
-  resourceType: ResourceConstant;
+  resourceType: ResourceConstant | null;
   oneShot: boolean;
 }
 

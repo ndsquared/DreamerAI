@@ -20,6 +20,7 @@ export class NeuronWithDraw extends Neuron {
     if (!this.target) {
       return false;
     }
+    // console.log(`checking if ${this.target.id} is valid for withdraw`);
     if (isStoreStructure(this.target)) {
       if (this.resourceType) {
         if (this.target.store.getUsedCapacity(this.resourceType) === 0) {
@@ -27,7 +28,9 @@ export class NeuronWithDraw extends Neuron {
         }
       } else {
         for (const resourceType in this.target.store) {
+          // console.log(`checking ${resourceType}`);
           if (this.target.store.getUsedCapacity(resourceType as ResourceConstant) > 0) {
+            // console.log(`found ${resourceType}`);
             return true;
           }
         }
