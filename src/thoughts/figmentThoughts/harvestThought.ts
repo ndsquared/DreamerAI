@@ -69,6 +69,7 @@ export class HarvestThought extends FigmentThought {
       return true;
     }
 
+    // TODO: Need to fix harvesters not moving to containers correctly
     if (this.container) {
       if (!this.container.pos.isEqualTo(figment.pos)) {
         const figments = this.container.pos.lookFor(LOOK_CREEPS);

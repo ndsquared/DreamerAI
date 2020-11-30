@@ -41,6 +41,7 @@ export class ContainerThought extends BuildThought {
       }
     }
 
+    // TODO: Only build containers at sources we are going to mine at
     // Build container next to all the sources in the neighborhood
     for (const source of this.idea.neighborhood.sources) {
       if (this.idea.neighborhood.sourceContainers[source.id].length === 0) {
