@@ -151,7 +151,7 @@ export class Occipital implements Temporal {
         if (mineralInput) {
           const rv = new RoomVisual(mineralInput.pos.roomName);
           const pos = new RoomPosition(mineralInput.pos.x, mineralInput.pos.y, mineralInput.pos.roomName);
-          rv.circle(pos, { fill: getColor("green", "900"), radius: 0.5 });
+          rv.circle(pos, { fill: getColor("amber", "600"), radius: 0.4 });
           rv.text(mineralInput.priority.toString(), pos);
         }
         const output = this.cortex.getNextOutput(baseRoomName);
@@ -205,7 +205,7 @@ export class Occipital implements Temporal {
         tableQueue.renderTable();
 
         // Territory
-        const tTableAnchor = new RoomPosition(14, 16, room.name);
+        const tTableAnchor = new RoomPosition(12, 16, room.name);
         const tTableData: string[][] = [["Type", "Count"]];
         tTableData.push(["Territory", Object.keys(this.cortex.memory.rooms).length.toString()]);
         tTableData.push(["Recon", this.cortex.spatial.reconRoomNames.length.toString()]);

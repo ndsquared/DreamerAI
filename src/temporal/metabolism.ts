@@ -261,10 +261,6 @@ export class Metabolism implements Temporal {
     const energyResources = _.filter(resources, r => r.resourceType === resourceType);
     targets = targets.concat(energyResources);
     const target = _.first(_.sortBy(targets, t => PathFindWithRoad(figment.pos, t.pos).cost));
-    if (target) {
-      const rv = new RoomVisual(target.pos.roomName);
-      rv.line(figment.pos, target.pos);
-    }
     // TODO: adjust priorities for inputs/outpus
     return target;
   }

@@ -159,6 +159,7 @@ export class Hippocampus implements Temporal {
             this.baseRoomObjects[baseRoomName].extractors.push(structure);
           } else if (structure instanceof StructureTerminal) {
             this.baseRoomObjects[baseRoomName].terminal = structure;
+            this.cortex.metabolism.addMineralInput(baseRoomName, structure, structure.store.getUsedCapacity());
           }
         } else if (structure.owner && !structure.my) {
           // Enemy Structures

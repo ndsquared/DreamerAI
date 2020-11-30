@@ -3,6 +3,7 @@ import { NeuronType, Neurons } from "neurons/neurons";
 import { Imagination } from "imagination";
 import { ShuffleArray } from "utils/misc";
 import { Traveler } from "utils/traveler";
+import { getColor } from "utils/colors";
 import profiler from "screeps-profiler";
 
 export class Figment extends Creep implements Figment {
@@ -265,6 +266,10 @@ export class Figment extends Creep implements Figment {
       }
     };
     this.memory.interneurons.push(interneuron);
+    if (pos && this.pos.roomName === pos.roomName) {
+      const rv = new RoomVisual(this.pos.roomName);
+      rv.line(this.pos, pos, { color: getColor("lime") });
+    }
     if (type !== NeuronType.SLEEP) {
       this.say(type);
     }
