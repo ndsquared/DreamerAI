@@ -138,10 +138,15 @@ export class Hippocampus implements Temporal {
           this.cortex.metabolism.addEnergyWithdrawStructure(baseRoomName, structure);
           if (structure instanceof StructureStorage) {
             this.baseRoomObjects[baseRoomName].storage = structure;
-            this.cortex.metabolism.addInput(baseRoomName, structure, structure.store.getUsedCapacity());
+            this.cortex.metabolism.addMineralInput(baseRoomName, structure, structure.store.getUsedCapacity());
+            this.cortex.metabolism.addEnergyInput(baseRoomName, structure, structure.store.getUsedCapacity());
           } else if (structure instanceof StructureSpawn) {
             this.baseRoomObjects[baseRoomName].spawns.push(structure);
-            this.cortex.metabolism.addInput(baseRoomName, structure, structure.store.getUsedCapacity(RESOURCE_ENERGY));
+            this.cortex.metabolism.addEnergyInput(
+              baseRoomName,
+              structure,
+              structure.store.getUsedCapacity(RESOURCE_ENERGY)
+            );
           } else if (structure instanceof StructureTower) {
             this.baseRoomObjects[baseRoomName].towers.push(structure);
           } else if (structure instanceof StructureExtension) {
@@ -237,7 +242,11 @@ export class Hippocampus implements Temporal {
         c.pos.inRangeTo(controller.pos, 1)
       );
       for (const controllerContainer of controllerContainers) {
-        this.cortex.metabolism.addInput(baseRoomName, controllerContainer, controllerContainer.store.getUsedCapacity());
+        this.cortex.metabolism.addEnergyInput(
+          baseRoomName,
+          controllerContainer,
+          controllerContainer.store.getUsedCapacity()
+        );
       }
       this.baseRoomObjects[baseRoomName].controllerContainers = controllerContainers;
       const controllerLinks = _.filter(this.roomObjects[roomName].links, l => l.pos.inRangeTo(controller.pos, 2));
@@ -249,7 +258,7 @@ export class Hippocampus implements Temporal {
     const baseOriginPos = this.cortex.getBaseOriginPos(baseRoomName);
     const spawnContainers = _.filter(this.roomObjects[roomName].containers, c => c.pos.inRangeTo(baseOriginPos, 1));
     for (const spawnContainer of spawnContainers) {
-      this.cortex.metabolism.addInput(baseRoomName, spawnContainer, spawnContainer.store.getUsedCapacity());
+      this.cortex.metabolism.addEnergyInput(baseRoomName, spawnContainer, spawnContainer.store.getUsedCapacity());
     }
     this.baseRoomObjects[baseRoomName].spawnContainers = spawnContainers;
     for (const extractor of this.baseRoomObjects[baseRoomName].extractors) {

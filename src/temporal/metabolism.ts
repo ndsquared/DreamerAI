@@ -18,7 +18,8 @@ export class Metabolism implements Temporal {
   public healQueue: { [name: string]: PriorityQueue<HealQueuePayload> } = {};
   public constructionSiteQueue: { [name: string]: PriorityQueue<ConstructionSite> } = {};
   public repairQueue: { [name: string]: PriorityQueue<Structure> } = {};
-  public inputQueue: { [name: string]: PriorityQueue<MetabolicQueuePayload> } = {};
+  public energyInputQueue: { [name: string]: PriorityQueue<MetabolicQueuePayload> } = {};
+  public mineralInputQueue: { [name: string]: PriorityQueue<MetabolicQueuePayload> } = {};
   public outputQueue: { [name: string]: PriorityQueue<MetabolicQueuePayload> } = {};
   public buildQueue: { [name: string]: PriorityQueue<BuildQueuePayload> } = {};
   public spawnQueue: { [name: string]: PriorityQueue<SpawnQueuePayload> } = {};
@@ -56,7 +57,13 @@ export class Metabolism implements Temporal {
         return a.hits - b.hits;
       }
     });
-    this.inputQueue[roomName] = new PriorityQueue({
+    this.energyInputQueue[roomName] = new PriorityQueue({
+      comparator(a, b) {
+        // Lower priority is dequeued first
+        return a.priority - b.priority;
+      }
+    });
+    this.mineralInputQueue[roomName] = new PriorityQueue({
       comparator(a, b) {
         // Lower priority is dequeued first
         return a.priority - b.priority;
@@ -95,7 +102,8 @@ export class Metabolism implements Temporal {
       this.healQueue[baseRoomName].clear();
       this.constructionSiteQueue[baseRoomName].clear();
       this.repairQueue[baseRoomName].clear();
-      this.inputQueue[baseRoomName].clear();
+      this.energyInputQueue[baseRoomName].clear();
+      this.mineralInputQueue[baseRoomName].clear();
       this.outputQueue[baseRoomName].clear();
       this.enemyQueue[baseRoomName].clear();
     }
@@ -113,7 +121,7 @@ export class Metabolism implements Temporal {
     return false;
   }
 
-  public addInput(baseRoomName: string, roomObject: StoreStructure, priority: number): void {
+  public addEnergyInput(baseRoomName: string, roomObject: StoreStructure, priority: number): void {
     let adjustedPriority = priority;
     const metabolism = this.getMetabolism(baseRoomName);
     if (metabolism.inputs[roomObject.id]) {
@@ -123,7 +131,21 @@ export class Metabolism implements Temporal {
     }
     const capacity = roomObject.store.getCapacity() || roomObject.store.getCapacity(RESOURCE_ENERGY);
     if (adjustedPriority < capacity) {
-      this.inputQueue[baseRoomName].queue(this.getPayload(roomObject, adjustedPriority));
+      this.energyInputQueue[baseRoomName].queue(this.getPayload(roomObject, adjustedPriority));
+    }
+  }
+
+  public addMineralInput(baseRoomName: string, roomObject: StoreStructure, priority: number): void {
+    let adjustedPriority = priority;
+    const metabolism = this.getMetabolism(baseRoomName);
+    if (metabolism.inputs[roomObject.id]) {
+      for (const name in metabolism.inputs[roomObject.id]) {
+        adjustedPriority += metabolism.inputs[roomObject.id][name].delta;
+      }
+    }
+    const capacity = roomObject.store.getCapacity() || roomObject.store.getCapacity(RESOURCE_ENERGY);
+    if (adjustedPriority < capacity) {
+      this.mineralInputQueue[baseRoomName].queue(this.getPayload(roomObject, adjustedPriority));
     }
   }
 
@@ -155,12 +177,41 @@ export class Metabolism implements Temporal {
   }
 
   public metabolizeInput(figment: Figment): StoreStructure | Resource | null {
+    for (const resourceType in figment.store) {
+      if ((resourceType as ResourceConstant) !== RESOURCE_ENERGY) {
+        return this.metabolizeMineralInput(figment);
+      }
+    }
+    return this.metabolizeEnergyInput(figment);
+  }
+
+  public metabolizeEnergyInput(figment: Figment): StoreStructure | Resource | null {
     const baseRoomName = figment.memory.roomName;
-    if (this.inputQueue[baseRoomName].length === 0) {
+    if (this.energyInputQueue[baseRoomName].length === 0) {
       return null;
     }
     const metabolism = this.getMetabolism(baseRoomName);
-    const input = this.inputQueue[baseRoomName].peek();
+    const input = this.energyInputQueue[baseRoomName].peek();
+    if (!metabolism.inputs[input.id]) {
+      metabolism.inputs[input.id] = {};
+    }
+    if (metabolism.inputs[input.id][figment.name]) {
+      metabolism.inputs[input.id][figment.name].delta += figment.store.getUsedCapacity();
+    } else {
+      metabolism.inputs[input.id][figment.name] = {
+        delta: figment.store.getUsedCapacity()
+      };
+    }
+    return Game.getObjectById(input.id);
+  }
+
+  public metabolizeMineralInput(figment: Figment): StoreStructure | Resource | null {
+    const baseRoomName = figment.memory.roomName;
+    if (this.mineralInputQueue[baseRoomName].length === 0) {
+      return null;
+    }
+    const metabolism = this.getMetabolism(baseRoomName);
+    const input = this.mineralInputQueue[baseRoomName].peek();
     if (!metabolism.inputs[input.id]) {
       metabolism.inputs[input.id] = {};
     }

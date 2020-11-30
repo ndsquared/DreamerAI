@@ -182,11 +182,18 @@ export class Cortex implements Temporal {
     return this.metabolism.repairQueue[roomName].peek();
   }
 
-  public getNextInput(roomName: string): MetabolicQueuePayload | null {
-    if (this.metabolism.inputQueue[roomName].length === 0) {
+  public getNextEnergyInput(roomName: string): MetabolicQueuePayload | null {
+    if (this.metabolism.energyInputQueue[roomName].length === 0) {
       return null;
     }
-    return this.metabolism.inputQueue[roomName].peek();
+    return this.metabolism.energyInputQueue[roomName].peek();
+  }
+
+  public getNextMineralInput(roomName: string): MetabolicQueuePayload | null {
+    if (this.metabolism.mineralInputQueue[roomName].length === 0) {
+      return null;
+    }
+    return this.metabolism.mineralInputQueue[roomName].peek();
   }
 
   public getNextOutput(roomName: string): MetabolicQueuePayload | null {

@@ -140,12 +140,19 @@ export class Occipital implements Temporal {
         }
       }
       if (baseRoom.showMetaVisuals) {
-        const input = this.cortex.getNextInput(baseRoomName);
-        if (input) {
-          const rv = new RoomVisual(input.pos.roomName);
-          const pos = new RoomPosition(input.pos.x, input.pos.y, input.pos.roomName);
+        const energyInput = this.cortex.getNextEnergyInput(baseRoomName);
+        if (energyInput) {
+          const rv = new RoomVisual(energyInput.pos.roomName);
+          const pos = new RoomPosition(energyInput.pos.x, energyInput.pos.y, energyInput.pos.roomName);
           rv.circle(pos, { fill: getColor("green"), radius: 0.5 });
-          rv.text(input.priority.toString(), pos);
+          rv.text(energyInput.priority.toString(), pos);
+        }
+        const mineralInput = this.cortex.getNextMineralInput(baseRoomName);
+        if (mineralInput) {
+          const rv = new RoomVisual(mineralInput.pos.roomName);
+          const pos = new RoomPosition(mineralInput.pos.x, mineralInput.pos.y, mineralInput.pos.roomName);
+          rv.circle(pos, { fill: getColor("green", "900"), radius: 0.5 });
+          rv.text(mineralInput.priority.toString(), pos);
         }
         const output = this.cortex.getNextOutput(baseRoomName);
         if (output) {
@@ -182,15 +189,6 @@ export class Occipital implements Temporal {
         const barGraph = new BarGraph("General Stats", anchor, data);
         barGraph.renderGraph();
 
-        // Territory
-        const tTableAnchor = new RoomPosition(12, 16, room.name);
-        const tTableData: string[][] = [["Type", "Count"]];
-        tTableData.push(["Territory", Object.keys(this.cortex.memory.rooms).length.toString()]);
-        tTableData.push(["Recon", this.cortex.spatial.reconRoomNames.length.toString()]);
-        tTableData.push(["Neighborhood", this.cortex.getNeighborhoodRoomNames(baseRoomName).length.toString()]);
-        const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
-        tTable.renderTable();
-
         // Queues
         const qTableAnchor = new RoomPosition(12, 1, room.name);
         const qTableData: string[][] = [["Queue", "Count"]];
@@ -198,12 +196,22 @@ export class Occipital implements Temporal {
         qTableData.push(["Build", this.cortex.metabolism.buildQueue[baseRoomName].length.toString()]);
         qTableData.push(["Construct", this.cortex.metabolism.constructionSiteQueue[baseRoomName].length.toString()]);
         qTableData.push(["Repair", this.cortex.metabolism.repairQueue[baseRoomName].length.toString()]);
-        qTableData.push(["Input", this.cortex.metabolism.inputQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Input (Energy)", this.cortex.metabolism.energyInputQueue[baseRoomName].length.toString()]);
+        qTableData.push(["Input (Mineral)", this.cortex.metabolism.mineralInputQueue[baseRoomName].length.toString()]);
         qTableData.push(["Output", this.cortex.metabolism.outputQueue[baseRoomName].length.toString()]);
         qTableData.push(["Enemy", this.cortex.metabolism.enemyQueue[baseRoomName].length.toString()]);
         qTableData.push(["Heal", this.cortex.metabolism.healQueue[baseRoomName].length.toString()]);
         const tableQueue = new Table("Queue Counts", qTableAnchor, qTableData);
         tableQueue.renderTable();
+
+        // Territory
+        const tTableAnchor = new RoomPosition(14, 16, room.name);
+        const tTableData: string[][] = [["Type", "Count"]];
+        tTableData.push(["Territory", Object.keys(this.cortex.memory.rooms).length.toString()]);
+        tTableData.push(["Recon", this.cortex.spatial.reconRoomNames.length.toString()]);
+        tTableData.push(["Neighborhood", this.cortex.getNeighborhoodRoomNames(baseRoomName).length.toString()]);
+        const tTable = new Table("Territory Counts", tTableAnchor, tTableData);
+        tTable.renderTable();
 
         // Figment Stats
         const figmentTableData: string[][] = [["Type", "Count", "Priority", "Needed"]];
