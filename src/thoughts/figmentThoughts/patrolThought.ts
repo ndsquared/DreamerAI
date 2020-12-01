@@ -7,9 +7,11 @@ import { getColor } from "utils/colors";
 export class PatrolThought extends FigmentThought {
   public targetRoomName: string | undefined = undefined;
   public currentIndex = 0;
+  public stuckPatrol: { [name: string]: number };
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
     this.figments[FigmentThoughtType.PATROL] = [];
+    this.stuckPatrol = {};
   }
 
   public ponder(): void {
@@ -31,14 +33,26 @@ export class PatrolThought extends FigmentThought {
 
   // Figment is handled every turn
   public handleFigment(figment: Figment): boolean {
+    if (!this.stuckPatrol[figment.name]) {
+      this.stuckPatrol[figment.name] = 0;
+    }
     if (figment.room.name === this.targetRoomName) {
       this.targetRoomName = undefined;
     }
     if (!this.targetRoomName) {
       return false;
     }
+    if (this.stuckPatrol[figment.name] > 10) {
+      this.stuckPatrol[figment.name] = 0;
+      this.currentIndex++;
+      this.targetRoomName = undefined;
+      return false;
+    }
     const targetPos = new RoomPosition(25, 25, this.targetRoomName);
-    figment.travelTo(targetPos);
+    const result = figment.travelTo(targetPos);
+    if (result === ERR_NO_PATH) {
+      this.stuckPatrol[figment.name]++;
+    }
     return true;
   }
 

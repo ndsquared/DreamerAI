@@ -140,7 +140,9 @@ export class Traveler {
         // uncommenting this is a great way to diagnose creep behavior issues
         console.log(`TRAVELER: incomplete path for ${creep.name}`);
         color = "red";
-        return ERR_NO_PATH;
+        // const path = Traveler.serializePath(creep.pos, ret.path, color, options.showVisuals ? true : false);
+        // console.log(path);
+        // return ERR_NO_PATH;
       }
 
       if (options.returnData) {

@@ -7,16 +7,19 @@ import { getReconRoomData } from "utils/misc";
 
 export class ScoutThought extends FigmentThought {
   public targetRoomName: string | undefined = undefined;
+  public targetRoomInitialTick: number;
   public stuckScout: { [name: string]: number };
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
     this.figments[FigmentThoughtType.SCOUT] = [];
     this.stuckScout = {};
+    this.targetRoomInitialTick = Game.time;
   }
 
   public ponder(): void {
     if (!this.targetRoomName) {
       this.targetRoomName = this.idea.cortex.getNextReconRoomName();
+      this.targetRoomInitialTick = Game.time;
     } else {
       const targetPos = new RoomPosition(25, 25, this.targetRoomName);
       Game.map.visual.circle(targetPos, { fill: getColor("green") });
@@ -24,6 +27,7 @@ export class ScoutThought extends FigmentThought {
     }
   }
 
+  // TODO: need better checking for reachability
   // Figment is handled every turn
   public handleFigment(figment: Figment): boolean {
     if (!this.stuckScout[figment.name]) {
@@ -43,6 +47,11 @@ export class ScoutThought extends FigmentThought {
       if (this.targetRoomName) {
         console.log(`scout ${figment.name} unable to reach ${this.targetRoomName}`);
         this.idea.cortex.memory.rooms[this.targetRoomName] = getReconRoomData(this.targetRoomName);
+      }
+      this.targetRoomName = undefined;
+    } else if (Game.time - this.targetRoomInitialTick > 1500) {
+      if (this.targetRoomName) {
+        console.log(`scout ${figment.name} unable to reach ${this.targetRoomName} in less than 1500 ticks`);
       }
       this.targetRoomName = undefined;
     }
