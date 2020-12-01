@@ -158,7 +158,10 @@ export class Spatial {
           const roomType = getRoomType(neighborRoomName);
           if (roomType !== RoomType.ROOM_STANDARD) {
             this.cortex.memory.rooms[neighborRoomName] = getReconRoomData(neighborRoomName);
-          } else if (!this.reconRoomNames.includes(neighborRoomName)) {
+          } else if (
+            !this.reconRoomNames.includes(neighborRoomName) &&
+            Game.map.getRoomStatus(neighborRoomName).status !== "closed"
+          ) {
             this.reconRoomNames.push(neighborRoomName);
           }
         }
