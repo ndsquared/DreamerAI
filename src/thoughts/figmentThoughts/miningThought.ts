@@ -91,6 +91,7 @@ export class MiningThought extends FigmentThought {
     }
 
     // TODO: could also calculate TTL and length of path to optimize replacements
+    // TODO: Check if mineral has minerals in it
     if (this.extractor) {
       return this.figments[figmentType].length < 1;
     }
