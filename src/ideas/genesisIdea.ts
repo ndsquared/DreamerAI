@@ -226,9 +226,12 @@ export class GenesisIdea extends Idea {
           break;
         }
         case FigmentThoughtType.WORKER:
-          if (constructionSites || repairTargets) {
-            if (count < this.cortex.getNeighborhoodRoomNames(this.roomName).length) {
-              figmentNeeded = true;
+          {
+            const minNeeded = _.min([5, this.cortex.getNeighborhoodRoomNames(this.roomName).length]);
+            if (constructionSites || repairTargets) {
+              if (count < minNeeded) {
+                figmentNeeded = true;
+              }
             }
           }
           break;
