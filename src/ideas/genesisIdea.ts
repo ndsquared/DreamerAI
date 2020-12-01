@@ -232,6 +232,14 @@ export class GenesisIdea extends Idea {
             }
           }
           break;
+        case FigmentThoughtType.UPGRADE:
+          {
+            const minNeeded = _.max([1, this.neighborhood.sources.length / 3]);
+            if (count <= minNeeded) {
+              figmentNeeded = true;
+            }
+          }
+          break;
         default:
           figmentNeeded = thought.figmentNeeded(figmentType);
           break;
