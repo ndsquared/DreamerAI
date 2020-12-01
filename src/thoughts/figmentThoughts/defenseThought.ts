@@ -16,13 +16,14 @@ export class DefenseThought extends FigmentThought {
     if (!room) {
       return false;
     }
-    const enemyTarget = this.idea.cortex.getNextEnemyTarget(room.name);
+    // const enemyTarget = this.idea.cortex.getNextEnemyTarget(room.name);
     const healTarget = this.idea.cortex.getNextHealTarget(room.name);
-    if (enemyTarget) {
-      console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
-      figment.addNeuron(NeuronType.RANGED_ATTACK, enemyTarget.id, enemyTarget.pos);
-      figment.memory.inCombat = true;
-    } else if (healTarget) {
+    // if (enemyTarget) {
+    //   console.log(`attacking pos ${enemyTarget.pos.toString()} with id ${enemyTarget.id}`);
+    //   figment.addNeuron(NeuronType.RANGED_ATTACK, enemyTarget.id, enemyTarget.pos);
+    //   figment.memory.inCombat = true;
+    // } else if (healTarget) {
+    if (healTarget) {
       figment.addNeuron(NeuronType.RANGED_HEAL, healTarget.id, healTarget.pos);
       figment.memory.inCombat = true;
     } else {
@@ -42,10 +43,10 @@ export class DefenseThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    if (this.idea.rcl < 3) {
-      return false;
-    }
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(RANGED_ATTACK));
-    return totalParts < 1;
+    // if (this.idea.rcl < 4) {
+    //   return false;
+    // }
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(HEAL));
+    return totalParts < 2;
   }
 }

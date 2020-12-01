@@ -147,7 +147,7 @@ export class GenesisIdea extends Idea {
           this.figmentPrefs[figmentType].priority = 11;
           break;
         case FigmentThoughtType.TRANSFER:
-          this.figmentPrefs[figmentType].priority = 8;
+          this.figmentPrefs[figmentType].priority = 14;
           break;
         case FigmentThoughtType.TOWER_FILLER:
           this.figmentPrefs[figmentType].priority = 7;

@@ -15,9 +15,9 @@ const attackFigmentSpec = {
 };
 
 const defenseBodySpec = {
-  bodyParts: [TOUGH, RANGED_ATTACK, HEAL],
-  ratio: [1, 1, 1],
-  minParts: 6,
+  bodyParts: [TOUGH, HEAL],
+  ratio: [1, 1],
+  minParts: 4,
   maxParts: 40,
   ignoreCarry: false,
   roadTravel: false
