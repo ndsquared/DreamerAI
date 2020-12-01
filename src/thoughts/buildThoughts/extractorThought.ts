@@ -13,6 +13,9 @@ export class ExtractorThought extends BuildThought {
     if (!room) {
       return;
     }
+    if (this.idea.baseRoomObjects.extractors.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTRACTOR][this.idea.rcl]) {
+      return;
+    }
     const mineralPositions = _.map(this.idea.baseRoomObjects.minerals, m => m.pos);
     creationIdea.addBuilds(mineralPositions, STRUCTURE_EXTRACTOR, 5, true, false);
   }
