@@ -41,7 +41,7 @@ export class AttackThought extends FigmentThought {
     if (this.idea.rcl < 3) {
       return false;
     }
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(RANGED_ATTACK));
-    return totalParts < 1;
+    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(ATTACK));
+    return totalParts < 2;
   }
 }
