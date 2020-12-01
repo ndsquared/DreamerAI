@@ -83,7 +83,7 @@ export class Cerebellum implements Temporal {
       room.controller.level !== 1 ||
       room.controller.progress ||
       !room.controller.safeMode ||
-      room.controller.safeMode <= SAFE_MODE_DURATION - 1000
+      room.controller.safeMode <= SAFE_MODE_DURATION - 1
     ) {
       return false;
     }
