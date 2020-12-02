@@ -6,7 +6,7 @@ import profiler from "screeps-profiler";
 // profiler.enable();
 global.i = new Imagination();
 global.resetMemory = false;
-global.minSourceDist = 120;
+global.minSourceDist = 150;
 
 function mainLoop() {
   global.i.imagine();

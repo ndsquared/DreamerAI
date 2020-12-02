@@ -13,7 +13,9 @@ export class StorageThought extends BuildThought {
     if (!room) {
       return;
     }
-    if (this.idea.baseRoomObjects.storage ? 1 : 0 >= CONTROLLER_STRUCTURES[STRUCTURE_STORAGE][this.idea.rcl]) {
+    const storageCount = this.idea.baseRoomObjects.storage ? 1 : 0;
+    const rclStorageThreshold = CONTROLLER_STRUCTURES[STRUCTURE_STORAGE][this.idea.rcl];
+    if (storageCount >= rclStorageThreshold) {
       return;
     }
     const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
@@ -21,7 +23,7 @@ export class StorageThought extends BuildThought {
 
     if (pivotPos) {
       const storagePositions: RoomPosition[] = this.getPositionsStandard(pivotPos);
-      creationIdea.addBuilds(storagePositions, STRUCTURE_STORAGE, 2, true, false);
+      creationIdea.addBuilds(storagePositions, STRUCTURE_STORAGE, 1, true, false);
     }
   }
 }
