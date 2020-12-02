@@ -31,7 +31,7 @@ export class RoadThought extends BuildThought {
     for (const containers of Object.values(this.idea.neighborhood.sourceContainers)) {
       for (const container of containers) {
         const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), container.pos);
-        if (pf.cost > 90) {
+        if (pf.cost > global.minSourceDist) {
           continue;
         }
         this.buildRoadToPosition(creationIdea, baseOriginPos, container.pos, false);

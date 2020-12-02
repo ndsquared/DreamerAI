@@ -11,12 +11,13 @@ export class HarvestThought extends FigmentThought {
   private containerId: Id<StructureContainer> | undefined = undefined;
   private linkId: Id<StructureLink> | undefined = undefined;
   private withinMinDist = true;
+  private pf: PathFinderPath;
   public constructor(idea: Idea, type: FigmentThoughtType, source: Source) {
     super(idea, type, source.id);
     this.sourceId = source.id;
     this.sourcePos = source.pos;
-    const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
-    if (pf.cost > 100) {
+    this.pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
+    if (this.pf.cost > global.minSourceDist) {
       this.withinMinDist = false;
       console.log(`Source, ${this.sourceId}, is to far from room, ${this.idea.roomName}, to harvest`);
     }
@@ -44,6 +45,17 @@ export class HarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
+    if (this.source) {
+      const rv = new RoomVisual(this.source.room.name);
+      rv.text(this.pf.cost.toString(), this.source.pos);
+    }
+    if (!this.withinMinDist && Game.time % 100 === 0) {
+      const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
+      if (pf.cost <= global.minSourceDist) {
+        this.withinMinDist = true;
+        console.log(`Source, ${this.sourceId}, is close to room, ${this.idea.roomName}, to harvest`);
+      }
+    }
     if (!this.containerId) {
       if (this.idea.neighborhood.sourceContainers[this.sourceId]?.length > 0) {
         this.containerId = this.idea.neighborhood.sourceContainers[this.sourceId][0].id;

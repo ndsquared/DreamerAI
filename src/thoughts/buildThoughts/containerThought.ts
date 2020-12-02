@@ -46,7 +46,7 @@ export class ContainerThought extends BuildThought {
     for (const source of this.idea.neighborhood.sources) {
       if (this.idea.neighborhood.sourceContainers[source.id].length === 0) {
         const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), source.pos);
-        if (pf.cost > 100) {
+        if (pf.cost > global.minSourceDist) {
           continue;
         }
         const buildPositions = source.pos.availableAdjacentBuilds();
