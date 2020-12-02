@@ -13,7 +13,7 @@ export class StorageThought extends BuildThought {
     if (!room) {
       return;
     }
-    if (room.storage) {
+    if (this.idea.baseRoomObjects.storage ? 1 : 0 >= CONTROLLER_STRUCTURES[STRUCTURE_STORAGE][this.idea.rcl]) {
       return;
     }
     const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);

@@ -13,7 +13,7 @@ export class TerminalThought extends BuildThought {
     if (!room) {
       return;
     }
-    if (room.terminal) {
+    if (this.idea.baseRoomObjects.terminal ? 1 : 0 >= CONTROLLER_STRUCTURES[STRUCTURE_TERMINAL][this.idea.rcl]) {
       return;
     }
     const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
