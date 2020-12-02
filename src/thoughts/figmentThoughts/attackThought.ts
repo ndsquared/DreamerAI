@@ -38,9 +38,9 @@ export class AttackThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    // if (this.idea.rcl < 3) {
-    //   return false;
-    // }
+    if (this.idea.rcl < 2) {
+      return false;
+    }
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(ATTACK));
     return totalParts < 5;
   }

@@ -114,10 +114,16 @@ export class Hippocampus implements Temporal {
         if (!baseRoomName) {
           continue;
         }
-        this.cortex.metabolism.enemyQueue[baseRoomName].queue({
-          enemyObject: creep,
-          priority: creep.hits
-        });
+        const room = Game.rooms[roomName];
+        if (this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName] === baseRoomName) {
+          if (room && room.controller && !room.controller.my && room.controller.safeMode) {
+            continue;
+          }
+          this.cortex.metabolism.enemyQueue[baseRoomName].queue({
+            enemyObject: creep,
+            priority: creep.hits
+          });
+        }
         if (creep.getActiveBodyparts(ATTACK) > 2 || creep.getActiveBodyparts(RANGED_ATTACK) > 2 || creep.hits < 1500) {
           this.baseRoomObjects[baseRoomName].towerEnemies.push(creep);
         }

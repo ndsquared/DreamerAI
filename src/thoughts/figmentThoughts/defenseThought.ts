@@ -43,9 +43,9 @@ export class DefenseThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    // if (this.idea.rcl < 4) {
-    //   return false;
-    // }
+    if (this.idea.baseRoomObjects.extensions.length < 5) {
+      return false;
+    }
     const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(HEAL));
     return totalParts < 2;
   }

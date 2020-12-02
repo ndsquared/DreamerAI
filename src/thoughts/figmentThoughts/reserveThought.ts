@@ -25,7 +25,7 @@ export class ReserveThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    if (this.idea.rcl < 3) {
+    if (this.idea.baseRoomObjects.extensions.length < 10) {
       return false;
     }
     if (
