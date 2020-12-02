@@ -22,6 +22,7 @@ interface HippocampusRoomObjects {
   resources: Resource[];
   sources: Source[];
   minerals: Mineral[];
+  scoreContainers: any[];
   containers: StructureContainer[];
   links: StructureLink[];
   enemyCreeps: Creep[];
@@ -82,6 +83,7 @@ interface NeighborhoodObjects {
   sourceContainers: { [name: string]: StructureContainer[] };
   energyWithdrawStructures: Structure[];
   neighborhoodCreeps: Creep[];
+  scoreContainers: RoomObject[];
 }
 
 interface BaseRoomObjects {

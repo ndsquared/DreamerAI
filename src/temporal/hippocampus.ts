@@ -36,7 +36,8 @@ export class Hippocampus implements Temporal {
               sources: [],
               sourceContainers: {},
               energyWithdrawStructures: [],
-              neighborhoodCreeps: []
+              neighborhoodCreeps: [],
+              scoreContainers: []
             };
           }
           if (!this.baseRoomObjects[baseRoomName]) {
@@ -75,6 +76,7 @@ export class Hippocampus implements Temporal {
       resources: room.find(FIND_DROPPED_RESOURCES),
       sources: room.find(FIND_SOURCES),
       minerals: room.find(FIND_MINERALS),
+      scoreContainers: room.find(10011 as FindConstant),
       containers: [],
       links: [],
       enemyCreeps: [],
@@ -92,6 +94,8 @@ export class Hippocampus implements Temporal {
     this.processMinerals(roomName, baseRoomName);
     // Process special cases
     this.processSpecial(roomName, baseRoomName);
+    // Process season 1
+    this.processScore(roomName, baseRoomName);
   }
 
   private processCreeps(roomName: string, baseRoomName: string): void {
@@ -289,6 +293,16 @@ export class Hippocampus implements Temporal {
         this.cortex.metabolism.addOutput(baseRoomName, extractorContainer, extractorContainer.store.getUsedCapacity());
       }
       this.baseRoomObjects[baseRoomName].extractorContainers[extractor.id] = extractorContainers;
+    }
+  }
+
+  private processScore(roomName: string, baseRoomName: string): void {
+    if (!baseRoomName || !this.baseRoomObjects[baseRoomName].storage) {
+      return;
+    }
+    for (const scoreContainer of this.roomObjects[roomName].scoreContainers as StoreStructure[]) {
+      this.cortex.metabolism.addOutput(baseRoomName, scoreContainer, scoreContainer.store.getUsedCapacity());
+      console.log(`found score container at: ${scoreContainer.pos.toString()}`);
     }
   }
 }
