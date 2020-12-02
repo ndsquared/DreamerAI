@@ -61,7 +61,8 @@ export function PathFindWithRoad(originPos: RoomPosition, dstPos: RoomPosition):
     {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: callback
+      roomCallback: callback,
+      maxOps: 5000
     }
   );
   return pathFind;

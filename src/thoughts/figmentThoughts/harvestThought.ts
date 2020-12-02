@@ -4,6 +4,7 @@ import { FigmentThoughtType } from "../thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
 import { PathFindWithRoad } from "utils/misc";
+import { getColor } from "utils/colors";
 
 export class HarvestThought extends FigmentThought {
   private sourceId: Id<Source>;
@@ -45,9 +46,16 @@ export class HarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
-    if (this.source && !this.pf.incomplete) {
+    if (this.source) {
       const rv = new RoomVisual(this.source.room.name);
-      rv.text(this.pf.cost.toString(), this.source.pos);
+      if (this.pf.incomplete) {
+        rv.text(this.pf.cost.toString(), this.source.pos, { color: getColor("red") });
+        const lastPos = this.pf.path[this.pf.path.length - 1];
+        rv.circle(lastPos);
+        rv.text(this.pf.ops.toString(), lastPos);
+      } else {
+        rv.text(this.pf.cost.toString(), this.source.pos, { color: getColor("green") });
+      }
     }
     if (!this.withinMinDist && Game.time % 100 === 0) {
       this.pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);

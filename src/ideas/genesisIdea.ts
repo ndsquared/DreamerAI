@@ -198,7 +198,7 @@ export class GenesisIdea extends Idea {
           }
           break;
         case FigmentThoughtType.RESERVE:
-          this.figmentPrefs[figmentType].priority = 1;
+          this.figmentPrefs[figmentType].priority = 7;
           break;
         default:
           console.log(`hitting default for set queue priorities`);
