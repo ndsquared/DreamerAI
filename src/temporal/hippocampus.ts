@@ -95,6 +95,7 @@ export class Hippocampus implements Temporal {
   }
 
   private processCreeps(roomName: string, baseRoomName: string): void {
+    const neighborhoodBaseRoomName = this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName];
     for (const creep of this.roomObjects[roomName].creeps) {
       if (creep.my) {
         this.territory.myCreeps.push(creep);
@@ -102,11 +103,14 @@ export class Hippocampus implements Temporal {
           continue;
         }
         this.neighborhood[baseRoomName].neighborhoodCreeps.push(creep);
-        if (creep.hits < creep.hitsMax) {
-          this.cortex.metabolism.healQueue[baseRoomName].queue({
-            figment: creep,
-            priority: creep.hits
-          });
+        if (neighborhoodBaseRoomName === baseRoomName) {
+          if (creep.hits < creep.hitsMax) {
+            console.log(`add creep to heal queue in ${roomName} with neighhorhoodBaseRoom ${neighborhoodBaseRoomName}`);
+            this.cortex.metabolism.healQueue[baseRoomName].queue({
+              figment: creep,
+              priority: creep.hits
+            });
+          }
         }
       } else {
         this.territory.enemyCreeps.push(creep);
@@ -115,10 +119,11 @@ export class Hippocampus implements Temporal {
           continue;
         }
         const room = Game.rooms[roomName];
-        if (this.cortex.memory.imagination.neighborhoods.roomsInNeighborhoods[roomName] === baseRoomName) {
+        if (neighborhoodBaseRoomName === baseRoomName) {
           if (room && room.controller && !room.controller.my && room.controller.safeMode) {
             continue;
           }
+          console.log(`add creep to enemy queue in ${roomName} with neighhorhoodBaseRoom ${neighborhoodBaseRoomName}`);
           this.cortex.metabolism.enemyQueue[baseRoomName].queue({
             enemyObject: creep,
             priority: creep.hits

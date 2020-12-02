@@ -34,22 +34,22 @@ export class TowerThought extends BuildThought {
   }
 
   private runTower(tower: StructureTower) {
-    // TODO: Should towers heal creeps??
+    // TODO: Should make actions more robust and check distance
     const enemy = _.first(
       _.sortBy(this.idea.baseRoomObjects.towerEnemies, e => PathFindWithRoad(tower.pos, e.pos).cost)
     );
-    if (enemy) {
+    if (enemy && enemy.room.name === tower.room.name) {
       tower.attack(enemy);
     } else {
       const healTarget = this.idea.cortex.getNextHealTarget(tower.room.name);
-      if (healTarget) {
+      if (healTarget && healTarget.room.name === tower.room.name) {
         tower.heal(healTarget);
       } else {
         if (this.idea.cortex.metabolism.inEcoMode(this.idea.roomName)) {
           return;
         }
         const repairTarget = this.idea.cortex.getNextRepairTarget(tower.room.name);
-        if (repairTarget) {
+        if (repairTarget && repairTarget.room.name === tower.room.name) {
           tower.repair(repairTarget);
         }
       }
