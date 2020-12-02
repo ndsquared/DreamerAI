@@ -34,8 +34,15 @@ export class ReserveThought extends FigmentThought {
     ) {
       return false;
     }
+    const room = Game.rooms[this.instance];
     // TODO: Set parts lower when controller is above reserve threshold
-    const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CLAIM));
-    return totalParts < 2;
+    if (room && room.controller) {
+      const totalParts = _.sum(this.figments[figmentType], f => f.getActiveBodyparts(CLAIM));
+      const availablePos = room.controller.pos.availableAdjacentPositions(true);
+      if (totalParts < 2 && this.figments[figmentType].length < availablePos.length) {
+        return true;
+      }
+    }
+    return false;
   }
 }
