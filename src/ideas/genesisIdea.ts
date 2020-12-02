@@ -182,13 +182,16 @@ export class GenesisIdea extends Idea {
         case FigmentThoughtType.DEFENSE:
           this.figmentPrefs[figmentType].priority = 1;
           if (enemies > 0) {
-            this.figmentPrefs[figmentType].priority = 15;
+            this.figmentPrefs[figmentType].priority = 8;
+          }
+          if (this.cortex.metabolism.inEcoMode(this.roomName)) {
+            this.figmentPrefs[figmentType].priority = 0;
           }
           break;
         case FigmentThoughtType.ATTACK:
           this.figmentPrefs[figmentType].priority = 1;
           if (enemies > 0) {
-            this.figmentPrefs[figmentType].priority = 14;
+            this.figmentPrefs[figmentType].priority = 7;
           }
           if (this.cortex.metabolism.inEcoMode(this.roomName)) {
             this.figmentPrefs[figmentType].priority = 0;
