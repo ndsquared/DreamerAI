@@ -27,7 +27,7 @@ export class RampartThought extends BuildThought {
     const controller = room.controller;
     if (controller) {
       const controllerNeighbors = controller.pos.availableAdjacentPositions(true);
-      creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, true, false, false);
+      creationIdea.addBuilds(controllerNeighbors, STRUCTURE_RAMPART, 4, false, false, false);
     }
 
     // Protect containers

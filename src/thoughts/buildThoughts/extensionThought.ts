@@ -15,7 +15,6 @@ export class ExtensionThought extends BuildThought {
     }
     const baseOriginPos = this.idea.cortex.getBaseOriginPos(room.name);
     if (this.idea.baseRoomObjects.extensions.length >= CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][this.idea.rcl]) {
-      // console.log("At max extensions for RCL");
       return;
     }
     const extensionDeltas: Coord[] = this.standardDeltas();

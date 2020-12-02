@@ -39,6 +39,7 @@ export class CreationIdea extends Idea {
     }
   }
 
+  // TODO: Build queue should be cleared on RCL level up
   public ponder(): void {
     if (this.cortex.metabolism.buildQueue[this.roomName].length === 0) {
       if (Game.time % this.rateLimitBuildInterval === 0) {
