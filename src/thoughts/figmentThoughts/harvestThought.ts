@@ -17,7 +17,7 @@ export class HarvestThought extends FigmentThought {
     this.sourceId = source.id;
     this.sourcePos = source.pos;
     this.pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
-    if (this.pf.cost > global.minSourceDist) {
+    if (this.pf.cost > global.minSourceDist || this.pf.incomplete) {
       this.withinMinDist = false;
       console.log(`Source, ${this.sourceId}, is to far from room, ${this.idea.roomName}, to harvest`);
     }
@@ -45,13 +45,13 @@ export class HarvestThought extends FigmentThought {
   }
 
   public ponder(): void {
-    if (this.source) {
+    if (this.source && !this.pf.incomplete) {
       const rv = new RoomVisual(this.source.room.name);
       rv.text(this.pf.cost.toString(), this.source.pos);
     }
     if (!this.withinMinDist && Game.time % 100 === 0) {
-      const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
-      if (pf.cost <= global.minSourceDist) {
+      this.pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
+      if (!this.pf.incomplete && this.pf.cost <= global.minSourceDist) {
         this.withinMinDist = true;
         console.log(`Source, ${this.sourceId}, is close to room, ${this.idea.roomName}, to harvest`);
       }

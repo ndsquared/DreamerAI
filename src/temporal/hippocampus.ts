@@ -105,7 +105,7 @@ export class Hippocampus implements Temporal {
         this.neighborhood[baseRoomName].neighborhoodCreeps.push(creep);
         if (neighborhoodBaseRoomName === baseRoomName) {
           if (creep.hits < creep.hitsMax) {
-            console.log(`add creep to heal queue in ${roomName} with neighhorhoodBaseRoom ${neighborhoodBaseRoomName}`);
+            // console.log(`add creep to heal queue in ${roomName} with neighhorhoodBaseRoom ${neighborhoodBaseRoomName}`);
             this.cortex.metabolism.healQueue[baseRoomName].queue({
               figment: creep,
               priority: creep.hits
@@ -123,7 +123,7 @@ export class Hippocampus implements Temporal {
           if (room && room.controller && !room.controller.my && room.controller.safeMode) {
             continue;
           }
-          console.log(`add creep to enemy queue in ${roomName} with neighhorhoodBaseRoom ${neighborhoodBaseRoomName}`);
+          // console.log(`add creep to enemy queue in ${roomName} with neighhorhoodBaseRoom ${neighborhoodBaseRoomName}`);
           this.cortex.metabolism.enemyQueue[baseRoomName].queue({
             enemyObject: creep,
             priority: creep.hits
