@@ -3,11 +3,16 @@ import { FigmentThought } from "./figmentThought";
 import { FigmentThoughtType } from "../thought";
 import { Idea } from "ideas/idea";
 import { NeuronType } from "neurons/neurons";
+import { Traveler } from "utils/traveler";
 
 export class ReserveThought extends FigmentThought {
+  private withinMinDist = false;
   public constructor(idea: Idea, type: FigmentThoughtType, instance: string) {
     super(idea, type, instance);
     this.figments[FigmentThoughtType.RESERVE] = [];
+    if (Traveler.routeDistance(this.idea.roomName, this.instance) === 2) {
+      this.withinMinDist = true;
+    }
   }
 
   public handleFigment(figment: Figment): boolean {
@@ -25,13 +30,7 @@ export class ReserveThought extends FigmentThought {
   }
 
   public figmentNeeded(figmentType: string): boolean {
-    if (this.idea.baseRoomObjects.extensions.length < 10) {
-      return false;
-    }
-    if (
-      !this.idea.cortex.hippocampus.roomObjects[this.instance] ||
-      this.idea.cortex.hippocampus.roomObjects[this.instance].containers.length === 0
-    ) {
+    if (this.idea.baseRoomObjects.extensions.length < 10 || !this.withinMinDist) {
       return false;
     }
     const room = Game.rooms[this.instance];
