@@ -300,9 +300,9 @@ export class Hippocampus implements Temporal {
     if (!baseRoomName || !this.baseRoomObjects[baseRoomName].storage) {
       return;
     }
-    for (const scoreContainer of this.roomObjects[roomName].scoreContainers as StoreStructure[]) {
-      // this.cortex.metabolism.addOutput(baseRoomName, scoreContainer, scoreContainer.store.getUsedCapacity());
-      console.log(`found score container at: ${scoreContainer.pos.toString()}`);
-    }
+    // for (const scoreContainer of this.roomObjects[roomName].scoreContainers as StoreStructure[]) {
+    // this.cortex.metabolism.addOutput(baseRoomName, scoreContainer, scoreContainer.store.getUsedCapacity());
+    // console.log(`found score container at: ${scoreContainer.pos.toString()}`);
+    // }
   }
 }
