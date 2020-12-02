@@ -16,7 +16,7 @@ export class HarvestThought extends FigmentThought {
     this.sourceId = source.id;
     this.sourcePos = source.pos;
     const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), this.sourcePos);
-    if (pf.cost > 150) {
+    if (pf.cost > 100) {
       this.withinMinDist = false;
       console.log(`Source, ${this.sourceId}, is to far from room, ${this.idea.roomName}, to harvest`);
     }

@@ -45,6 +45,10 @@ export class ContainerThought extends BuildThought {
     // Build container next to all the sources in the neighborhood
     for (const source of this.idea.neighborhood.sources) {
       if (this.idea.neighborhood.sourceContainers[source.id].length === 0) {
+        const pf = PathFindWithRoad(this.idea.cortex.getBaseOriginPos(this.idea.roomName), source.pos);
+        if (pf.cost > 100) {
+          continue;
+        }
         const buildPositions = source.pos.availableAdjacentBuilds();
         const priority = PathFindWithRoad(baseOriginPos, source.pos).cost;
         creationIdea.addBuilds(buildPositions, STRUCTURE_CONTAINER, priority, true, false);
